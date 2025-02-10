@@ -6,10 +6,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.GenericGenerator;
 import org.hibernate.annotations.UuidGenerator;
 
-import javax.management.relation.Role;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -24,7 +23,7 @@ public class Account {
 
     @Id
     @UuidGenerator
-    @Column(name = "Accountid", updatable = false, nullable = false)
+    @Column(name = "accountid", updatable = false, nullable = false)
     private UUID id;
 
     @Column(nullable = false, unique = true)
@@ -33,23 +32,31 @@ public class Account {
     private String name;
     private String address;
     private String phone;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private AccountEnums status;
 
-    @Column(name = "Dateofbirth")
+    @Column(name = "dateofbirth")
     private LocalDate dateOfBirth;
 
-    @Column(name = "Createdat", updatable = false)
+    @Column(name = "createdat", updatable = false)
     private LocalDateTime createdAt;
 
-    @Column(name = "Updatedat")
+    @Column(name = "updatedat")
     private LocalDateTime updatedAt;
 
-    private boolean isDeleted;
+    private boolean isdeleted;
     @ManyToOne
     @JoinColumn(name = "roleid", nullable = false)  // Foreign key in the User table
     private Roles role;
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     private Set<Feedback> feedbacks;
+    @OneToMany(mappedBy = "account",cascade = CascadeType.ALL)
+    private Set<Designs> designs;
+    @OneToMany(mappedBy = "account",cascade = CascadeType.ALL)
+    private Set<Tshirts> tshirts;
+    @OneToMany(mappedBy = "account",cascade = CascadeType.ALL)
+    private Set<Orders> orders;
     @PrePersist
     protected void onCreate() {
 

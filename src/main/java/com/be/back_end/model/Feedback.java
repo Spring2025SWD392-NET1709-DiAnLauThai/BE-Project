@@ -18,7 +18,7 @@ import java.util.UUID;
 public class Feedback {
     @Id
     @UuidGenerator
-    @Column(name = "Feedbackid", updatable = false, nullable = false)
+    @Column(name = "feedbackid", updatable = false, nullable = false)
     private UUID id;
     @Column(name="type")
     private String type;
@@ -26,10 +26,10 @@ public class Feedback {
     private int rating;
     @Column(name="detail")
     private String detail;
-    @Column(name = "Createddate", updatable = false)
+    @Column(name = "createddate", updatable = false)
     private LocalDateTime Createddate;
     @ManyToOne
-    @JoinColumn(name="userid",nullable = false)
+    @JoinColumn(name="accountid",nullable = false)
     private Account user;
     @PrePersist
     protected void onCreate() {

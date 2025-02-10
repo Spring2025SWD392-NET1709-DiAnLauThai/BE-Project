@@ -1,13 +1,15 @@
-/*package com.be.back_end.model;
+package com.be.back_end.model;
 
 
 import com.be.back_end.enums.TshirtsEnums;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -18,16 +20,51 @@ import java.util.UUID;
 
 public class Tshirts {
 
+    @Id
+    @UuidGenerator
+    @Column(name="tshirtid",updatable = false, nullable = false)
     private UUID id;
 
+    @Column(name="tshirtname")
     private String name;
 
+    @Column(name="tshirtdescription")
     private String description;
 
+    @Enumerated(EnumType.STRING)
     private TshirtsEnums status;
 
-    private String name;
+    @Column(name="imageurl")
+    private String image_url;
 
-    private int quantity
+    @OneToMany(mappedBy = "tshirt", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<TshirtDesign> tshirtDesigns;
 
-}*/
+    @OneToMany(mappedBy = "tshirt", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<TShirtSize> tShirtSizes;
+
+    @OneToMany(mappedBy = "tshirt", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<TShirtColor> tShirtColors;
+
+    @OneToMany(mappedBy = "tshirt", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<TShirtMaterial> tshirtMaterials;
+
+    private int quantity;
+
+    @Column(name="createdat")
+    private LocalDateTime created_at;
+
+    @OneToMany(mappedBy = "tshirt",cascade = CascadeType.ALL)
+    private Set<Orderitems> orderitems;
+
+    @ManyToOne
+    @JoinColumn(name="accountid",nullable = false)
+    private Account account;
+    @PrePersist
+    protected  void OnCreate(){
+        created_at=LocalDateTime.now();
+    }
+
+
+
+}
