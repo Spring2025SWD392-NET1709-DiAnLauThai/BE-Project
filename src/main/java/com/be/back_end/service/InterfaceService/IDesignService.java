@@ -9,6 +9,6 @@ public interface IDesignService {
     List<Designs> getAll();
     Designs getById(int id);
     List<Designs> getByName(String name);
-    Designs save(Designs tshirts);
+    Designs save(Designs design);
     void removeById(int id);
 }

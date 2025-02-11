@@ -8,6 +8,6 @@ public interface ITshirtService {
     List<Tshirts> getAll();
     Tshirts getById(int id);
     List<Tshirts> getByName(String name);
-    Tshirts save(Tshirts tshirts);
+    Tshirts save(Tshirts tshirt);
     void removeById(int id);
 }

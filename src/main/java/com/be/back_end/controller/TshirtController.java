@@ -3,6 +3,8 @@ package com.be.back_end.controller;
 import com.be.back_end.Exception.BadRequestException;
 import com.be.back_end.model.Tshirts;
 import com.be.back_end.service.ImplementService.TshirtService;
+import com.be.back_end.service.InterfaceService.ITshirtService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -11,8 +13,9 @@ import java.util.List;
 @RequestMapping("/api/tshirt")
 public class TshirtController {
 
-    private final TshirtService tshirtService;
+    private final ITshirtService tshirtService;
 
+    @Autowired
     public TshirtController(TshirtService tshirtService) {
         this.tshirtService = tshirtService;
     }
