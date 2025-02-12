@@ -1,6 +1,6 @@
 package com.be.back_end.service.ImplementService;
 
-import com.be.back_end.model.Tshirts;
+
 import com.be.back_end.repository.TshirtRepository;
 import com.be.back_end.service.InterfaceService.ITshirtService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +18,7 @@ public class TshirtService implements ITshirtService {
         this.tshirtRepository = tshirtRepository;
     }
 
-    @Override
+    /*@Override
     public List<Tshirts> getAll() {
         return List.of();
     }
@@ -42,4 +42,6 @@ public class TshirtService implements ITshirtService {
     public void removeById(int id) {
 
     }
+    */
+
 }

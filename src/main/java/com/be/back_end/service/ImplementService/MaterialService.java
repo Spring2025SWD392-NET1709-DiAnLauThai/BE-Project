@@ -1,6 +1,6 @@
 package com.be.back_end.service.ImplementService;
 
-import com.be.back_end.model.Materials;
+
 import com.be.back_end.repository.MaterialRepository;
 import com.be.back_end.service.InterfaceService.IMaterialService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ public class MaterialService implements IMaterialService {
     public MaterialService(MaterialRepository materialRepository) {
         this.materialRepository = materialRepository;
     }
-
+    /*
     @Override
     public List<Materials> getAll() {
         return List.of();
@@ -40,4 +40,6 @@ public class MaterialService implements IMaterialService {
     public void removeById(int id) {
 
     }
+
+     */
 }

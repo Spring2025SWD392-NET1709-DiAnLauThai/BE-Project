@@ -1,7 +1,6 @@
 package com.be.back_end.controller;
 
 import com.be.back_end.Exception.BadRequestException;
-import com.be.back_end.model.Tshirts;
 import com.be.back_end.service.ImplementService.TshirtService;
 import com.be.back_end.service.InterfaceService.ITshirtService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,24 +19,24 @@ public class TshirtController {
         this.tshirtService = tshirtService;
     }
 
-    @GetMapping()
-    public List<Tshirts> getAll(){
+    /*@GetMapping()
+    public List<String> getAll(){
         return tshirtService.getAll();
     }
 
     @GetMapping("/{tshirtID}")
-    public Tshirts getById(@PathVariable int id){
+    public String getById(@PathVariable int id){
         return tshirtService.getById(id);
     }
 
     @PostMapping("")
-    public Tshirts add(@RequestBody Tshirts tshirt){
+    public String add(@RequestBody Tshirts tshirt){
         tshirt.setId(0);
         return  tshirtService.save(tshirt);
     }
 
     @PutMapping("")
-    public Tshirts update(@RequestBody Tshirts tshirt){
+    public String update(@RequestBody Tshirts tshirt){
         return  tshirtService.save(tshirt);
     }
 
@@ -50,4 +49,6 @@ public class TshirtController {
         tshirtService.removeById(id);
         return "Country "+id+" deleted!!";
     }
+    */
+
 }

@@ -1,6 +1,6 @@
 package com.be.back_end.service.ImplementService;
 
-import com.be.back_end.model.Designs;
+
 import com.be.back_end.repository.DesignRepository;
 import com.be.back_end.service.InterfaceService.IDesignService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +15,7 @@ public class DesignService implements IDesignService {
     public DesignService(DesignRepository designsRepository) {
         this.designsRepository = designsRepository;
     }
-    
+    /*
     @Override
     public List<Designs> getAll() {
         return List.of();
@@ -40,4 +40,6 @@ public class DesignService implements IDesignService {
     public void removeById(int id) {
 
     }
+
+     */
 }
