@@ -21,9 +21,8 @@ import java.util.UUID;
 public class Tshirts {
 
     @Id
-    @UuidGenerator
-    @Column(name="tshirtid",updatable = false, nullable = false)
-    private UUID id;
+    @Column(name="tshirtid",updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    private String id;
 
     @Column(name="tshirtname")
     private String name;
@@ -62,6 +61,9 @@ public class Tshirts {
     private Account account;
     @PrePersist
     protected  void OnCreate(){
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
         created_at=LocalDateTime.now();
     }
 

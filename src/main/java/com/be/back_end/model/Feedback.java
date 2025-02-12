@@ -17,9 +17,8 @@ import java.util.UUID;
 @Table(name = "Feedback")
 public class Feedback {
     @Id
-    @UuidGenerator
-    @Column(name = "feedbackid", updatable = false, nullable = false)
-    private UUID id;
+    @Column(name = "feedbackid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    private String id;
     @Column(name="type")
     private String type;
     @Column(name="rating")
@@ -33,7 +32,9 @@ public class Feedback {
     private Account user;
     @PrePersist
     protected void onCreate() {
-
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
         Createddate = LocalDateTime.now();
 
     }

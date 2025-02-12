@@ -16,9 +16,8 @@ import java.util.UUID;
 public class TShirtColor {
 
     @Id
-    @UuidGenerator
-    @Column(name = "id", updatable = false, nullable = false)
-    private UUID id;
+    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    private String id;
 
     @ManyToOne
     @JoinColumn(name = "tshirt_id", nullable = false)
@@ -27,4 +26,10 @@ public class TShirtColor {
     @ManyToOne
     @JoinColumn(name = "color_id", nullable = false)
     private Color color;
+    @PrePersist
+    protected void onCreate() {
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
+    }
 }

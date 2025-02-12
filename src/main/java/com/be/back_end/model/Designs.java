@@ -22,9 +22,8 @@ import java.util.UUID;
 public class Designs {
 
     @Id
-    @UuidGenerator
-    @Column(name="designid", updatable = false, nullable = false)
-    private UUID id;
+    @Column(name="designid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    private String id;
 
     @Column(name="uploaddate",updatable = false)
     private LocalDateTime upload_date;
@@ -48,7 +47,9 @@ public class Designs {
 
     @PrePersist
     protected void onCreate() {
-
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
         upload_date = LocalDateTime.now();
 
     }

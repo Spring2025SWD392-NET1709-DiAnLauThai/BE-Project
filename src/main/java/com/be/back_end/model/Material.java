@@ -19,9 +19,8 @@ import java.util.UUID;
 public class Material {
 
     @Id
-    @UuidGenerator
-    @Column(name="materialid",nullable = false)
-    private UUID id;
+    @Column(name="materialid",updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    private String id;
 
     private String name;
 
@@ -31,4 +30,10 @@ public class Material {
 
     @OneToMany(mappedBy = "material", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TShirtMaterial> tshirtMaterials;
+    @PrePersist
+    protected void onCreate() {
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
+    }
 }

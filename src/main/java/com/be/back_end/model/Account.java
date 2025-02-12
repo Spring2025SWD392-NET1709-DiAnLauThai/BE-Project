@@ -2,6 +2,7 @@ package com.be.back_end.model;
 
 
 import com.be.back_end.enums.AccountEnums;
+import com.be.back_end.enums.RoleEnums;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,9 +23,9 @@ import java.util.UUID;
 public class Account {
 
     @Id
-    @UuidGenerator
-    @Column(name = "accountid", updatable = false, nullable = false)
-    private UUID id;
+
+    @Column(name = "accountid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    private String id;
 
     @Column(nullable = false, unique = true)
     private String email;
@@ -46,9 +47,9 @@ public class Account {
     private LocalDateTime updatedAt;
 
     private boolean isdeleted;
-    @ManyToOne
-    @JoinColumn(name = "roleid", nullable = false)  // Foreign key in the User table
-    private Roles role;
+
+    @Enumerated(EnumType.STRING)
+    private RoleEnums role;
     @OneToMany(mappedBy = "user",cascade = CascadeType.ALL)
     private Set<Feedback> feedbacks;
     @OneToMany(mappedBy = "account",cascade = CascadeType.ALL)
@@ -59,7 +60,9 @@ public class Account {
     private Set<Orders> orders;
     @PrePersist
     protected void onCreate() {
-
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
         createdAt = LocalDateTime.now();
         updatedAt = LocalDateTime.now();
     }

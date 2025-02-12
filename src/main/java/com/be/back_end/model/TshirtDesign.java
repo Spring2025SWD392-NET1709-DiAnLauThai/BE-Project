@@ -16,15 +16,20 @@ import java.util.UUID;
 public class TshirtDesign {
 
     @Id
-    @UuidGenerator
-    @Column(name = "id", updatable = false, nullable = false)
-    private UUID id;
+    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    private String id;
 
     @ManyToOne
-    @JoinColumn(name = "designid", nullable = false)  // Foreign Key to Designs
+    @JoinColumn(name = "designid", nullable = false)
     private Designs design;
 
     @ManyToOne
-    @JoinColumn(name = "tshirtid", nullable = false)  // Foreign Key to Tshirts
+    @JoinColumn(name = "tshirtid", nullable = false)
     private Tshirts tshirt;
+    @PrePersist
+    protected void onCreate() {
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
+    }
 }

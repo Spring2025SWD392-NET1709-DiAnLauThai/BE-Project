@@ -21,9 +21,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Orders {
     @Id
-    @UuidGenerator
-    @Column(name="Orderid", nullable = false,updatable = false)
-    private UUID Id;
+    @Column(name="Orderid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    private String Id;
 
     @Column(name="totalprice")
     private BigDecimal total_price;
@@ -52,7 +51,9 @@ public class Orders {
     private String order_notes;
     @PrePersist
     protected void onCreate() {
-
+        if (Id == null) {
+            Id = UUID.randomUUID().toString();
+        }
         date_created = LocalDateTime.now();
         last_updated = LocalDateTime.now();
     }

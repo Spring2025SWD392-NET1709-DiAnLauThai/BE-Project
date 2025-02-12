@@ -18,9 +18,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Payment {
     @Id
-    @UuidGenerator
-    @Column(name="paymentid", nullable = false,updatable = false)
-    private UUID id;
+    @Column(name="paymentid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    private String id;
     @ManyToOne
     @JoinColumn(name = "orderid", nullable = false)
     private Orders orders;
@@ -35,7 +34,9 @@ public class Payment {
     private BigDecimal payment_amount;
     @PrePersist
     protected void onCreate() {
-
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
         payment_date = LocalDateTime.now();
     }
 }

@@ -17,9 +17,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class Orderitems {
     @Id
-    @UuidGenerator
-    @Column(name="Orderitemsid", updatable = false, nullable = false)
-    private UUID id;
+    @Column(name="Orderitemsid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    private String id;
 
     @ManyToOne
     @JoinColumn(name="tshirtid",nullable = false)
@@ -33,4 +32,10 @@ public class Orderitems {
     private int quantity;
     @Column(name="unitprice")
     private BigDecimal unit_price;
+    @PrePersist
+    protected void onCreate() {
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
+    }
 }

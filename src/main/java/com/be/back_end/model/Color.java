@@ -17,9 +17,8 @@ import java.util.UUID;
 public class Color {
 
     @Id
-    @UuidGenerator
-    @Column(name = "colorid", updatable = false, nullable = false)
-    private UUID id;
+    @Column(name = "colorid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    private String id;
 
     @Column(name = "color_name", nullable = false)
     private String colorName;
@@ -29,4 +28,10 @@ public class Color {
 
     @OneToMany(mappedBy = "color", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TShirtColor> tShirtColors;
+    @PrePersist
+    protected void onCreate() {
+        if (id == null) {
+            id = UUID.randomUUID().toString();
+        }
+    }
 }

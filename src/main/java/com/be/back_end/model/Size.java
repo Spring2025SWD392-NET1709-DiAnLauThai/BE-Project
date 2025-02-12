@@ -24,4 +24,5 @@ public class Size {
 
     @OneToMany(mappedBy = "size", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TShirtSize> tShirtSizes;
+
 }
