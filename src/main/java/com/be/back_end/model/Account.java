@@ -31,6 +31,7 @@ public class Account {
     private String email;
 
     private String name;
+    private String password;
     private String address;
     private String phone;
     @Enumerated(EnumType.STRING)
