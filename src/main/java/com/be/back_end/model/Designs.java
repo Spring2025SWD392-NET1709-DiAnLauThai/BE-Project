@@ -27,8 +27,9 @@ public class Designs {
 
     @Column(name="uploaddate",updatable = false)
     private LocalDateTime upload_date;
+
     @ManyToOne
-    @JoinColumn(name = "accountid", nullable = false)  // Foreign key in the User table
+    @JoinColumn(name = "accountid", nullable = false)  // Foreign key in the User table. This is createdBy
     private Account account;
 
     @Column(name="designname")
