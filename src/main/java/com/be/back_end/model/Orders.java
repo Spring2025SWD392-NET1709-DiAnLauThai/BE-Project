@@ -30,6 +30,9 @@ public class Orders {
     @Column(name="totalquantity")
     private int total_quantity;
 
+    @OneToOne
+    @JoinColumn(name="feedbackid", unique = true)
+    private Feedback feedback;
 
     @ManyToOne
     @JoinColumn(name="accountid",nullable = false)

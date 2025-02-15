@@ -9,5 +9,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface DesignRepository extends JpaRepository<Designs, String>{
-    List<Designs> findByName(String name);
+
 }
