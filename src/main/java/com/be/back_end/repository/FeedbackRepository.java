@@ -1,4 +1,7 @@
 package com.be.back_end.repository;
 
-public interface FeedbackRepository {
+import com.be.back_end.model.Feedback;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface FeedbackRepository extends JpaRepository<Feedback, String> {
 }
