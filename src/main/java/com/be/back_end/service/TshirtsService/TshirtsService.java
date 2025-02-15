@@ -20,7 +20,7 @@ import java.util.UUID;
 @Service
 public class TshirtsService implements  ITshirtsService{
 
-    @Autowired
+
     private final TshirtsRepository tshirtsRepository;
     private final AccountRepository accountRepository;
     public TshirtsService(TshirtsRepository tshirtsRepository, AccountRepository accountRepository) {
