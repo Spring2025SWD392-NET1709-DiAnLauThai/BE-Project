@@ -40,7 +40,7 @@ public class AuthController {
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtUtils.generateJwtCookie((AccountDetailsImpl) authentication.getPrincipal()).toString();
-        ApiResponse apiResponse = new ApiResponse("200", new JwtResponse(jwt), "Login successful");
+        ApiResponse apiResponse = new ApiResponse(200, new JwtResponse(jwt), "Login successful");
         return ResponseEntity.ok(apiResponse);
     }
 

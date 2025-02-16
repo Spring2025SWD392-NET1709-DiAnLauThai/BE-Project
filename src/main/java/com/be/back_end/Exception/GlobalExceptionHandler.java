@@ -22,7 +22,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         ErrorResponse errorResponse = new ErrorResponse(
-            "500",
+            500,
             "Internal Server Error",
             Collections.singletonList(ex.getMessage())
         );
@@ -33,7 +33,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(ResourceNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
-            "404",
+            404,
             "Resource Not Found",
             Collections.singletonList(ex.getMessage())
         );
@@ -44,7 +44,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentialsException(BadCredentialsException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
-            "401",
+            401,
             "Invalid Credentials",
             Collections.singletonList(ex.getMessage())
         );
@@ -62,7 +62,7 @@ public class GlobalExceptionHandler {
         });
         
         ApiResponse<Map<String, String>> response = new ApiResponse<>(
-            "400",
+            400,
             errors,
             "Validation failed"
         );
@@ -74,7 +74,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
-            "400",
+            400,
             "",
             Collections.singletonList(ex.getMessage())
         );
