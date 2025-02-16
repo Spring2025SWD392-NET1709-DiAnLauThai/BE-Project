@@ -40,7 +40,7 @@ public class JwtUtils {
   }
 
   public String generateJwtCookie(AccountDetailsImpl accountPrincipal) {
-    String jwt = generateTokenFromUsername(accountPrincipal.getUsername());
+    String jwt = generateTokenFromUserID(accountPrincipal.getId());
     return jwt;
   }
 
@@ -75,7 +75,7 @@ public class JwtUtils {
     return false;
   }
   
-  public String generateTokenFromUsername(String username) {   
+  public String generateTokenFromUserID(String username) {   
     return Jwts.builder()
               .setSubject(username)
               .setIssuedAt(new Date())

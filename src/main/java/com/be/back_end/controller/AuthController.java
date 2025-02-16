@@ -19,6 +19,7 @@ import com.be.back_end.security.jwt.JwtUtils;
 import com.be.back_end.service.AccountService.AccountDetailsImpl;
 import com.be.back_end.service.AccountService.AccountDetailsServiceImpl;
 import com.be.back_end.service.AccountService.AccountService;
+import com.be.back_end.utils.ApiResponse;
 
 import org.springframework.security.core.Authentication;
 
@@ -35,19 +36,12 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody SigninRequest loginRequest) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            String jwt = jwtUtils.generateJwtCookie((AccountDetailsImpl) authentication.getPrincipal()).toString();
-            return ResponseEntity.ok(new JwtResponse(jwt));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new String("Error: " + e.getMessage()));
-        }
-
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = jwtUtils.generateJwtCookie((AccountDetailsImpl) authentication.getPrincipal()).toString();
+        ApiResponse apiResponse = new ApiResponse("200", new JwtResponse(jwt), "Login successful");
+        return ResponseEntity.ok(apiResponse);
     }
-
 
 }
