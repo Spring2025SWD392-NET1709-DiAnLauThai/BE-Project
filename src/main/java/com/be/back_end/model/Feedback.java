@@ -3,11 +3,9 @@ package com.be.back_end.model;
 
 import com.be.back_end.enums.FeedbackTypeEnums;
 import jakarta.persistence.*;
-import jakarta.persistence.criteria.Order;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -30,7 +28,7 @@ public class Feedback {
     @Column(name = "createddate", updatable = false)
     private LocalDateTime Createddate;
     @OneToOne(mappedBy = "feedback")
-    private Orders order;
+    private Bookings order;
 
     @ManyToOne
     @JoinColumn(name="accountid",nullable = false)

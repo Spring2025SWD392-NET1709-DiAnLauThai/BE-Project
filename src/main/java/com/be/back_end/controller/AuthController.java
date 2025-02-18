@@ -1,5 +1,6 @@
 package com.be.back_end.controller;
 
+import com.be.back_end.dto.response.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -31,15 +32,11 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody SigninRequest loginRequest) {
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            String jwt = jwtUtils.generateJwtCookie((AccountDetailsImpl) authentication.getPrincipal()).toString();
-            return ResponseEntity.ok(new JwtResponse(jwt));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new String("Error: " + e.getMessage()));
-        }
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String jwt = jwtUtils.generateJwtCookie((AccountDetailsImpl) authentication.getPrincipal()).toString();
+        ApiResponse apiResponse = new ApiResponse(200, new JwtResponse(jwt), "Login successful");
+        return ResponseEntity.ok(apiResponse);
     }
 }

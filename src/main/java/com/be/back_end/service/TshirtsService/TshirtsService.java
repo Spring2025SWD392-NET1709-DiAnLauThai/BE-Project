@@ -42,11 +42,7 @@ public class TshirtsService implements  ITshirtsService{
         Tshirts tshirt = new Tshirts();
         if (dto.getAccountId() != null) {
             Account account = accountRepository.findById(dto.getAccountId()).orElse(null);
-            if (account != null) {
-                tshirt.setAccount(account);
-            } else {
-                System.out.println("AccountId not found"+dto.getAccountId());;
-            }
+
         }
         tshirt.setName(dto.getName());
         tshirt.setDescription(dto.getDescription());

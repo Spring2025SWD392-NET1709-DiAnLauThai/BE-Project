@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
 
 
 import java.time.LocalDate;
@@ -56,9 +55,10 @@ public class Account {
     @OneToMany(mappedBy = "account",cascade = CascadeType.ALL)
     private Set<Designs> designs;
     @OneToMany(mappedBy = "account",cascade = CascadeType.ALL)
-    private Set<Tshirts> tshirts;
+    private Set<Task> tasks;
+
     @OneToMany(mappedBy = "account",cascade = CascadeType.ALL)
-    private Set<Orders> orders;
+    private Set<Bookings> bookings;
     @PrePersist
     protected void onCreate() {
         if (id == null) {

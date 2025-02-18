@@ -1,10 +1,9 @@
+/*
 package com.be.back_end.service.PaymentService;
 
-import com.be.back_end.dto.AccountDTO;
 import com.be.back_end.dto.PaymentDTO;
 
-import com.be.back_end.model.Account;
-import com.be.back_end.model.Payment;
+import com.be.back_end.model.Transaction;
 
 import com.be.back_end.repository.PaymentRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,68 +24,69 @@ public class PaymentService implements IPaymentService{
 
     @Override
     public PaymentDTO create(PaymentDTO dto) {
-        Payment newPayment= mapToEntity(dto);
-        paymentRepository.save(newPayment);
+        Transaction newTransaction = mapToEntity(dto);
+        paymentRepository.save(newTransaction);
         return dto;
     }
 
     @Override
     public List<PaymentDTO> getAll() {
-        List<Payment> payments= paymentRepository.findAll();
+        List<Transaction> transactions = paymentRepository.findAll();
         List<PaymentDTO> list= new ArrayList<>();
-        for(Payment payment:payments)
+        for(Transaction transaction : transactions)
         {
-            list.add(mapToDTO(payment));
-            System.out.println(payment.getId());
+            list.add(mapToDTO(transaction));
+            System.out.println(transaction.getId());
         }
         return list;
     }
 
     @Override
     public PaymentDTO getById(String id) {
-        Payment payment= paymentRepository.findById(id).orElse(null);
-        return mapToDTO(payment);
+        Transaction transaction = paymentRepository.findById(id).orElse(null);
+        return mapToDTO(transaction);
     }
 
     @Override
     public boolean update(String id, PaymentDTO user) {
-        Payment updatedPayment= paymentRepository.findById(id).orElse(null);
-        if(updatedPayment==null){
+        Transaction updatedTransaction = paymentRepository.findById(id).orElse(null);
+        if(updatedTransaction ==null){
             return false;
         }
-        updatedPayment=mapToEntity(user);
-        paymentRepository.save(updatedPayment);
+        updatedTransaction =mapToEntity(user);
+        paymentRepository.save(updatedTransaction);
         return true;
     }
 
     @Override
     public boolean delete(String id) {
-        Payment existingPayment = paymentRepository.getById(id);
-        if (existingPayment != null) {
-            paymentRepository.delete(existingPayment);
+        Transaction existingTransaction = paymentRepository.getById(id);
+        if (existingTransaction != null) {
+            paymentRepository.delete(existingTransaction);
             return true;
         }
         return false;
     }
 
 
-    private PaymentDTO mapToDTO(Payment Payment) {
+    private PaymentDTO mapToDTO(Transaction Transaction) {
         PaymentDTO dto = new PaymentDTO();
-        dto.setOrders(Payment.getOrders());
-        dto.setPayment_date(Payment.getPayment_date());
-        dto.setPayment_amount(Payment.getPayment_amount());
-        dto.setPayment_method(Payment.getPayment_method());
-        dto.setPayment_name(Payment.getPayment_name());
+        dto.setBookings(Transaction.getOrders());
+        dto.setPayment_date(Transaction.getPayment_date());
+        dto.setPayment_amount(Transaction.getPayment_amount());
+        dto.setPayment_method(Transaction.getPayment_method());
+        dto.setPayment_name(Transaction.getPayment_name());
         return dto;
     }
 
-    private Payment mapToEntity(PaymentDTO dto) {
-        Payment payment = new Payment();
-        payment.setOrders(dto.getOrders());
-        payment.setPayment_date(dto.getPayment_date());
-        payment.setPayment_amount(dto.getPayment_amount());
-        payment.setPayment_method(dto.getPayment_method());
-        payment.setPayment_name(dto.getPayment_name());
-        return payment;
+    private Transaction mapToEntity(PaymentDTO dto) {
+        Transaction transaction = new Transaction();
+        transaction.setOrders(dto.getBookings());
+        transaction.setPayment_date(dto.getPayment_date());
+        transaction.setPayment_amount(dto.getPayment_amount());
+        transaction.setPayment_method(dto.getPayment_method());
+        transaction.setPayment_name(dto.getPayment_name());
+        return transaction;
     }
 }
+*/
