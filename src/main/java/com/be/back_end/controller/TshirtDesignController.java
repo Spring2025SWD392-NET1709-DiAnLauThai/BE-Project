@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+@RestController
+@RequestMapping("/api/tshirtdesigns")
 public class TshirtDesignController {
 
     private final TshirtDesignService tshirtDesignService;
