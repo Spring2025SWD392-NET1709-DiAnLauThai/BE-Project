@@ -8,10 +8,12 @@ import com.be.back_end.model.TshirtDesign;
 import com.be.back_end.repository.DesignRepository;
 import com.be.back_end.repository.TshirtDesignRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Service
 public class TshirtDesignService implements ITshirtDesignService{
 
     private final TshirtDesignRepository tshirtDesignRepository;
