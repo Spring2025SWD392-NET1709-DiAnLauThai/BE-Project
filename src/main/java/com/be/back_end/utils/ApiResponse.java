@@ -1,4 +1,4 @@
-package com.be.back_end.dto.response;
+package com.be.back_end.utils;
 import lombok.Data;
 @Data
 public class ApiResponse<T> {
