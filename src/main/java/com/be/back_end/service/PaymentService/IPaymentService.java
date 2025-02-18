@@ -1,3 +1,4 @@
+/*
 package com.be.back_end.service.PaymentService;
 
 import com.be.back_end.dto.AccountDTO;
@@ -12,3 +13,4 @@ public interface IPaymentService {
     boolean update(String id,PaymentDTO user);
     boolean delete(String id);
 }
+*/

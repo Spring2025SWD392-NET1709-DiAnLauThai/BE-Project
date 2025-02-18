@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,13 +14,13 @@ import java.util.Set;
 import java.util.UUID;
 
 @Entity
-@Table(name="Orders")
+@Table(name="Bookings")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Orders {
+public class Bookings {
     @Id
-    @Column(name="Orderid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    @Column(name="bookingid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     private String Id;
 
     @Column(name="totalprice")
@@ -38,9 +37,10 @@ public class Orders {
     @JoinColumn(name="accountid",nullable = false)
     private Account account;
 
-    @OneToMany(mappedBy = "orders",cascade = CascadeType.ALL)
-    private Set<Payment> payments;
-
+    @OneToMany(mappedBy = "bookings",cascade = CascadeType.ALL)
+    private Set<Transaction> transactions;
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
+    private Task task;
     @Enumerated(EnumType.STRING)
     private OrderEnums status;
 
@@ -50,8 +50,15 @@ public class Orders {
     @Column(name="lastupdated")
     private LocalDateTime last_updated;
 
-    @Column(name="ordernotes")
-    private String order_notes;
+
+    @Column(name = "code")
+    private String code;
+
+    @Column(name = "title")
+    private String title;
+
+    @Column(name = "duration")
+    private int duration;
     @PrePersist
     protected void onCreate() {
         if (Id == null) {

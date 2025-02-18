@@ -1,3 +1,4 @@
+/*
 package com.be.back_end.controller;
 
 import com.be.back_end.dto.PaymentDTO;
@@ -59,3 +60,4 @@ public class PaymentController {
         return ResponseEntity.ok("Payment deleted successfully.");
     }
 }
+*/

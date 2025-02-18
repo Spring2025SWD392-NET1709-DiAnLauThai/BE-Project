@@ -56,9 +56,7 @@ public class Tshirts {
     @OneToMany(mappedBy = "tshirt",cascade = CascadeType.ALL)
     private Set<Orderitems> orderitems;
 
-    @ManyToOne
-    @JoinColumn(name="accountid",nullable = false)
-    private Account account;
+
     @PrePersist
     protected  void OnCreate(){
         if (id == null) {

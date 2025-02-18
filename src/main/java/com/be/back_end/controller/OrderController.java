@@ -1,7 +1,7 @@
 package com.be.back_end.controller;
 
 import com.be.back_end.dto.OrderDTO;
-import com.be.back_end.model.Orders;
+import com.be.back_end.model.Bookings;
 import com.be.back_end.service.OrderService.IOrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -26,19 +26,19 @@ public class OrderController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Orders>> getAllOrders() {
+    public ResponseEntity<List<Bookings>> getAllOrders() {
         return ResponseEntity.ok(orderService.getAllOrders());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Orders> getOrderById(@PathVariable String id) {
-        Orders order = orderService.getOrderById(id);
+    public ResponseEntity<Bookings> getOrderById(@PathVariable String id) {
+        Bookings order = orderService.getOrderById(id);
         return order != null ? ResponseEntity.ok(order) : ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Orders> updateOrder(@PathVariable String id, @RequestBody OrderDTO orderDTO) {
-        Orders updatedOrder = orderService.updateOrder(id, orderDTO);
+    public ResponseEntity<Bookings> updateOrder(@PathVariable String id, @RequestBody OrderDTO orderDTO) {
+        Bookings updatedOrder = orderService.updateOrder(id, orderDTO);
         return updatedOrder != null ? ResponseEntity.ok(updatedOrder) : ResponseEntity.badRequest().build();
     }
 
