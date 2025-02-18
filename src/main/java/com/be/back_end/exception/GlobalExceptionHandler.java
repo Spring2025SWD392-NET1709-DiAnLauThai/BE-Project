@@ -1,4 +1,4 @@
-package com.be.back_end.exception;
+package com.be.back_end.Exception;
 import java.util.Collections;
 
 import java.util.HashMap;
