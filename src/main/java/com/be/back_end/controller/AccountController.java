@@ -22,6 +22,7 @@ public class AccountController {
         System.out.println("Account created successfully.");
         return ResponseEntity.ok(createdAccount);
     }
+
     @GetMapping
     public ResponseEntity<List<AccountDTO>> getAllAccounts() {
         List<AccountDTO> accounts = accountService.getAllUsers();

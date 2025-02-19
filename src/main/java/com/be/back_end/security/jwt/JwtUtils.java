@@ -83,4 +83,20 @@ public class JwtUtils {
               .signWith(key(), SignatureAlgorithm.HS256)
               .compact();
   }
+  public String generateOtpToken(String email, String otp) {
+    return Jwts.builder()
+            .setSubject(email)
+            .claim("otp", otp) // Embed OTP inside the token
+            .setIssuedAt(new Date())
+            .setExpiration(new Date(System.currentTimeMillis() + 2 * 60 * 1000)) // Valid for 5 min
+            .signWith(key(), SignatureAlgorithm.HS256)
+            .compact();
+  }
+  public String getOtpFromToken(String token) {
+    return Jwts.parserBuilder().setSigningKey(key()).build()
+            .parseClaimsJws(token)
+            .getBody().get("otp", String.class);
+  }
+
+
 }
