@@ -39,9 +39,17 @@ public class JwtUtils {
     }
   }
 
-  public String generateJwtCookie(AccountDetailsImpl accountPrincipal) {
+  public ResponseCookie generateJwtCookie(AccountDetailsImpl accountPrincipal) {
     String jwt = generateTokenFromUserID(accountPrincipal.getId());
-    return jwt;
+    ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt)
+        .path("/")
+        .maxAge(24 * 60 * 60)
+        .httpOnly(true)
+        .secure(false)
+        .sameSite("Lax")
+        .domain("localhost")
+        .build();
+    return cookie;
   }
 
   public ResponseCookie getCleanJwtCookie() {
@@ -49,7 +57,7 @@ public class JwtUtils {
     return cookie;
   }
 
-  public String getUserNameFromJwtToken(String token) {
+  public String getUserIdFromJwtToken(String token) {
     return Jwts.parserBuilder().setSigningKey(key()).build()
         .parseClaimsJws(token).getBody().getSubject();
   }
@@ -75,13 +83,13 @@ public class JwtUtils {
     return false;
   }
   
-  public String generateTokenFromUserID(String username) {   
+  public String generateTokenFromUserID(String id) {   
     return Jwts.builder()
-              .setSubject(username)
-              .setIssuedAt(new Date())
-              .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
-              .signWith(key(), SignatureAlgorithm.HS256)
-              .compact();
+        .setSubject(id)
+        .setIssuedAt(new Date())
+        .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
+        .signWith(key(), SignatureAlgorithm.HS256)
+        .compact();
   }
   public String generateOtpToken(String email, String otp) {
     return Jwts.builder()

@@ -22,4 +22,11 @@ public class AccountDetailsServiceImpl implements UserDetailsService {
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with email: " + username));
         return AccountDetailsImpl.build(account);
     }
+
+    @Transactional
+    public UserDetails loadUserById(String id) throws UsernameNotFoundException {
+        Account account = accountRepository.findById(id)
+                .orElseThrow(() -> new UsernameNotFoundException("User Not Found with id: " + id));
+        return AccountDetailsImpl.build(account);
+    }
 }

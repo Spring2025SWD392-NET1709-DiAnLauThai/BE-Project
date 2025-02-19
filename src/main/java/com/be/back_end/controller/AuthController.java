@@ -5,7 +5,6 @@ import com.be.back_end.dto.response.ApiResponse;
 import com.be.back_end.dto.response.ErrorResponse;
 import com.be.back_end.service.AccountService.IAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -13,12 +12,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import com.be.back_end.dto.request.SigninRequest;
 import com.be.back_end.dto.response.JwtResponse;
-import com.be.back_end.model.Account;
 import com.be.back_end.security.jwt.JwtUtils;
 import com.be.back_end.service.AccountService.AccountDetailsImpl;
-import com.be.back_end.service.AccountService.AccountDetailsServiceImpl;
-import com.be.back_end.service.AccountService.AccountService;
 import org.springframework.security.core.Authentication;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
+
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -65,11 +64,55 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody SigninRequest loginRequest) {
+
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        String jwt = jwtUtils.generateJwtCookie((AccountDetailsImpl) authentication.getPrincipal()).toString();
-        ApiResponse apiResponse = new ApiResponse(200, new JwtResponse(jwt), "Login successful");
-        return ResponseEntity.ok(apiResponse);
+
+        AccountDetailsImpl accountDetails = (AccountDetailsImpl) authentication.getPrincipal();
+
+        ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(accountDetails);
+
+        ApiResponse apiResponse = new ApiResponse(200, new JwtResponse(jwtCookie.getValue()), "Login successful");
+
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                .body(apiResponse);
     }
+
+    // @GetMapping("/me") //Get user personal details
+    // public ResponseEntity<?> getCurrentUser(@RequestHeader(value = "Authorization", required = false) String authHeader) {
+
+    //         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+    //             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No token provided");
+    //         }
+
+    //         String token = authHeader.substring(7);
+
+    //         if (!jwtUtils.validateJwtToken(token)) {
+    //             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
+    //         }
+
+    //         String userId = jwtUtils.getUserIdFromJwtToken(token);
+
+    //         Optional<Account> account = accountRepository.findById(userId);
+    //         if (!account.isPresent()) {
+    //             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+    //         }
+
+    //         Account user = account.get();
+    //         ApiResponse apiResponse = new ApiResponse(200, new JwtResponse(
+    //             user.getId(),
+    //             user.getEmail(),
+    //             user.getRole().name(),
+    //             user.getName(),
+    //             user.getAddress(),
+    //             user.getPhone(),
+    //             user.getDateOfBirth(),
+    //             user.getStatus()
+    //         ), "User details retrieved successfully");
+    //         return ResponseEntity.ok(apiResponse);
+
+    // }
 }
