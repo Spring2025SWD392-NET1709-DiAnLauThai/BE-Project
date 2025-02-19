@@ -12,5 +12,5 @@ public class TshirtsDTO {
     private String description;
     private String AccountId;
     private String imageUrl;
-    private int quantity;
+
 }

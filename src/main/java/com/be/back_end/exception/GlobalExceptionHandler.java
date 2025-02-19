@@ -1,10 +1,11 @@
-package com.be.back_end.Exception;
+package com.be.back_end.exception;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
+import org.springdoc.api.OpenApiResourceNotFoundException;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -13,8 +14,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
-import com.be.back_end.utils.ApiResponse;
-import com.be.back_end.utils.ErrorResponse;
+import com.be.back_end.dto.response.ApiResponse;
+import com.be.back_end.dto.response.ErrorResponse;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -29,12 +30,13 @@ public class GlobalExceptionHandler {
     }
 
     // Handle resource not found exceptions
-    @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFound(ResourceNotFoundException ex) {
+    @ExceptionHandler(OpenApiResourceNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleResourceNotFound(OpenApiResourceNotFoundException ex) {
         ErrorResponse errorResponse = new ErrorResponse(
                 404,
                 "Resource Not Found",
-                Collections.singletonList(ex.getMessage()));
+                Collections.singletonList(ex.getMessage())
+        );
         return new ResponseEntity<>(errorResponse, HttpStatus.NOT_FOUND);
     }
 

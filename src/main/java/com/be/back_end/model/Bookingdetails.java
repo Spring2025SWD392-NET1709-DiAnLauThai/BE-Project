@@ -1,31 +1,36 @@
 package com.be.back_end.model;
 
+
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
 
+import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "TShirtsize")
+@Table(name="Bookingdetails")
 @Getter
 @Setter
 @NoArgsConstructor
-public class TShirtSize {
-
+public class Bookingdetails {
     @Id
-    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    @Column(name="bookingdetailsid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     private String id;
 
     @ManyToOne
-    @JoinColumn(name = "tshirt_id", nullable = false)
+    @JoinColumn(name="tshirtid",nullable = false)
     private Tshirts tshirt;
 
     @ManyToOne
-    @JoinColumn(name = "size_id", nullable = false)
-    private Size size;
+    @JoinColumn(name="designid",nullable = false)
+    private Designs design;
+
+
+    private int quantity;
+    @Column(name="unitprice")
+    private BigDecimal unit_price;
     @PrePersist
     protected void onCreate() {
         if (id == null) {

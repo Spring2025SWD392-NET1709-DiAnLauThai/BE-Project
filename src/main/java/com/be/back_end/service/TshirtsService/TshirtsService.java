@@ -32,7 +32,7 @@ public class TshirtsService implements  ITshirtsService{
 
         dto.setDescription(tshirts.getDescription());
         dto.setName(tshirts.getName());
-        dto.setQuantity(tshirts.getQuantity());
+
         dto.setImageUrl(tshirts.getImage_url());
 
         return dto;
@@ -46,7 +46,7 @@ public class TshirtsService implements  ITshirtsService{
         }
         tshirt.setName(dto.getName());
         tshirt.setDescription(dto.getDescription());
-        tshirt.setQuantity(dto.getQuantity());
+
         tshirt.setImage_url(dto.getImageUrl());
         tshirt.setStatus(TshirtsEnums.ACTIVE);
 

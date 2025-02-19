@@ -1,4 +1,4 @@
-package com.be.back_end.utils;
+package com.be.back_end.dto.response;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Data;
