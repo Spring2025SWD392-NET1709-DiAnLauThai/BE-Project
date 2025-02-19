@@ -3,6 +3,8 @@ package com.be.back_end.service.AccountService;
 
 import com.be.back_end.dto.AccountDTO;
 import com.be.back_end.dto.request.RegisterRequest;
+import com.be.back_end.dto.response.JwtResponse;
+import com.be.back_end.dto.response.TokenValidateDTO;
 import com.be.back_end.enums.AccountEnums;
 import com.be.back_end.enums.RoleEnums;
 import com.be.back_end.model.Account;
@@ -12,6 +14,7 @@ import com.be.back_end.security.jwt.JwtUtils;
 import com.be.back_end.service.EmailService.IEmailService;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -50,9 +53,29 @@ public class AccountService implements IAccountService{
 
 
     @Override
-    public boolean validateToken(String token) {
-        return jwtUtils.validateJwtToken(token);
+    public TokenValidateDTO validateToken(String token) {
+        if (jwtUtils.validateJwtToken(token)) {
+            return new TokenValidateDTO(true);
+        }
+        return new TokenValidateDTO(false);
     }
+
+    @Override
+    public JwtResponse refreshAccessToken(String refreshToken) {
+        try {
+            String subject = jwtUtils.getUserIdFromJwtToken(refreshToken);
+            if (!subject.startsWith("REFRESH-")) {
+                return null;
+            }
+            String userId = subject.replace("REFRESH-", "");
+            String newAccessToken = jwtUtils.generateTokenFromUserID(userId);
+            String newRefreshToken = jwtUtils.generateRefreshToken(userId);
+            return new JwtResponse(newAccessToken, newRefreshToken);
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
     @Override
     public String getUsernameFromToken(String token) {

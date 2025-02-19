@@ -3,8 +3,10 @@ package com.be.back_end.controller;
 import com.be.back_end.dto.request.RegisterRequest;
 import com.be.back_end.dto.response.ApiResponse;
 import com.be.back_end.dto.response.ErrorResponse;
+import com.be.back_end.dto.response.TokenValidateDTO;
 import com.be.back_end.service.AccountService.IAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -30,11 +32,13 @@ public class AuthController {
     @Autowired
     private IAccountService accountService;
     @PostMapping("/validate")
-    public ResponseEntity<?> validateToken(@RequestBody String token) {
-        return accountService.validateToken(token)
-                ? ResponseEntity.ok(new ApiResponse(200, accountService.getUsernameFromToken(token), "Token is valid"))
-                : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse(401, null, "Invalid Token"));
+    public ResponseEntity<ApiResponse<TokenValidateDTO>> validateToken(@RequestParam String token) {
+        TokenValidateDTO response = accountService.validateToken(token);
+        return response.isValid()
+                ? ResponseEntity.ok(new ApiResponse<>(200, response, "Token is valid"))
+                : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(401, response, "Token is invalid or expired"));
     }
+
     @PostMapping("/verify-otp")
     public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp, @RequestParam String token) {
         boolean verified = accountService.verifyOtp(email, otp, token);
@@ -62,6 +66,20 @@ public class AuthController {
         return ResponseEntity.ok(new ApiResponse<>(200, otpToken, "Account created! OTP Token generated successfully."));
     }
 
+    @PostMapping("/refresh-token")
+    public ResponseEntity<?> refreshToken(@RequestParam String refreshToken) {
+        JwtResponse jwtResponse = accountService.refreshAccessToken(refreshToken);
+
+        if (jwtResponse == null || jwtResponse.getToken() == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(new ApiResponse<>(401, null, "Invalid or expired refresh token"));
+        }
+
+        return ResponseEntity.ok(new ApiResponse<>(200, jwtResponse, "Token refreshed successfully"));
+    }
+
+
+
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody SigninRequest loginRequest) {
 
@@ -73,8 +91,8 @@ public class AuthController {
         AccountDetailsImpl accountDetails = (AccountDetailsImpl) authentication.getPrincipal();
 
         ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(accountDetails);
-
-        ApiResponse apiResponse = new ApiResponse(200, new JwtResponse(jwtCookie.getValue()), "Login successful");
+        String refreshToken = jwtUtils.generateRefreshToken(accountDetails.getId());
+        ApiResponse apiResponse = new ApiResponse(200, new JwtResponse(jwtCookie.getValue(),refreshToken), "Login successful");
 
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())

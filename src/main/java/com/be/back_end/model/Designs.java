@@ -5,10 +5,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
-import java.text.DecimalFormat;
 import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
@@ -44,7 +42,7 @@ public class Designs {
     private BigDecimal price;
 
     @OneToMany(mappedBy = "design",cascade = CascadeType.ALL)
-    private Set<Orderitems> orderitems;
+    private Set<Bookingdetails> bookingdetails;
 
     @PrePersist
     protected void onCreate() {

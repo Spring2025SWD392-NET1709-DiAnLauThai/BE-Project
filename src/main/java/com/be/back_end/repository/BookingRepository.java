@@ -1,9 +1,10 @@
 package com.be.back_end.repository;
 
-import com.be.back_end.model.Orderitems;
+
+import com.be.back_end.model.Bookings;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface OrderitemsRepository extends JpaRepository<Orderitems,String> {
+public interface BookingRepository extends JpaRepository<Bookings, String> {
 }

@@ -9,6 +9,7 @@ import lombok.Data;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class JwtResponse {
     private String token;
+    private String refreshToken;
     private String id;
     private String email;
     private String role;
@@ -36,7 +37,11 @@ public class JwtResponse {
     public JwtResponse(String token) {
         this.token = token;
     }
-
+    // Constructor for signin (includes Refresh Token)
+    public JwtResponse(String token, String refreshToken) {
+        this.token = token;
+        this.refreshToken = refreshToken;
+    }
     // Constructor với thông tin cơ bản
     public JwtResponse(String token, String id, String email, String role) {
         this.token = token;
