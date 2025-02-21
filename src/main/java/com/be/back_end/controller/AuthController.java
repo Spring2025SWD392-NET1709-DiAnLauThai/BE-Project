@@ -79,8 +79,18 @@ public class AuthController {
 
         ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(accountDetails);
         String refreshToken = jwtUtils.generateRefreshToken(accountDetails.getId());
-        ApiResponse apiResponse = new ApiResponse(200, new JwtResponse(jwtCookie.getValue(),refreshToken), "Login successful");
+        ApiResponse apiResponse = new ApiResponse(200, new JwtResponse(jwtCookie.getValue(), refreshToken),
+                "Login successful");
 
+        return ResponseEntity.ok()
+                .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                .body(apiResponse);
+    }
+    
+    @PostMapping("/signout")
+    public ResponseEntity<?> signOut() {
+        ResponseCookie jwtCookie = jwtUtils.getCleanJwtCookie();
+        ApiResponse apiResponse = new ApiResponse(200, "", "Logout successful");
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                 .body(apiResponse);

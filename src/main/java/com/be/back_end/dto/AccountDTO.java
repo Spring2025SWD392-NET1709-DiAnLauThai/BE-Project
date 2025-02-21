@@ -10,13 +10,16 @@ import java.util.UUID;
 @Getter
 @Setter
 public class AccountDTO {
-
+    private UUID id;
     private String email;
     private String name;
     private String address;
     private String phone;
     private String password;
     private LocalDate dateOfBirth;
+    private String role;
+    private String status;
     private boolean isDeleted;
     private RoleEnums role;
 }
+

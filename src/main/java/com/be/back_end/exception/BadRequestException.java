@@ -1,4 +1,4 @@
-package com.be.back_end.Exception;
+package com.be.back_end.exception;
 
 public class BadRequestException extends RuntimeException {
     public BadRequestException(Throwable cause) {
