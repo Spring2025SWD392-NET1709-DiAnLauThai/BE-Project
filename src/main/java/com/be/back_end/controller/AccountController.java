@@ -1,8 +1,12 @@
 package com.be.back_end.controller;
 
 import com.be.back_end.dto.AccountDTO;
+import com.be.back_end.dto.response.ApiResponse;
+import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.model.Account;
 import com.be.back_end.service.AccountService.IAccountService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -11,6 +15,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/accounts")
+@SecurityRequirement(name = "Bearer Authentication")
 public class AccountController {
     private final IAccountService accountService;
     public AccountController(IAccountService accountService) {
@@ -24,12 +29,17 @@ public class AccountController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AccountDTO>> getAllAccounts() {
-        List<AccountDTO> accounts = accountService.getAllUsers();
-        if (accounts.isEmpty()) {
-            System.out.println("No accounts found.");
+    public ResponseEntity<?> getAllAccounts(@RequestParam int page, int size ) {
+        if (page < 0 || size <= 0) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(400, null, "Page and size must be positive values"));
         }
-        return ResponseEntity.ok(accounts);
+        PaginatedResponseDTO<AccountDTO> accounts = accountService.getAllUsers(page, size);
+        if (accounts.getContent().isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                    .body(new ApiResponse<>(204, null, "No data available"));
+        }
+        return ResponseEntity.ok(new ApiResponse<>(200, accounts, "Page returned: " + page));
     }
     @GetMapping("/{id}")
     public ResponseEntity<?> getAccountById(@PathVariable String id) {

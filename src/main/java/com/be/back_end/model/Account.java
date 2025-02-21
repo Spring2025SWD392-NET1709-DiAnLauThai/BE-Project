@@ -1,7 +1,8 @@
 package com.be.back_end.model;
 
 
-import com.be.back_end.enums.AccountEnums;
+
+import com.be.back_end.enums.ActivationEnums;
 import com.be.back_end.enums.RoleEnums;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -35,7 +36,7 @@ public class Account {
     private String phone;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private AccountEnums status;
+    private ActivationEnums status;
 
     @Column(name = "dateofbirth")
     private LocalDate dateOfBirth;

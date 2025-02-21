@@ -4,17 +4,24 @@ package com.be.back_end.service.AccountService;
 import com.be.back_end.dto.AccountDTO;
 import com.be.back_end.dto.request.RegisterRequest;
 import com.be.back_end.dto.response.JwtResponse;
+import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.dto.response.TokenValidateDTO;
-import com.be.back_end.enums.AccountEnums;
+
+import com.be.back_end.enums.ActivationEnums;
 import com.be.back_end.enums.RoleEnums;
 import com.be.back_end.model.Account;
 import com.be.back_end.repository.AccountRepository;
 
 import com.be.back_end.security.jwt.JwtUtils;
 import com.be.back_end.service.EmailService.IEmailService;
+import com.be.back_end.utils.AccountUtils;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseCookie;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -23,15 +30,20 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
+
+import static java.util.Arrays.stream;
 
 @Service
 public class AccountService implements IAccountService{
     /*private final IGenericService<Account, UUID> genericService;*/
+    private final AccountUtils accountUtils;
     private final PasswordEncoder passwordEncoder;
     private final AccountRepository accountRepository;
     private final JwtUtils jwtUtils;
     private final IEmailService emailService;
-    public AccountService(PasswordEncoder passwordEncoder, AccountRepository accountRepository, JwtUtils jwtUtils, IEmailService emailService) {
+    public AccountService(AccountUtils accountUtils, PasswordEncoder passwordEncoder, AccountRepository accountRepository, JwtUtils jwtUtils, IEmailService emailService) {
+        this.accountUtils = accountUtils;
         this.passwordEncoder = passwordEncoder;
 
         this.accountRepository = accountRepository;
@@ -46,35 +58,36 @@ public class AccountService implements IAccountService{
         dto.setAddress(account.getAddress());
         dto.setPhone(account.getPhone());
         dto.setPassword(account.getPassword());
-
+        dto.setRole(account.getRole());
         dto.setDateOfBirth(account.getDateOfBirth());
         return dto;
     }
 
 
     @Override
-    public TokenValidateDTO validateToken(String token) {
+    public boolean validateToken() {
+        String token= accountUtils.getCurrentJwtToken();
         if (jwtUtils.validateJwtToken(token)) {
-            return new TokenValidateDTO(true);
+            return true;
         }
-        return new TokenValidateDTO(false);
+        return false;
     }
 
     @Override
     public JwtResponse refreshAccessToken(String refreshToken) {
         try {
-            String subject = jwtUtils.getUserIdFromJwtToken(refreshToken);
-            if (!subject.startsWith("REFRESH-")) {
+            if (!jwtUtils.isRefreshToken(refreshToken)) { // Check "type" claim
                 return null;
             }
-            String userId = subject.replace("REFRESH-", "");
+            String userId = jwtUtils.getUserIdFromJwtToken(refreshToken); // Extract userId
             String newAccessToken = jwtUtils.generateTokenFromUserID(userId);
-            String newRefreshToken = jwtUtils.generateRefreshToken(userId);
-            return new JwtResponse(newAccessToken, newRefreshToken);
+            String newRefreshToken= jwtUtils.generateRefreshToken(userId);
+            return new JwtResponse(newAccessToken,newRefreshToken);
         } catch (Exception e) {
             return null;
         }
     }
+
 
 
     @Override
@@ -83,25 +96,22 @@ public class AccountService implements IAccountService{
     }
 
     @Override
-    public String registerUser(RegisterRequest registerRequest) {
+    public boolean registerUser(RegisterRequest registerRequest) {
         Optional<Account> existingAccount = accountRepository.findByEmail(registerRequest.getEmail());
         if (existingAccount.isPresent()) {
-            return null;
+            return false;
         }
         Account createdUser = new Account();
         createdUser.setEmail(registerRequest.getEmail());
         createdUser.setPassword(passwordEncoder.encode(registerRequest.getPassword()));
-        createdUser.setAddress(registerRequest.getAddress());
         createdUser.setPhone(registerRequest.getPhone());
-        createdUser.setDateOfBirth(registerRequest.getDateOfBirth());
         createdUser.setName(registerRequest.getName());
-        createdUser.setRole(RoleEnums.CUSTOMER);
-        createdUser.setStatus(AccountEnums.INACTIVE);
+        createdUser.setRole(registerRequest.getRole());
+        createdUser.setStatus(ActivationEnums.ACTIVE);
         accountRepository.save(createdUser);
-        String otp = generateOTP();
-        String otpToken = jwtUtils.generateOtpToken(registerRequest.getEmail(), otp);
-        boolean emailSent = sendOtpEmail(createdUser.getEmail(), createdUser.getName(), otp, otpToken);
-        return emailSent ? otpToken : null;
+
+
+        return true;
     }
 
     private boolean sendOtpEmail(String email, String name,String otp, String otptoken) {
@@ -144,7 +154,7 @@ public class AccountService implements IAccountService{
     public boolean verifyOtp(String email, String otp, String token) {
         try {
             Account getacc=accountRepository.findByEmail(email).orElse(null);
-            getacc.setStatus(AccountEnums.ACTIVE);
+            getacc.setStatus(ActivationEnums.ACTIVE);
             accountRepository.save(getacc);
             String extractedOtp = jwtUtils.getOtpFromToken(token);
             return extractedOtp.equals(otp);
@@ -153,11 +163,6 @@ public class AccountService implements IAccountService{
             return false;
         }
     }
-
-
-
-
-
 
     private Account mapToEntity(AccountDTO dto) {
         Account account = new Account();
@@ -168,7 +173,7 @@ public class AccountService implements IAccountService{
         account.setPhone(dto.getPhone());
         account.setRole(RoleEnums.ADMIN);
         account.setDateOfBirth(dto.getDateOfBirth());
-        account.setStatus(AccountEnums.ACTIVE);
+        account.setStatus(ActivationEnums.ACTIVE);
         return account;
     }
     @Override
@@ -178,16 +183,24 @@ public class AccountService implements IAccountService{
         return user;
     }
     @Override
-    public List<AccountDTO> getAllUsers() {
-        List<Account> accounts= accountRepository.findAll();
-        List<AccountDTO> list= new ArrayList<>();
-        for(Account acc:accounts)
-        {
-            list.add(mapToDTO(acc));
-            System.out.println(acc.getId());
+    public PaginatedResponseDTO<AccountDTO> getAllUsers(int page, int size) {
+        Pageable pageable = PageRequest.of(page-1, size);
+        Page<Account> accounts = accountRepository.findAll(pageable);
+        List<AccountDTO> accountDTOs = new ArrayList<>();
+        for (Account account : accounts.getContent()) {
+            accountDTOs.add(mapToDTO(account));
         }
-        return list;
+        PaginatedResponseDTO<AccountDTO> response = new PaginatedResponseDTO<>();
+        response.setContent(accountDTOs);
+        response.setPageNumber(accounts.getNumber());
+        response.setPageSize(accounts.getSize());
+        response.setTotalElements(accounts.getTotalElements());
+        response.setTotalPages(accounts.getTotalPages());
+
+        return response;
     }
+
+
     @Override
     public AccountDTO getUserById(String id) {
         Account account= accountRepository.findById(id).orElse(null);

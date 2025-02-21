@@ -1,6 +1,5 @@
 package com.be.back_end.dto;
 
-import com.be.back_end.enums.TshirtsEnums;
 import lombok.Getter;
 import lombok.Setter;
 

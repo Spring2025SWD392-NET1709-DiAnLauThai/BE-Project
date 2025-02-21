@@ -1,5 +1,6 @@
 package com.be.back_end.dto;
 
+import com.be.back_end.enums.RoleEnums;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -17,5 +18,5 @@ public class AccountDTO {
     private String password;
     private LocalDate dateOfBirth;
     private boolean isDeleted;
-
+    private RoleEnums role;
 }

@@ -33,15 +33,34 @@ public class JwtUtils {
   @Value("${be.app.jwtRefreshExpirationMs}")
   private int jwtRefreshExpirationMs; // Refresh token expiry (milliseconds)
 
+  public String getJwtFromRequest(HttpServletRequest request) {
+    String bearerToken = request.getHeader("Authorization");
+    if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+      return bearerToken.substring(7);
+    }
+    return null;
+  }
+
 
   public String generateRefreshToken(String userId) {
     return Jwts.builder()
-            .setSubject("REFRESH-" + userId) // Add "REFRESH-" prefix to differentiate
-            .setIssuedAt(new Date())
-            .setExpiration(new Date(System.currentTimeMillis() + jwtRefreshExpirationMs)) // Long expiry
+            .setSubject(userId)  // No "R" prefix
+            .claim("type", "refresh")  // Add a claim to identify refresh tokens
+            .setExpiration(new Date(System.currentTimeMillis() + jwtRefreshExpirationMs))
             .signWith(key(), SignatureAlgorithm.HS256)
             .compact();
   }
+  public boolean isRefreshToken(String token) {
+    try {
+      Claims claims = Jwts.parserBuilder().setSigningKey(key()).build()
+              .parseClaimsJws(token).getBody();
+      return "refresh".equals(claims.get("type", String.class));  // Check claim
+    } catch (Exception e) {
+      return false;
+    }
+  }
+
+
 
 
   public String getJwtFromCookies(HttpServletRequest request) {
@@ -86,6 +105,10 @@ public class JwtUtils {
 
   public boolean validateJwtToken(String authToken) {
     try {
+      if(isRefreshToken(authToken))
+      {
+        return false;
+      }
       Claims claims=Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(authToken).getBody();
       return true;
     } catch (MalformedJwtException e) {

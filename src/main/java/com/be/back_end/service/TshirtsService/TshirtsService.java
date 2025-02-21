@@ -1,21 +1,16 @@
 package com.be.back_end.service.TshirtsService;
 
-import com.be.back_end.dto.AccountDTO;
 import com.be.back_end.dto.TshirtsDTO;
-import com.be.back_end.enums.AccountEnums;
-import com.be.back_end.enums.RoleEnums;
-import com.be.back_end.enums.TshirtsEnums;
+
+import com.be.back_end.enums.ActivationEnums;
 import com.be.back_end.model.Account;
 import com.be.back_end.model.Tshirts;
 import com.be.back_end.repository.AccountRepository;
 import com.be.back_end.repository.TshirtsRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Service
 public class TshirtsService implements  ITshirtsService{
@@ -48,7 +43,7 @@ public class TshirtsService implements  ITshirtsService{
         tshirt.setDescription(dto.getDescription());
 
         tshirt.setImage_url(dto.getImageUrl());
-        tshirt.setStatus(TshirtsEnums.ACTIVE);
+        tshirt.setStatus(ActivationEnums.ACTIVE);
 
         return tshirt;
     }
