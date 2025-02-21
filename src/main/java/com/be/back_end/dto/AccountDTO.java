@@ -1,5 +1,6 @@
 package com.be.back_end.dto;
 
+import com.be.back_end.enums.RoleEnums;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -19,6 +20,6 @@ public class AccountDTO {
     private String role;
     private String status;
     private boolean isDeleted;
-
+    private RoleEnums role;
 }
 

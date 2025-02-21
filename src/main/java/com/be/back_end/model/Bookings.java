@@ -1,7 +1,8 @@
 package com.be.back_end.model;
 
 
-import com.be.back_end.enums.OrderEnums;
+import com.be.back_end.enums.ActivationEnums;
+import com.be.back_end.enums.BookingEnums;
 import jakarta.persistence.*;
 
 import lombok.Getter;
@@ -42,7 +43,7 @@ public class Bookings {
     @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
     private Task task;
     @Enumerated(EnumType.STRING)
-    private OrderEnums status;
+    private BookingEnums status;
 
     @Column(name="datecreated")
     private LocalDateTime date_created;

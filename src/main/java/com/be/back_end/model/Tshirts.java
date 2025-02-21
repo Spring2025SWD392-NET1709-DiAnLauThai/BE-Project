@@ -1,7 +1,7 @@
 package com.be.back_end.model;
 
 
-import com.be.back_end.enums.TshirtsEnums;
+import com.be.back_end.enums.ActivationEnums;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,7 +30,7 @@ public class Tshirts {
     private String description;
 
     @Enumerated(EnumType.STRING)
-    private TshirtsEnums status;
+    private ActivationEnums status;
 
     @Column(name="imageurl")
     private String image_url;

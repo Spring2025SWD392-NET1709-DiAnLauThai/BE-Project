@@ -5,6 +5,8 @@ import com.be.back_end.dto.response.ApiResponse;
 import com.be.back_end.dto.response.ErrorResponse;
 import com.be.back_end.dto.response.TokenValidateDTO;
 import com.be.back_end.service.AccountService.IAccountService;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -24,6 +26,7 @@ import org.springframework.http.ResponseCookie;
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/api/auth")
+@SecurityRequirement(name = "Bearer Authentication")
 public class AuthController {
     @Autowired
     private AuthenticationManager authenticationManager;
@@ -31,46 +34,30 @@ public class AuthController {
     private JwtUtils jwtUtils;
     @Autowired
     private IAccountService accountService;
-    @PostMapping("/validate")
-    public ResponseEntity<ApiResponse<TokenValidateDTO>> validateToken(@RequestParam String token) {
-        TokenValidateDTO response = accountService.validateToken(token);
-        return response.isValid()
-                ? ResponseEntity.ok(new ApiResponse<>(200, response, "Token is valid"))
-                : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(401, response, "Token is invalid or expired"));
+    @PostMapping("/validate")//giai quyet sao cho no su dung token thong qua authorize ma ko can phai nhap
+    public ResponseEntity<ApiResponse<TokenValidateDTO>> validateToken() {
+        boolean response = accountService.validateToken();
+        return response
+                ? ResponseEntity.ok(new ApiResponse<>(200, null, "Token is valid"))
+                : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(401, null, "Token is invalid or expired"));
     }
 
-    @PostMapping("/verify-otp")
-    public ResponseEntity<?> verifyOtp(@RequestParam String email, @RequestParam String otp, @RequestParam String token) {
-        boolean verified = accountService.verifyOtp(email, otp, token);
 
-        if (verified)
-        {
-            return ResponseEntity.ok(new ApiResponse<>(200,null,"Verified"));
-        }
-        return ResponseEntity.status(400).body(new ApiResponse<>(400,null,"otp is expired. Please check or resend otp"));
-    }
-    @PostMapping("/resend-otp")
-    public ResponseEntity<ApiResponse<String>> resendOtp(@RequestParam String email) {
-        String otpToken = accountService.resendOtp(email);
-        if (otpToken.startsWith("Failed")) {
-            return ResponseEntity.status(400).body(new ApiResponse<>(400, null, otpToken));
-        }
-        return ResponseEntity.ok(new ApiResponse<>(200, otpToken, "OTP resent successfully."));
-    }
+
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<String>> registerUser(@RequestBody RegisterRequest registerRequest) {
-        String otpToken = accountService.registerUser(registerRequest);
-        if (otpToken == null) {
-            return ResponseEntity.status(400).body(new ApiResponse<>(400, null, "Account created, but failed to send OTP email."));
+    public ResponseEntity<ApiResponse<String>> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
+        boolean registeringUser = accountService.registerUser(registerRequest);
+        if (!registeringUser) {
+            return ResponseEntity.status(400).body(new ApiResponse<>(400, null, "Account failed to be created"));
         }
-        return ResponseEntity.ok(new ApiResponse<>(200, otpToken, "Account created! OTP Token generated successfully."));
+        return ResponseEntity.ok(new ApiResponse<>(200, null, "Account created"));
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestParam String refreshToken) {
+    public ResponseEntity<?> refreshToken(@RequestBody String refreshToken) {
         JwtResponse jwtResponse = accountService.refreshAccessToken(refreshToken);
 
-        if (jwtResponse == null || jwtResponse.getToken() == null) {
+        if (jwtResponse == null || jwtResponse.getAccessToken() == null) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(new ApiResponse<>(401, null, "Invalid or expired refresh token"));
         }
