@@ -2,11 +2,20 @@ package com.be.back_end.controller;
 
 import com.be.back_end.dto.PaymentDTO;
 
+import com.be.back_end.dto.response.PaymentRes;
 import com.be.back_end.service.PaymentService.IPaymentService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.*;
+
+
 
 @RestController
 @RequestMapping("/api/payments")
@@ -14,8 +23,11 @@ public class PaymentController {
 
     private final IPaymentService paymentService;
 
+
+    @Autowired
     public PaymentController(IPaymentService paymentService) {
         this.paymentService = paymentService;
+
     }
 
     @GetMapping
@@ -60,4 +72,6 @@ public class PaymentController {
         }
         return ResponseEntity.ok("Payment deleted successfully.");
     }
+
+
 }

@@ -12,3 +12,9 @@ spring.jpa.show-sql=true
 be.app.jwtSecret=your-secure-jwt-secret
 be.app.jwtExpirationMs=1800000 # Token expiration time in milliseconds
 be.app.jwtCookieName=jwtCookie
+
+# VNPay settings
+vnpay.tmnCode=YOUR_TMN_CODE
+vnpay.hashSecret=YOUR_HASH_SECRET
+vnpay.payUrl=https://sandbox.vnpayment.vn/paymentv2/vpcpay.html
+vnpay.returnUrl=http://localhost:8080/vnpay-return
