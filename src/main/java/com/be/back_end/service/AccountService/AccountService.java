@@ -38,15 +38,16 @@ public class AccountService implements IAccountService{
         this.jwtUtils = jwtUtils;
         this.emailService = emailService;
     }
+
     private AccountDTO mapToDTO(Account account) {
         AccountDTO dto = new AccountDTO();
-        
+        dto.setId(UUID.fromString(account.getId().toString()));
         dto.setEmail(account.getEmail());
         dto.setName(account.getName());
         dto.setAddress(account.getAddress());
         dto.setPhone(account.getPhone());
-        dto.setPassword(account.getPassword());
-
+        // dto.setPassword(account.getPassword());
+        dto.setRole(account.getRole().toString());
         dto.setDateOfBirth(account.getDateOfBirth());
         return dto;
     }

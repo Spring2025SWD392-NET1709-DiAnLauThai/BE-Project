@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.UUID;
-
+import com.be.back_end.dto.response.ApiResponse;
 @RestController
 @RequestMapping("/api/accounts")
 public class AccountController {
@@ -24,13 +24,15 @@ public class AccountController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AccountDTO>> getAllAccounts() {
+    public ResponseEntity<ApiResponse> getAllAccounts() {
         List<AccountDTO> accounts = accountService.getAllUsers();
         if (accounts.isEmpty()) {
             System.out.println("No accounts found.");
         }
-        return ResponseEntity.ok(accounts);
+        ApiResponse apiResponse = new ApiResponse(200, accounts, "Accounts retrieved successfully.");
+        return ResponseEntity.ok(apiResponse);
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getAccountById(@PathVariable String id) {
         AccountDTO account = accountService.getUserById(id);
