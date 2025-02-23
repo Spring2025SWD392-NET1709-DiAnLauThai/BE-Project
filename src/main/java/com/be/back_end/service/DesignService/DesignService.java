@@ -27,7 +27,7 @@ public class DesignService implements IDesignService {
 
 
     @Override
-    public List<DesignDTO> getAll() {
+    public List<DesignDTO> getAllDesigns() {
         List<Designs> designsList= designsRepository.findAll();
         List<DesignDTO> list= new ArrayList<>();
         for(Designs design:designsList)
@@ -39,25 +39,20 @@ public class DesignService implements IDesignService {
     }
 
     @Override
-    public DesignDTO getById(String id) {
+    public DesignDTO getDesignById(String id) {
         Designs design= designsRepository.findById(id).orElse(null);
         return mapToDTO(design);
     }
 
     @Override
-    public List<DesignDTO> getByName(String name) {
-        return List.of();
-    }
-
-    @Override
-    public DesignDTO create(DesignDTO dto) {
+    public DesignDTO createDesign(DesignDTO dto) {
         Designs design= mapToEntity(dto);
         designsRepository.save(design);
         return dto;
     }
 
     @Override
-    public boolean update(String id, DesignDTO dto) {
+    public boolean updateDesign(String id, DesignDTO dto) {
         Designs updatedDesign= designsRepository.findById(id).orElse(null);
         if(updatedDesign==null){
             return false;
@@ -68,7 +63,7 @@ public class DesignService implements IDesignService {
     }
 
     @Override
-    public boolean removeById(String id) {
+    public boolean deleteDesign(String id) {
         Designs existingDesign = designsRepository.getById(id);
         if (existingDesign != null) {
             designsRepository.delete(existingDesign);

@@ -8,10 +8,9 @@ import com.be.back_end.model.Designs;
 import java.util.List;
 
 public interface IDesignService {
-    List<DesignDTO> getAll();
-    DesignDTO getById(String id);
-    List<DesignDTO> getByName(String name);
-    DesignDTO create(DesignDTO design);
-    boolean update(String id, DesignDTO design);
-    boolean removeById(String id);
+    List<DesignDTO> getAllDesigns();
+    DesignDTO getDesignById(String id);
+    DesignDTO createDesign(DesignDTO design);
+    boolean updateDesign(String id, DesignDTO design);
+    boolean deleteDesign(String id);
 }

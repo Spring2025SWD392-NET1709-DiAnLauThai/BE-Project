@@ -20,7 +20,7 @@ public class DesignController {
 
     @GetMapping
     public ResponseEntity<List<DesignDTO>> getAllDesigns() {
-        List<DesignDTO> designs = designService.getAll();
+        List<DesignDTO> designs = designService.getAllDesigns();
         if (designs.isEmpty()) {
             System.out.println("No designs found.");
         }
@@ -29,14 +29,14 @@ public class DesignController {
 
     @PostMapping
     public ResponseEntity<DesignDTO> createDesign(@RequestBody DesignDTO designDTO) {
-        DesignDTO createdDesign = designService.create(designDTO);
+        DesignDTO createdDesign = designService.createDesign(designDTO);
         System.out.println("Design created successfully.");
         return ResponseEntity.ok(createdDesign);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getDesignById(@PathVariable String id) {
-        DesignDTO design = designService.getById(id);
+        DesignDTO design = designService.getDesignById(id);
         if (design == null) {
             return ResponseEntity.badRequest().body("Design not found with ID: " + id);
         }
@@ -45,7 +45,7 @@ public class DesignController {
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateDesign(@PathVariable String id, @RequestBody DesignDTO designDTO) {
-        boolean updated = designService.update(id, designDTO);
+        boolean updated = designService.updateDesign(id, designDTO);
         if (!updated) {
             return ResponseEntity.badRequest().body("Failed to update. Account not found with ID: " + id);
         }
@@ -54,7 +54,7 @@ public class DesignController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteDesign(@PathVariable String id) {
-        boolean deleted = designService.removeById(id);
+        boolean deleted = designService.deleteDesign(id);
         if (!deleted) {
             return ResponseEntity.badRequest().body("Failed to delete. Design not found with ID: " + id);
         }
