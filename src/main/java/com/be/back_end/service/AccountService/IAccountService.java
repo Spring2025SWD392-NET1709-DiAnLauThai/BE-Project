@@ -1,7 +1,9 @@
 package com.be.back_end.service.AccountService;
 
 import com.be.back_end.dto.AccountDTO;
+import com.be.back_end.dto.request.CreateAccountRequest;
 import com.be.back_end.dto.request.RegisterRequest;
+import com.be.back_end.dto.response.AccountCreationResponse;
 import com.be.back_end.dto.response.JwtResponse;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.dto.response.TokenValidateDTO;
@@ -22,5 +24,8 @@ public interface IAccountService {
     boolean registerUser(RegisterRequest registerRequest);
     boolean verifyOtp(String email, String otp, String token);
     String resendOtp(String email);
+
     JwtResponse refreshAccessToken(String refreshToken);
+        AccountCreationResponse createAccount(CreateAccountRequest request);
+
 }

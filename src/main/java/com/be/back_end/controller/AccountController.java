@@ -1,11 +1,15 @@
 package com.be.back_end.controller;
 
 import com.be.back_end.dto.AccountDTO;
+import com.be.back_end.dto.request.CreateAccountRequest;
+import com.be.back_end.dto.response.AccountCreationResponse;
 import com.be.back_end.dto.response.ApiResponse;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.model.Account;
 import com.be.back_end.service.AccountService.IAccountService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.Valid;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -22,10 +26,21 @@ public class AccountController {
         this.accountService = accountService;
     }
     @PostMapping
-    public ResponseEntity<AccountDTO> createAccount(@RequestBody AccountDTO account) {
-        AccountDTO createdAccount = accountService.createUser(account);
-        System.out.println("Account created successfully.");
-        return ResponseEntity.ok(createdAccount);
+    public ResponseEntity<?> createAccount(@Valid @RequestBody CreateAccountRequest request) {
+        try {
+            AccountCreationResponse response = accountService.createAccount(request);
+            return ResponseEntity.ok(new ApiResponse<>(
+                201,
+                response,
+                "Account created successfully. Credentials sent to email."
+            ));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest()
+                .body(new ApiResponse<>(400, null, e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError()
+                .body(new ApiResponse<>(500, null, "Internal server error"));
+        }
     }
 
     @GetMapping
