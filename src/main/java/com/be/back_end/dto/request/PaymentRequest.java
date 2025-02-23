@@ -14,7 +14,7 @@ public class PaymentRequest {
     private String payment_name;
     private String payment_method;
     private LocalDateTime payment_date;
-    private long payment_amount;
+    private String payment_amount;
     private String order_info;
     private String order_type;
 }
