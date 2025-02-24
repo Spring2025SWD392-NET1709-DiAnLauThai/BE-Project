@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -17,9 +18,10 @@ public class AccountDTO {
     private String phone;
     private String password;
     private LocalDate dateOfBirth;
-
     private String status;
     private boolean isDeleted;
     private RoleEnums role;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }
 

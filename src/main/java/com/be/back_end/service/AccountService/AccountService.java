@@ -52,14 +52,16 @@ public class AccountService implements IAccountService{
     }
     private AccountDTO mapToDTO(Account account) {
         AccountDTO dto = new AccountDTO();
-        
+        dto.setId(UUID.fromString(account.getId()));
         dto.setEmail(account.getEmail());
         dto.setName(account.getName());
         dto.setAddress(account.getAddress());
         dto.setPhone(account.getPhone());
-        dto.setPassword(account.getPassword());
         dto.setRole(account.getRole());
+        dto.setStatus(account.getStatus().toString());
         dto.setDateOfBirth(account.getDateOfBirth());
+        dto.setCreatedAt(account.getCreatedAt());
+        dto.setUpdatedAt(account.getUpdatedAt());
         return dto;
     }
 

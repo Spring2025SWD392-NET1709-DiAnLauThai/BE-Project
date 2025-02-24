@@ -29,7 +29,7 @@ public class AccountController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllAccounts(@RequestParam int page, int size ) {
+    public ResponseEntity<?> getAllAccounts(@RequestParam int page, int size) {
         if (page < 0 || size <= 0) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ApiResponse<>(400, null, "Page and size must be positive values"));
@@ -41,6 +41,7 @@ public class AccountController {
         }
         return ResponseEntity.ok(new ApiResponse<>(200, accounts, "Page returned: " + page));
     }
+    
     @GetMapping("/{id}")
     public ResponseEntity<?> getAccountById(@PathVariable String id) {
         AccountDTO account = accountService.getUserById(id);
