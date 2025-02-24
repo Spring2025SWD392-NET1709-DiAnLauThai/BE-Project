@@ -23,4 +23,5 @@ public interface IAccountService {
     boolean verifyOtp(String email, String otp, String token);
     String resendOtp(String email);
     JwtResponse refreshAccessToken(String refreshToken);
+    JwtResponse handleGoogleLogin(String authCode);
 }

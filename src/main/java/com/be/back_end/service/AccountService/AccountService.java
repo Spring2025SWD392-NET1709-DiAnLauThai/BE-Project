@@ -14,6 +14,7 @@ import com.be.back_end.repository.AccountRepository;
 
 import com.be.back_end.security.jwt.JwtUtils;
 import com.be.back_end.service.EmailService.IEmailService;
+import com.be.back_end.service.GoogleService.IGoogleService;
 import com.be.back_end.utils.AccountUtils;
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,10 +27,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
@@ -42,13 +40,15 @@ public class AccountService implements IAccountService{
     private final AccountRepository accountRepository;
     private final JwtUtils jwtUtils;
     private final IEmailService emailService;
-    public AccountService(AccountUtils accountUtils, PasswordEncoder passwordEncoder, AccountRepository accountRepository, JwtUtils jwtUtils, IEmailService emailService) {
+    private final IGoogleService googleService;
+    public AccountService(AccountUtils accountUtils, PasswordEncoder passwordEncoder, AccountRepository accountRepository, JwtUtils jwtUtils, IEmailService emailService, IGoogleService googleService) {
         this.accountUtils = accountUtils;
         this.passwordEncoder = passwordEncoder;
 
         this.accountRepository = accountRepository;
         this.jwtUtils = jwtUtils;
         this.emailService = emailService;
+        this.googleService = googleService;
     }
     private AccountDTO mapToDTO(Account account) {
         AccountDTO dto = new AccountDTO();
@@ -150,6 +150,41 @@ public class AccountService implements IAccountService{
         }
         return otpToken;
     }
+    @Override
+    public JwtResponse handleGoogleLogin(String authCode) {
+        String accessToken = googleService.exchangeCodeForAccessToken(authCode);
+        Account user = processGoogleLogin(accessToken);
+
+        return new JwtResponse(
+                jwtUtils.generateTokenFromUserID(user.getId()),
+                jwtUtils.generateRefreshToken(user.getId()),
+                user.getId(),
+                user.getEmail(),
+                user.getRole().name(),
+                user.getName(),
+                user.getAddress(),
+                user.getPhone(),
+                user.getDateOfBirth(),
+                user.getStatus()
+        );
+    }
+
+
+    private Account processGoogleLogin(String accessToken) {
+        Map<String, Object> userInfo = googleService.fetchGoogleUserInfo(accessToken);
+        String email = (String) userInfo.get("email");
+        String name = (String) userInfo.get("name");
+
+        return accountRepository.findByEmail(email).orElseGet(() -> {
+            Account newUser = new Account();
+            newUser.setEmail(email);
+            newUser.setName(name);
+            newUser.setStatus(ActivationEnums.ACTIVE);
+            newUser.setRole(RoleEnums.CUSTOMER);  
+            return accountRepository.save(newUser);
+        });
+    }
+
     @Override
     public boolean verifyOtp(String email, String otp, String token) {
         try {

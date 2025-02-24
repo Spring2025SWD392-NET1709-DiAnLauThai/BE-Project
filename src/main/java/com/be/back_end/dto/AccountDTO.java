@@ -17,7 +17,7 @@ public class AccountDTO {
     private String phone;
     private String password;
     private LocalDate dateOfBirth;
-    private String role;
+
     private String status;
     private boolean isDeleted;
     private RoleEnums role;

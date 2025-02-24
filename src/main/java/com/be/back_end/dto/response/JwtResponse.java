@@ -21,9 +21,11 @@ public class JwtResponse {
     private ActivationEnums status;
 
     // Constructor đầy đủ
-    public JwtResponse(String id, String email, String role, 
-                      String name, String address, String phone, 
-                      LocalDate dateOfBirth, ActivationEnums status) {
+    public JwtResponse(String accessToken, String refreshToken, String id, String email,
+                       String role, String name, String address, String phone,
+                       LocalDate dateOfBirth, ActivationEnums status) {
+        this.accessToken = accessToken;
+        this.refreshToken = refreshToken;
         this.id = id;
         this.email = email;
         this.role = role;
