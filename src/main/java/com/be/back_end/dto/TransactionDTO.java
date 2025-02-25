@@ -1,4 +1,4 @@
-package com.be.back_end.dto.request;
+package com.be.back_end.dto;
 
 import com.be.back_end.model.Orders;
 import lombok.Getter;
@@ -9,12 +9,10 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class PaymentRequest {
+public class TransactionDTO {
     private Orders orders;
     private String payment_name;
     private String payment_method;
     private LocalDateTime payment_date;
-    private String payment_amount;
-    private String order_info;
-    private String order_type;
+    private BigDecimal payment_amount;
 }

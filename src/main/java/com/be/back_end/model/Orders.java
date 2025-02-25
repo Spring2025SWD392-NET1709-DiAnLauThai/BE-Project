@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -39,7 +38,7 @@ public class Orders {
     private Account account;
 
     @OneToMany(mappedBy = "orders",cascade = CascadeType.ALL)
-    private Set<Payment> payments;
+    private Set<Transaction> transactions;
 
     @Enumerated(EnumType.STRING)
     private OrderEnums status;

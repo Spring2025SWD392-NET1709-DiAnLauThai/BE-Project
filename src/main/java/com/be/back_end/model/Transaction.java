@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -16,7 +15,7 @@ import java.util.UUID;
 @Setter
 @Table(name="Payment")
 @NoArgsConstructor
-public class Payment {
+public class Transaction {
     @Id
     @Column(name="paymentid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     private String id;

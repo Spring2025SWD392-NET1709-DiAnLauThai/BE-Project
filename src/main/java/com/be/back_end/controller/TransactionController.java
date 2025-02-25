@@ -1,38 +1,32 @@
 package com.be.back_end.controller;
 
-import com.be.back_end.dto.PaymentDTO;
+import com.be.back_end.dto.TransactionDTO;
 
-import com.be.back_end.dto.response.PaymentRes;
-import com.be.back_end.service.PaymentService.IPaymentService;
+import com.be.back_end.service.TransactionService.ITransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 
 
 @RestController
 @RequestMapping("/api/payments")
-public class PaymentController {
+public class TransactionController {
 
-    private final IPaymentService paymentService;
+    private final ITransactionService paymentService;
 
 
     @Autowired
-    public PaymentController(IPaymentService paymentService) {
+    public TransactionController(ITransactionService paymentService) {
         this.paymentService = paymentService;
 
     }
 
     @GetMapping
-    public ResponseEntity<List<PaymentDTO>> getAllPayment() {
-        List<PaymentDTO> payments = paymentService.getAll();
+    public ResponseEntity<List<TransactionDTO>> getAllPayment() {
+        List<TransactionDTO> payments = paymentService.getAll();
         if (payments.isEmpty()) {
             System.out.println("No payments found.");
         }
@@ -40,15 +34,15 @@ public class PaymentController {
     }
 
     @PostMapping
-    public ResponseEntity<PaymentDTO> createPayment(@RequestBody PaymentDTO PaymentDTO) {
-        PaymentDTO createdDesign = paymentService.create(PaymentDTO);
+    public ResponseEntity<TransactionDTO> createPayment(@RequestBody TransactionDTO TransactionDTO) {
+        TransactionDTO createdDesign = paymentService.create(TransactionDTO);
         System.out.println("Payment created successfully.");
         return ResponseEntity.ok(createdDesign);
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getPaymentById(@PathVariable String id) {
-        PaymentDTO design = paymentService.getById(id);
+        TransactionDTO design = paymentService.getById(id);
         if (design == null) {
             return ResponseEntity.badRequest().body("Payment not found with ID: " + id);
         }
@@ -56,8 +50,8 @@ public class PaymentController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePayment(@PathVariable String id, @RequestBody PaymentDTO PaymentDTO) {
-        boolean updated = paymentService.update(id, PaymentDTO);
+    public ResponseEntity<?> updatePayment(@PathVariable String id, @RequestBody TransactionDTO TransactionDTO) {
+        boolean updated = paymentService.update(id, TransactionDTO);
         if (!updated) {
             return ResponseEntity.badRequest().body("Failed to update. Payment not found with ID: " + id);
         }
