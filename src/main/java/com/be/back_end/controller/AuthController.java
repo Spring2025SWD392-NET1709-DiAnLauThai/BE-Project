@@ -79,6 +79,7 @@ public class AuthController {
 
         ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(accountDetails);
         String refreshToken = jwtUtils.generateRefreshToken(accountDetails.getId());
+        
         ApiResponse apiResponse = new ApiResponse(200, new JwtResponse(jwtCookie.getValue(), refreshToken),
                 "Login successful");
 
