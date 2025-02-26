@@ -5,6 +5,7 @@ import com.be.back_end.dto.response.ApiResponse;
 import com.be.back_end.dto.response.ErrorResponse;
 import com.be.back_end.dto.response.TokenValidateDTO;
 import com.be.back_end.service.AccountService.IAccountService;
+import com.be.back_end.service.GoogleService.IGoogleService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ import org.springframework.http.ResponseCookie;
 @SecurityRequirement(name = "Bearer Authentication")
 public class AuthController {
     @Autowired
+    private IGoogleService googleService;
+    @Autowired
     private AuthenticationManager authenticationManager;
     @Autowired
     private JwtUtils jwtUtils;
@@ -41,7 +44,16 @@ public class AuthController {
                 ? ResponseEntity.ok(new ApiResponse<>(200, null, "Token is valid"))
                 : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(401, null, "Token is invalid or expired"));
     }
+    @GetMapping("/google/login")
+    public ResponseEntity<ApiResponse<String>> getGoogleAuthUrl() {
+        return ResponseEntity.ok(new ApiResponse<>(200, googleService.generateGoogleAuthUrl(), "Google Auth URL generated successfully"));
+    }
 
+    @GetMapping("/google/callback")
+    public ResponseEntity<ApiResponse<JwtResponse>> googleCallback(@RequestParam("code") String code) {
+        JwtResponse jwtResponse = accountService.handleGoogleLogin(code);
+        return ResponseEntity.ok(new ApiResponse<>(200, jwtResponse, "Login successful"));
+    }
 
 
     @PostMapping("/register")

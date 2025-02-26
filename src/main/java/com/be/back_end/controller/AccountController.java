@@ -67,10 +67,10 @@ public class AccountController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateAccount(@PathVariable String id, @RequestBody AccountDTO account) {
-        boolean updated = accountService.updateUser(id, account);
+    public ResponseEntity<?> updateAccount(@RequestBody AccountDTO account) {
+        boolean updated = accountService.updateUser( account);
         if (!updated) {
-            return ResponseEntity.badRequest().body("Failed to update. Account not found with ID: " + id);
+            return ResponseEntity.badRequest().body("Failed to update. Account not found with ID: ");
         }
         return ResponseEntity.ok("Account updated successfully.");
     }
