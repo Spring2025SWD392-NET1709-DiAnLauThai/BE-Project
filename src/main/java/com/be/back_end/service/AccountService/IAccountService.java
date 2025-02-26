@@ -17,7 +17,7 @@ public interface IAccountService {
     AccountDTO createUser(AccountDTO user);
     PaginatedResponseDTO<AccountDTO> getAllUsers(int page, int size);
     AccountDTO getUserById(String id);
-    boolean updateUser(String id,AccountDTO user);
+    boolean updateUser(AccountDTO user);
     boolean deleteUser(String id);
     boolean validateToken();
     String getUsernameFromToken(String token);

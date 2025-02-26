@@ -16,6 +16,7 @@ import com.be.back_end.repository.AccountRepository;
 
 import com.be.back_end.security.jwt.JwtUtils;
 import com.be.back_end.service.EmailService.IEmailService;
+import com.be.back_end.service.GoogleService.IGoogleService;
 import com.be.back_end.utils.AccountUtils;
 import com.be.back_end.utils.PasswordUtils;
 
@@ -37,15 +38,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
 
 @Service
+@Slf4j
 public class AccountService implements IAccountService{
     /*private final IGenericService<Account, UUID> genericService;*/
     private final AccountUtils accountUtils;
@@ -65,13 +64,13 @@ public class AccountService implements IAccountService{
     }
     private AccountDTO mapToDTO(Account account) {
         AccountDTO dto = new AccountDTO();
-        dto.setId(UUID.fromString(account.getId()));
+        dto.setId(account.getId());
         dto.setEmail(account.getEmail());
         dto.setName(account.getName());
         dto.setAddress(account.getAddress());
         dto.setPhone(account.getPhone());
         dto.setRole(account.getRole());
-        dto.setStatus(account.getStatus().toString());
+        dto.setStatus(account.getStatus());
         dto.setDateOfBirth(account.getDateOfBirth());
         dto.setCreatedAt(account.getCreatedAt());
         dto.setUpdatedAt(account.getUpdatedAt());
@@ -257,12 +256,21 @@ public class AccountService implements IAccountService{
         return mapToDTO(account);
     }
     @Override
-    public boolean updateUser(String id,AccountDTO user) {
-        Account updatedAccount= accountRepository.findById(id).orElse(null);
+    public boolean updateUser(AccountDTO user) {
+        Account updatedAccount= accountRepository.findById(user.getId().toString()).orElse(null);
         if(updatedAccount==null){
             return false;
         }
-        updatedAccount=mapToEntity(user);
+        updatedAccount.setAddress(user.getAddress());
+        updatedAccount.setEmail(user.getEmail());
+        updatedAccount.setPhone(user.getPhone());
+        updatedAccount.setUpdatedAt(user.getUpdatedAt());
+        updatedAccount.setRole(user.getRole());
+        updatedAccount.setDateOfBirth(user.getDateOfBirth());
+        updatedAccount.setCreatedAt(user.getCreatedAt());
+        updatedAccount.setStatus(user.getStatus());
+        updatedAccount.setName(user.getName());
+
         accountRepository.save(updatedAccount);
         return true;
     }
