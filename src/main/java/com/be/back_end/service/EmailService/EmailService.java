@@ -45,5 +45,30 @@ public class EmailService implements IEmailService{
 
     }
 
+    @Override
+    public void sendPasswordEmail(String to, String name, String password) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        Context context = new Context();
+        context.setVariable("name", name);
+        context.setVariable("password", password);
+
+        String htmlContent = templateEngine.process("password-notification", context);
+
+        helper.setTo(to);
+        helper.setSubject("Your Account Password");
+        helper.setText(htmlContent, true);
+
+        try {
+            mailSender.send(message);
+            System.out.println("Password email sent successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            System.out.println("Error sending password email: " + e.getMessage());
+            throw new MessagingException("Error sending password email", e);
+        }
+    }
+
 
 }

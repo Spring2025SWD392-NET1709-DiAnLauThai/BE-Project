@@ -2,7 +2,9 @@ package com.be.back_end.service.AccountService;
 
 
 import com.be.back_end.dto.AccountDTO;
+import com.be.back_end.dto.request.CreateAccountRequest;
 import com.be.back_end.dto.request.RegisterRequest;
+import com.be.back_end.dto.response.AccountCreationResponse;
 import com.be.back_end.dto.response.JwtResponse;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.dto.response.TokenValidateDTO;
@@ -14,8 +16,9 @@ import com.be.back_end.repository.AccountRepository;
 
 import com.be.back_end.security.jwt.JwtUtils;
 import com.be.back_end.service.EmailService.IEmailService;
-import com.be.back_end.service.GoogleService.IGoogleService;
 import com.be.back_end.utils.AccountUtils;
+import com.be.back_end.utils.PasswordUtils;
+
 import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,9 +28,19 @@ import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.security.SecureRandom;
-import java.util.*;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
@@ -182,7 +195,7 @@ public class AccountService implements IAccountService{
             newUser.setEmail(email);
             newUser.setName(name);
             newUser.setStatus(ActivationEnums.ACTIVE);
-            newUser.setRole(RoleEnums.CUSTOMER);  
+            newUser.setRole(RoleEnums.CUSTOMER);
             return accountRepository.save(newUser);
         });
     }
@@ -261,5 +274,69 @@ public class AccountService implements IAccountService{
             return true;
         }
         return false;
+    }
+
+    @Override
+    @Transactional
+    public AccountCreationResponse createAccount(CreateAccountRequest request) {
+        // Validate email uniqueness
+        if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new IllegalArgumentException("Email already exists");
+        }
+
+        // Generate password and account details
+        String plainPassword = PasswordUtils.generateRandomPassword();
+        String accountId = UUID.randomUUID().toString();
+        LocalDateTime now = LocalDateTime.now();
+
+        // Create account
+        Account account = createAccountEntity(request, accountId, plainPassword, now);
+        Account savedAccount = accountRepository.save(account);
+
+        // Send email
+        sendWelcomeEmail(account.getEmail(), account.getName(), plainPassword);
+
+        // Return response
+        return mapToResponse(savedAccount);
+    }
+
+    private Account createAccountEntity(CreateAccountRequest request, String id, String plainPassword, LocalDateTime now) {
+        Account account = new Account();
+        account.setId(id);
+        account.setEmail(request.getEmail());
+        account.setName(request.getName());
+        account.setPassword(passwordEncoder.encode(plainPassword));
+        account.setPhone(request.getPhone());
+        account.setAddress(request.getAddress());
+        account.setRole(request.getRole());
+        account.setDateOfBirth(request.getDateOfBirth());
+        account.setStatus(ActivationEnums.INACTIVE);
+        account.setCreatedAt(now);
+        account.setUpdatedAt(now);
+        return account;
+    }
+
+    private void sendWelcomeEmail(String email, String name, String password) {
+        try {
+            emailService.sendPasswordEmail(email, name, password);
+        } catch (Exception e) {
+            log.error("Failed to send welcome email to: {}", email, e);
+            throw new RuntimeException("Failed to send welcome email");
+        }
+    }
+
+    private AccountCreationResponse mapToResponse(Account account) {
+        AccountCreationResponse response = new AccountCreationResponse();
+        response.setId(UUID.fromString(account.getId()));
+        response.setEmail(account.getEmail());
+        response.setName(account.getName());
+        response.setPhone(account.getPhone());
+        response.setAddress(account.getAddress());
+        response.setRole(account.getRole());
+        response.setStatus(account.getStatus());
+        response.setDateOfBirth(account.getDateOfBirth());
+        response.setCreatedAt(account.getCreatedAt());
+        response.setUpdatedAt(account.getUpdatedAt());
+        return response;
     }
 }
