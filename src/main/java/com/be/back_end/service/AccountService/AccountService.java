@@ -2,6 +2,7 @@ package com.be.back_end.service.AccountService;
 
 
 import com.be.back_end.dto.AccountDTO;
+import com.be.back_end.dto.request.AccountSearchCriteria;
 import com.be.back_end.dto.request.CreateAccountRequest;
 import com.be.back_end.dto.request.RegisterRequest;
 import com.be.back_end.dto.response.AccountCreationResponse;
@@ -25,6 +26,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -215,7 +217,6 @@ public class AccountService implements IAccountService{
 
     private Account mapToEntity(AccountDTO dto) {
         Account account = new Account();
-        account.setPassword(dto.getPassword());
         account.setEmail(dto.getEmail());
         account.setName(dto.getName());
         account.setAddress(dto.getAddress());
@@ -232,13 +233,44 @@ public class AccountService implements IAccountService{
         return user;
     }
     @Override
-    public PaginatedResponseDTO<AccountDTO> getAllUsers(int page, int size) {
-        Pageable pageable = PageRequest.of(page-1, size);
-        Page<Account> accounts = accountRepository.findAll(pageable);
+    public PaginatedResponseDTO<AccountDTO> getAllUsers(AccountSearchCriteria accountSearchCriteria) {
+        String keyword=accountSearchCriteria.getKeyword();
+        Sort.Direction sort;
+        if(accountSearchCriteria.getSortDir()=="asc") {
+            sort =Sort.Direction.ASC;
+        }else{
+        sort =Sort.Direction.DESC;}
+        Pageable pageable = PageRequest.of(accountSearchCriteria.getPage() -1, accountSearchCriteria.getSize(),sort,accountSearchCriteria.getSortBy());
+        Page<Account> accounts;
+        if(keyword==null|| keyword.trim().isEmpty()){
+            accounts=accountRepository.findAll(pageable);
+        }else{
+        switch(accountSearchCriteria.getFilter()){
+            case "email":
+                accounts= accountRepository.findByEmailContainingIgnoreCase(keyword, pageable);
+                break;
+            case "name":
+                accounts=accountRepository.findByNameContainingIgnoreCase(keyword,pageable);
+                break;
+            case "phone":
+                accounts=accountRepository.findByPhone(keyword,pageable);
+                break;
+            case "createdat":
+                accounts=accountRepository.findByCreatedAtBetween(accountSearchCriteria.getDateFrom(),accountSearchCriteria.getDateTo(),pageable);
+                break;
+            case "role":
+                accounts=accountRepository.findByRole(accountSearchCriteria.getFilter(),pageable);
+                break;
+            default:
+                accounts=accountRepository.findAll(pageable);
+
+            }
+        }
         List<AccountDTO> accountDTOs = new ArrayList<>();
         for (Account account : accounts.getContent()) {
             accountDTOs.add(mapToDTO(account));
         }
+
         PaginatedResponseDTO<AccountDTO> response = new PaginatedResponseDTO<>();
         response.setContent(accountDTOs);
         response.setPageNumber(accounts.getNumber());

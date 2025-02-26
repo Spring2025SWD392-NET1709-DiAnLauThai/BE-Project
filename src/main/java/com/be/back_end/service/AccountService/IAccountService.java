@@ -1,6 +1,7 @@
 package com.be.back_end.service.AccountService;
 
 import com.be.back_end.dto.AccountDTO;
+import com.be.back_end.dto.request.AccountSearchCriteria;
 import com.be.back_end.dto.request.CreateAccountRequest;
 import com.be.back_end.dto.request.RegisterRequest;
 import com.be.back_end.dto.response.AccountCreationResponse;
@@ -10,12 +11,13 @@ import com.be.back_end.dto.response.TokenValidateDTO;
 import com.be.back_end.model.Account;
 import org.springframework.http.ResponseCookie;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
 public interface IAccountService {
     AccountDTO createUser(AccountDTO user);
-    PaginatedResponseDTO<AccountDTO> getAllUsers(int page, int size);
+    PaginatedResponseDTO<AccountDTO> getAllUsers(AccountSearchCriteria accountSearchCriteria);
     AccountDTO getUserById(String id);
     boolean updateUser(AccountDTO user);
     boolean deleteUser(String id);
