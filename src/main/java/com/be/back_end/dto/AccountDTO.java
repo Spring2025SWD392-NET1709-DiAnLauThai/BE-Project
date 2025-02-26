@@ -17,10 +17,9 @@ public class AccountDTO {
     private String name;
     private String address;
     private String phone;
-    private String password;
     private LocalDate dateOfBirth;
     private ActivationEnums status;
-    private boolean isDeleted;
+
     private RoleEnums role;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
