@@ -70,7 +70,7 @@ public class TransactionService implements ITransactionService {
 
     private TransactionDTO mapToDTO(Transaction Transaction) {
         TransactionDTO dto = new TransactionDTO();
-        dto.setOrders(Transaction.getOrders());
+        dto.setBookings(Transaction.getBookings());
         dto.setPayment_date(Transaction.getPayment_date());
         dto.setPayment_amount(Transaction.getPayment_amount());
         dto.setPayment_method(Transaction.getPayment_method());
@@ -80,7 +80,7 @@ public class TransactionService implements ITransactionService {
 
     private Transaction mapToEntity(TransactionDTO dto) {
         Transaction transaction = new Transaction();
-        transaction.setOrders(dto.getOrders());
+        transaction.setBookings(dto.getBookings());
         transaction.setPayment_date(dto.getPayment_date());
         transaction.setPayment_amount(dto.getPayment_amount());
         transaction.setPayment_method(dto.getPayment_method());

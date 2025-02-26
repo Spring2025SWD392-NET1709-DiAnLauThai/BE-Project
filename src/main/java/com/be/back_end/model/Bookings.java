@@ -1,7 +1,7 @@
 package com.be.back_end.model;
 
 
-import com.be.back_end.enums.OrderEnums;
+import com.be.back_end.enums.BookingEnums;
 import jakarta.persistence.*;
 
 import lombok.Getter;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Orders {
+public class Bookings {
     @Id
     @Column(name="Orderid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     private String Id;
@@ -41,7 +41,7 @@ public class Orders {
     private Set<Transaction> transactions;
 
     @Enumerated(EnumType.STRING)
-    private OrderEnums status;
+    private BookingEnums status;
 
     @Column(name="datecreated")
     private LocalDateTime date_created;

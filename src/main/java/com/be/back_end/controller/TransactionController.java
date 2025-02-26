@@ -15,18 +15,18 @@ import java.util.*;
 @RequestMapping("/api/payments")
 public class TransactionController {
 
-    private final ITransactionService paymentService;
+    private final ITransactionService transactionService;
 
 
     @Autowired
-    public TransactionController(ITransactionService paymentService) {
-        this.paymentService = paymentService;
+    public TransactionController(ITransactionService transactionService) {
+        this.transactionService = transactionService;
 
     }
 
     @GetMapping
-    public ResponseEntity<List<TransactionDTO>> getAllPayment() {
-        List<TransactionDTO> payments = paymentService.getAll();
+    public ResponseEntity<List<TransactionDTO>> getAllTranscations() {
+        List<TransactionDTO> payments = transactionService.getAll();
         if (payments.isEmpty()) {
             System.out.println("No payments found.");
         }
@@ -34,15 +34,15 @@ public class TransactionController {
     }
 
     @PostMapping
-    public ResponseEntity<TransactionDTO> createPayment(@RequestBody TransactionDTO TransactionDTO) {
-        TransactionDTO createdDesign = paymentService.create(TransactionDTO);
+    public ResponseEntity<TransactionDTO> createTranscation(@RequestBody TransactionDTO TransactionDTO) {
+        TransactionDTO createdDesign = transactionService.create(TransactionDTO);
         System.out.println("Payment created successfully.");
         return ResponseEntity.ok(createdDesign);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getPaymentById(@PathVariable String id) {
-        TransactionDTO design = paymentService.getById(id);
+    public ResponseEntity<?> getTranscationById(@PathVariable String id) {
+        TransactionDTO design = transactionService.getById(id);
         if (design == null) {
             return ResponseEntity.badRequest().body("Payment not found with ID: " + id);
         }
@@ -50,8 +50,8 @@ public class TransactionController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updatePayment(@PathVariable String id, @RequestBody TransactionDTO TransactionDTO) {
-        boolean updated = paymentService.update(id, TransactionDTO);
+    public ResponseEntity<?> updateTranscation(@PathVariable String id, @RequestBody TransactionDTO TransactionDTO) {
+        boolean updated = transactionService.update(id, TransactionDTO);
         if (!updated) {
             return ResponseEntity.badRequest().body("Failed to update. Payment not found with ID: " + id);
         }
@@ -59,8 +59,8 @@ public class TransactionController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deletePayment(@PathVariable String id) {
-        boolean deleted = paymentService.delete(id);
+    public ResponseEntity<?> deleteTranscation(@PathVariable String id) {
+        boolean deleted = transactionService.delete(id);
         if (!deleted) {
             return ResponseEntity.badRequest().body("Failed to delete. Payment not found with ID: " + id);
         }

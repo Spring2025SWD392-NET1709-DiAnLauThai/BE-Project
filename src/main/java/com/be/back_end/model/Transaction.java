@@ -21,7 +21,7 @@ public class Transaction {
     private String id;
     @ManyToOne
     @JoinColumn(name = "orderid", nullable = false)
-    private Orders orders;
+    private Bookings bookings;
 
     @Column(name="paymentname")
     private String payment_name;

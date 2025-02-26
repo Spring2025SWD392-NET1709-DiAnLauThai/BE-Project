@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -54,7 +53,7 @@ public class Tshirts {
     private LocalDateTime created_at;
 
     @OneToMany(mappedBy = "tshirt",cascade = CascadeType.ALL)
-    private Set<Orderitems> orderitems;
+    private Set<Bookingitems> orderitems;
 
     @ManyToOne
     @JoinColumn(name="accountid",nullable = false)

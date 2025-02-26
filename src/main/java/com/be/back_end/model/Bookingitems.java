@@ -5,7 +5,6 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.UuidGenerator;
 
 import java.math.BigDecimal;
 import java.util.UUID;
@@ -15,7 +14,7 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-public class Orderitems {
+public class Bookingitems {
     @Id
     @Column(name="Orderitemsid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     private String id;
