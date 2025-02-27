@@ -8,10 +8,14 @@ import jakarta.servlet.http.HttpServletRequest;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Component;
 import org.springframework.web.util.WebUtils;
+
+import com.be.back_end.model.Account;
+import com.be.back_end.repository.AccountRepository;
 import com.be.back_end.service.AccountService.AccountDetailsImpl;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
@@ -19,6 +23,15 @@ import io.jsonwebtoken.security.Keys;
 
 @Component
 public class JwtUtils {
+  
+  @Autowired
+  private final AccountRepository accountRepository;
+
+  public JwtUtils(AccountRepository accountRepository) {
+    this.accountRepository = accountRepository;
+  }
+  
+  
   private static final Logger logger = LoggerFactory.getLogger(JwtUtils.class);
 
   @Value("${be.app.jwtSecret}")
@@ -124,15 +137,19 @@ public class JwtUtils {
     return false;
   }
 
-  public String generateTokenFromUserID(String id) {   
+  public String generateTokenFromUserID(String id) {
+    Account account = accountRepository.findById(id)
+        .orElseThrow(() -> new RuntimeException("User not found"));
+
     return Jwts.builder()
         .setSubject(id)
+        .claim("role", account.getRole().name())
         .setIssuedAt(new Date())
         .setExpiration(new Date((new Date()).getTime() + jwtExpirationMs))
         .signWith(key(), SignatureAlgorithm.HS256)
         .compact();
   }
-  public String generateOtpToken(String email, String otp) {
+    public String generateOtpToken(String email, String otp) {
     return Jwts.builder()
             .setSubject(email)
             .claim("otp", otp) // Embed OTP inside the token
