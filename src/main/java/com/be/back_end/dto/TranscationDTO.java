@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class PaymentDTO {
+public class TranscationDTO {
     private Bookings bookings;
     private String payment_name;
     private String payment_method;
