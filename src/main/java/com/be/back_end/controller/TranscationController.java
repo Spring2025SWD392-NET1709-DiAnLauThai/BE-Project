@@ -3,8 +3,12 @@ package com.be.back_end.controller;
 
 import com.be.back_end.dto.TranscationDTO;
 
+import com.be.back_end.dto.request.TransactionRequest;
+import com.be.back_end.dto.response.TransactionResponse;
 import com.be.back_end.service.TranscationService.ITranscationService;
 
+import com.be.back_end.service.TranscationService.IVNPayService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,9 +19,12 @@ import java.util.List;
 public class TranscationController {
 
     private final ITranscationService transcationService;
+    private final IVNPayService vnpayService;
 
-    public TranscationController(ITranscationService transcationService) {
+
+    public TranscationController(ITranscationService transcationService, IVNPayService vnpayService) {
         this.transcationService = transcationService;
+        this.vnpayService = vnpayService;
     }
 
     @GetMapping
@@ -62,5 +69,31 @@ public class TranscationController {
         }
         return ResponseEntity.ok("Transcation deleted successfully.");
     }
+
+    @GetMapping("/makePayment")
+    public ResponseEntity<TransactionResponse> makePayment(@RequestBody TransactionRequest transactionRequest, HttpServletRequest request) {
+        String amount = transactionRequest.getPayment_amount();
+        String orderInfo = transactionRequest.getBooking_info();
+        String orderType = transactionRequest.getBooking_type();
+        TransactionResponse response = vnpayService.createPaymentUrl(amount, orderInfo, orderType,request);
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/callback")
+    public ResponseEntity<TransactionResponse> payCallbackHandler(HttpServletRequest request) {
+        String status = request.getParameter("vnp_ResponseCode");
+        if (status.equals("00")) {
+            return ResponseEntity.ok(TransactionResponse.builder()
+                    .code("00: Success")
+                    .message("Giao dich thanh cong")
+                    .build());
+        } else {
+            return ResponseEntity.badRequest().body(TransactionResponse.builder()
+                    .code("99: Fail")
+                    .message("Giao dich that bai")
+                    .build());
+        }
+    }
+
 }
 
