@@ -1,11 +1,12 @@
-/*
-package com.be.back_end.service.PaymentService;
 
-import com.be.back_end.dto.PaymentDTO;
+package com.be.back_end.service.TranscationService;
+
+import com.be.back_end.dto.TranscationDTO;
 
 import com.be.back_end.model.Transaction;
 
-import com.be.back_end.repository.PaymentRepository;
+
+import com.be.back_end.repository.TranscationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -13,26 +14,26 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class PaymentService implements IPaymentService{
+public class TranscationService implements ITranscationService {
 
-    private final PaymentRepository paymentRepository;
+    private final TranscationRepository paymentRepository;
 
     @Autowired
-    public PaymentService(PaymentRepository paymentRepository) {
+    public TranscationService(TranscationRepository paymentRepository) {
         this.paymentRepository = paymentRepository;
     }
 
     @Override
-    public PaymentDTO create(PaymentDTO dto) {
+    public TranscationDTO create(TranscationDTO dto) {
         Transaction newTransaction = mapToEntity(dto);
         paymentRepository.save(newTransaction);
         return dto;
     }
 
     @Override
-    public List<PaymentDTO> getAll() {
+    public List<TranscationDTO> getAll() {
         List<Transaction> transactions = paymentRepository.findAll();
-        List<PaymentDTO> list= new ArrayList<>();
+        List<TranscationDTO> list= new ArrayList<>();
         for(Transaction transaction : transactions)
         {
             list.add(mapToDTO(transaction));
@@ -42,13 +43,13 @@ public class PaymentService implements IPaymentService{
     }
 
     @Override
-    public PaymentDTO getById(String id) {
+    public TranscationDTO getById(String id) {
         Transaction transaction = paymentRepository.findById(id).orElse(null);
         return mapToDTO(transaction);
     }
 
     @Override
-    public boolean update(String id, PaymentDTO user) {
+    public boolean update(String id, TranscationDTO user) {
         Transaction updatedTransaction = paymentRepository.findById(id).orElse(null);
         if(updatedTransaction ==null){
             return false;
@@ -69,24 +70,24 @@ public class PaymentService implements IPaymentService{
     }
 
 
-    private PaymentDTO mapToDTO(Transaction Transaction) {
-        PaymentDTO dto = new PaymentDTO();
-        dto.setBookings(Transaction.getOrders());
-        dto.setPayment_date(Transaction.getPayment_date());
-        dto.setPayment_amount(Transaction.getPayment_amount());
-        dto.setPayment_method(Transaction.getPayment_method());
-        dto.setPayment_name(Transaction.getPayment_name());
+    private TranscationDTO mapToDTO(Transaction Transaction) {
+        TranscationDTO dto = new TranscationDTO();
+        dto.setBookings(Transaction.getBookings());
+        dto.setPayment_date(Transaction.getTransactionDate());
+        dto.setPayment_amount(Transaction.getTransactionAmount());
+        dto.setPayment_method(Transaction.getTransactionMethod());
+        dto.setPayment_name(Transaction.getTransactionName());
         return dto;
     }
 
-    private Transaction mapToEntity(PaymentDTO dto) {
+    private Transaction mapToEntity(TranscationDTO dto) {
         Transaction transaction = new Transaction();
-        transaction.setOrders(dto.getBookings());
-        transaction.setPayment_date(dto.getPayment_date());
-        transaction.setPayment_amount(dto.getPayment_amount());
-        transaction.setPayment_method(dto.getPayment_method());
-        transaction.setPayment_name(dto.getPayment_name());
+        transaction.setBookings(dto.getBookings());
+        transaction.setTransactionDate(dto.getPayment_date());
+        transaction.setTransactionAmount(dto.getPayment_amount());
+        transaction.setTransactionMethod(dto.getPayment_method());
+        transaction.setTransactionName(dto.getPayment_name());
         return transaction;
     }
 }
-*/
+
