@@ -23,6 +23,10 @@ import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 
+import java.util.List;
+
+import static org.springframework.web.servlet.function.ServerResponse.status;
+
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -37,12 +41,13 @@ public class AuthController {
     private JwtUtils jwtUtils;
     @Autowired
     private IAccountService accountService;
-    @PostMapping("/validate")//giai quyet sao cho no su dung token thong qua authorize ma ko can phai nhap
+    @PostMapping("/validate")
     public ResponseEntity<ApiResponse<TokenValidateDTO>> validateToken() {
         boolean response = accountService.validateToken();
         return response
                 ? ResponseEntity.ok(new ApiResponse<>(200, null, "Token is valid"))
-                : ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(new ApiResponse<>(401, null, "Token is invalid or expired"));
+                : ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiResponse<>(401, null, "Token is invalid or expired"));
     }
     @GetMapping("/google/login")
     public ResponseEntity<ApiResponse<String>> getGoogleAuthUrl() {
@@ -57,10 +62,11 @@ public class AuthController {
 
 
     @PostMapping("/register")
-    public ResponseEntity<ApiResponse<String>> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
+    public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
         boolean registeringUser = accountService.registerUser(registerRequest);
         if (!registeringUser) {
-            return ResponseEntity.status(400).body(new ApiResponse<>(400, null, "Account failed to be created"));
+            return ResponseEntity.status(400)
+                    .body(new ErrorResponse(400, null, List.of("Account failed to be created")));
         }
         return ResponseEntity.ok(new ApiResponse<>(200, null, "Account created"));
     }
