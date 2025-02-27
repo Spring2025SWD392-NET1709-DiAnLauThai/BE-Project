@@ -2,7 +2,6 @@ package com.be.back_end.service.AccountService;
 
 
 import com.be.back_end.dto.AccountDTO;
-import com.be.back_end.dto.request.AccountSearchCriteria;
 import com.be.back_end.dto.request.CreateAccountRequest;
 import com.be.back_end.dto.request.RegisterRequest;
 import com.be.back_end.dto.response.AccountCreationResponse;
@@ -130,42 +129,8 @@ public class AccountService implements IAccountService{
         return true;
     }
 
-    private boolean sendOtpEmail(String email, String name,String otp, String otptoken) {
 
-        try {
-            emailService.sendOtpEmail(email, name, otp, otptoken);
-            return true;
-        } catch (MessagingException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-    private String generateOTP() {
-        SecureRandom random = new SecureRandom();
-        StringBuilder otp = new StringBuilder();
 
-        // Generate a 6-digit OTP
-        for (int i = 0; i < 6; i++) {
-            otp.append(random.nextInt(10)); // Random digit between 0 and 9
-        }
-
-        return otp.toString();
-    }
-    @Override
-    public String resendOtp(String email) {
-        Optional<Account> accountOpt = accountRepository.findByEmail(email);
-        if (accountOpt.isEmpty()) {
-            return "Failed: Email not registered.";
-        }
-        Account account = accountOpt.get();
-        String otp = generateOTP();
-        String otpToken = jwtUtils.generateOtpToken(email, otp);
-        boolean emailSent = sendOtpEmail(email, account.getName(), otp, otpToken);
-        if (!emailSent) {
-            return "Failed to resend OTP email.";
-        }
-        return otpToken;
-    }
     @Override
     public JwtResponse handleGoogleLogin(String authCode) {
         String accessToken = googleService.exchangeCodeForAccessToken(authCode);
@@ -201,20 +166,6 @@ public class AccountService implements IAccountService{
         });
     }
 
-    @Override
-    public boolean verifyOtp(String email, String otp, String token) {
-        try {
-            Account getacc=accountRepository.findByEmail(email).orElse(null);
-            getacc.setStatus(ActivationEnums.ACTIVE);
-            accountRepository.save(getacc);
-            String extractedOtp = jwtUtils.getOtpFromToken(token);
-            return extractedOtp.equals(otp);
-
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
     private Account mapToEntity(AccountDTO dto) {
         Account account = new Account();
         account.setEmail(dto.getEmail());
@@ -233,38 +184,48 @@ public class AccountService implements IAccountService{
         return user;
     }
     @Override
-    public PaginatedResponseDTO<AccountDTO> getAllUsers(AccountSearchCriteria accountSearchCriteria) {
-        String keyword=accountSearchCriteria.getKeyword();
+    public PaginatedResponseDTO<AccountDTO> getAllUsers(String keyword,
+                                                        int page,
+                                                        int size,
+                                                        RoleEnums role,
+                                                        ActivationEnums status,
+                                                        LocalDateTime dateFrom,
+                                                        LocalDateTime dateTo,
+                                                        String sortDir,
+                                                        String sortBy) {
         Sort.Direction sort;
-        if(accountSearchCriteria.getSortDir()=="asc") {
+        if(sortDir=="asc") {
             sort =Sort.Direction.ASC;
         }else{
         sort =Sort.Direction.DESC;}
-        Pageable pageable = PageRequest.of(accountSearchCriteria.getPage() -1, accountSearchCriteria.getSize(),sort,accountSearchCriteria.getSortBy());
+        Pageable pageable = PageRequest.of(page-1, size,sort,sortBy);
         Page<Account> accounts;
-        if(keyword==null|| keyword.trim().isEmpty()){
-            accounts=accountRepository.findAll(pageable);
-        }else{
-        switch(accountSearchCriteria.getFilter()){
-            case "email":
-                accounts= accountRepository.findByEmailContainingIgnoreCase(keyword, pageable);
-                break;
-            case "name":
-                accounts=accountRepository.findByNameContainingIgnoreCase(keyword,pageable);
-                break;
-            case "phone":
-                accounts=accountRepository.findByPhone(keyword,pageable);
-                break;
-            case "createdat":
-                accounts=accountRepository.findByCreatedAtBetween(accountSearchCriteria.getDateFrom(),accountSearchCriteria.getDateTo(),pageable);
-                break;
-            case "role":
-                accounts=accountRepository.findByRole(accountSearchCriteria.getFilter(),pageable);
-                break;
-            default:
-                accounts=accountRepository.findAll(pageable);
-
-            }
+        if (role != null && status != null && dateFrom != null && dateTo != null) {
+            accounts = accountRepository.findByRoleAndStatusAndCreatedAtBetween(role, status, dateFrom, dateTo, pageable);
+        }
+        else if (role != null && status != null) {
+            accounts = accountRepository.findByRoleAndStatus(role, status, pageable);
+        }
+        else if (role != null && dateFrom != null && dateTo != null) {
+            accounts = accountRepository.findByRoleAndCreatedAtBetween(role, dateFrom, dateTo, pageable);
+        }
+        else if (status != null && dateFrom != null && dateTo != null) {
+            accounts = accountRepository.findByStatusAndCreatedAtBetween(status, dateFrom, dateTo, pageable);
+        }
+        else if (role != null) {
+            accounts = accountRepository.findByRole(role, pageable);
+        }
+        else if (status != null) {
+            accounts = accountRepository.findByStatus(status, pageable);
+        }
+        else if (dateFrom != null && dateTo != null) {
+            accounts = accountRepository.findByCreatedAtBetween(dateFrom, dateTo, pageable);
+        }
+        else if (keyword != null && !keyword.trim().isEmpty()) {
+            accounts = accountRepository.findByEmailContainingIgnoreCaseOrNameContainingIgnoreCase(keyword, keyword, pageable);
+        }
+        else {
+            accounts = accountRepository.findAll(pageable);
         }
         List<AccountDTO> accountDTOs = new ArrayList<>();
         for (Account account : accounts.getContent()) {
