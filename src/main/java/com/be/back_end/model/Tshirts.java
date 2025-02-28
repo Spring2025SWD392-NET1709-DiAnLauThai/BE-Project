@@ -45,7 +45,7 @@ public class Tshirts {
 
 
     @Column(name="createdat")
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
 
     @OneToMany(mappedBy = "tshirt",cascade = CascadeType.ALL)
     private Set<Bookingdetails> bookingdetails;
@@ -56,7 +56,7 @@ public class Tshirts {
         if (id == null) {
             id = UUID.randomUUID().toString();
         }
-        created_at=LocalDateTime.now();
+        createdAt=LocalDateTime.now();
     }
 
 

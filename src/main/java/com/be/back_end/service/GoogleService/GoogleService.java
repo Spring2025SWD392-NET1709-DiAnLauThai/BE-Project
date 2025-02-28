@@ -19,7 +19,7 @@ public class GoogleService implements  IGoogleService{
     public String generateGoogleAuthUrl() {
         return UriComponentsBuilder.fromUriString("https://accounts.google.com/o/oauth2/auth")
                 .queryParam("client_id", googleOAuthConfig.getClientId())
-                .queryParam("redirect_uri", googleOAuthConfig.getRedirectUri())  // ✅ Ensure this matches Google Console
+                .queryParam("redirect_uri", googleOAuthConfig.getRedirectUri())
                 .queryParam("response_type", "code")
                 .queryParam("scope", "openid email profile")
                 .toUriString();

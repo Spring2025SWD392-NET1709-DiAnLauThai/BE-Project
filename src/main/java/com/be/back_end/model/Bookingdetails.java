@@ -24,6 +24,10 @@ public class Bookingdetails {
     private Tshirts tshirt;
 
     @ManyToOne
+    @JoinColumn(name="bookingid", nullable = false)
+    private Bookings booking;
+
+    @ManyToOne
     @JoinColumn(name="designid",nullable = false)
     private Designs design;
 

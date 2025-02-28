@@ -2,14 +2,18 @@ package com.be.back_end.controller;
 
 import com.be.back_end.dto.AccountDTO;
 import com.be.back_end.dto.request.CreateAccountRequest;
+import com.be.back_end.dto.request.UpdateAccountRequest;
+import com.be.back_end.dto.request.UpdateProfileRequest;
 import com.be.back_end.dto.response.*;
 import com.be.back_end.enums.ActivationEnums;
 import com.be.back_end.enums.RoleEnums;
 import com.be.back_end.service.AccountService.IAccountService;
+import com.be.back_end.service.CloudinaryService.ICloudinaryService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import jakarta.validation.Valid;
 
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.be.back_end.dto.response.ApiResponse;
+import org.springframework.web.multipart.MultipartFile;
 
 import static org.springframework.web.servlet.function.ServerResponse.status;
 
@@ -25,27 +30,32 @@ import static org.springframework.web.servlet.function.ServerResponse.status;
 @SecurityRequirement(name = "Bearer Authentication")
 public class AccountController {
     private final IAccountService accountService;
-    public AccountController(IAccountService accountService) {
+    private final ICloudinaryService cloudinaryService;
+
+    public AccountController(IAccountService accountService, ICloudinaryService cloudinaryService) {
         this.accountService = accountService;
+        this.cloudinaryService = cloudinaryService;
     }
+
     @PostMapping
     public ResponseEntity<?> createAccount(@Valid @RequestBody CreateAccountRequest request) {
         try {
             AccountCreationResponse response = accountService.createAccount(request);
             return ResponseEntity.ok(new ApiResponse<>(
-                201,
-                response,
-                "Account created successfully. Credentials sent to email."
+                    201,
+                    response,
+                    "Account created successfully. Credentials sent to email."
             ));
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(400)
-                .body(new ErrorResponse(400, null, List.of(e.getMessage())));
+                    .body(new ErrorResponse(400, null, List.of(e.getMessage())));
         } catch (Exception e) {
             return ResponseEntity.internalServerError()
-                .body(new ApiResponse<>(500, null, "Internal server error"));
+                    .body(new ApiResponse<>(500, null, "Internal server error"));
         }
     }
     //tao 1 api upload file firebase su dung no cho update account, register
+
     @GetMapping
     public ResponseEntity<?> searchAccounts(
             @RequestParam(required = false) String keyword,
@@ -63,7 +73,7 @@ public class AccountController {
                     .body(new ErrorResponse(400, null, List.of("Page and size must be positive values")));
         }
         PaginatedResponseDTO<AccountDTO> accounts = accountService.getAllUsers(
-                keyword, page, size, role,status, dateFrom, dateTo, sortDir, sortBy
+                keyword, page, size, role, status, dateFrom, dateTo, sortDir, sortBy
         );
         if (accounts.getContent().isEmpty()) {
             return ResponseEntity.status(204).body(new ApiResponse<>(204, null, "No data available"));
@@ -81,12 +91,31 @@ public class AccountController {
         return ResponseEntity.ok(new ApiResponse<>(200, account, "Account returned"));
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateAccount(@RequestBody AccountDTO account) {
-        boolean updated = accountService.updateUser( account);
+    @PutMapping()
+    public ResponseEntity<?> updateAccount(
+            @RequestBody UpdateAccountRequest account
+    ) {
+        boolean updated = accountService.updateUser(account);
         if (!updated) {
             return ResponseEntity.status(400)
                     .body(new ErrorResponse(400, null, List.of("Account not found")));
+        }
+        return ResponseEntity.ok(new ApiResponse<>(200, null, "Account updated"));
+    }
+
+    @RequestMapping(
+            path = "/profile",
+            method = RequestMethod.PUT,
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping()
+    public ResponseEntity<?> updateProfile(
+            @RequestBody UpdateProfileRequest account,
+            @RequestBody MultipartFile imageFile
+    ) {
+        boolean updated = accountService.updateProfile(account, imageFile);
+        if (!updated) {
+            return ResponseEntity.status(400)
+                    .body(new ErrorResponse(400, null, List.of("Account failed to update")));
         }
         return ResponseEntity.ok(new ApiResponse<>(200, null, "Account updated"));
     }

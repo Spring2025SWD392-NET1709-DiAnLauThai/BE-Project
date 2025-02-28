@@ -17,7 +17,7 @@ public class ColorService implements IColorService {
     }
 
     @Override
-    public boolean createColor(ColorDTO colorDTO) {
+    public boolean addColor(ColorDTO colorDTO) {
         Color color = new Color();
         color.setColorName(colorDTO.getColorName());
         color.setColorCode(colorDTO.getColorCode());
@@ -26,7 +26,9 @@ public class ColorService implements IColorService {
 
     @Override
     public List<Color> getAllColors() {
+
         return colorRepository.findAll();
+
     }
 
     @Override
