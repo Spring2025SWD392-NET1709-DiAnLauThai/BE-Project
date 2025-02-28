@@ -38,6 +38,8 @@ public class Bookings {
     @JoinColumn(name="accountid",nullable = false)
     private Account account;
 
+    @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<Bookingdetails> bookingDetails;
     @OneToMany(mappedBy = "bookings",cascade = CascadeType.ALL)
     private Set<Transaction> transactions;
     @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)

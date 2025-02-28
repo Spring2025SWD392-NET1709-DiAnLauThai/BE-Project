@@ -4,6 +4,8 @@ package com.be.back_end.service.AccountService;
 import com.be.back_end.dto.AccountDTO;
 import com.be.back_end.dto.request.CreateAccountRequest;
 import com.be.back_end.dto.request.RegisterRequest;
+import com.be.back_end.dto.request.UpdateAccountRequest;
+import com.be.back_end.dto.request.UpdateProfileRequest;
 import com.be.back_end.dto.response.AccountCreationResponse;
 import com.be.back_end.dto.response.JwtResponse;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
@@ -15,12 +17,14 @@ import com.be.back_end.model.Account;
 import com.be.back_end.repository.AccountRepository;
 
 import com.be.back_end.security.jwt.JwtUtils;
+import com.be.back_end.service.CloudinaryService.ICloudinaryService;
 import com.be.back_end.service.EmailService.IEmailService;
 import com.be.back_end.service.GoogleService.IGoogleService;
 import com.be.back_end.utils.AccountUtils;
 import com.be.back_end.utils.PasswordUtils;
 
 import jakarta.mail.MessagingException;
+import jakarta.mail.Multipart;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -36,6 +40,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
@@ -54,7 +59,8 @@ public class AccountService implements IAccountService{
     private final JwtUtils jwtUtils;
     private final IEmailService emailService;
     private final IGoogleService googleService;
-    public AccountService(AccountUtils accountUtils, PasswordEncoder passwordEncoder, AccountRepository accountRepository, JwtUtils jwtUtils, IEmailService emailService, IGoogleService googleService) {
+    private final ICloudinaryService cloudinaryService;
+    public AccountService(AccountUtils accountUtils, PasswordEncoder passwordEncoder, AccountRepository accountRepository, JwtUtils jwtUtils, IEmailService emailService, IGoogleService googleService, ICloudinaryService cloudinaryService) {
         this.accountUtils = accountUtils;
         this.passwordEncoder = passwordEncoder;
 
@@ -62,6 +68,7 @@ public class AccountService implements IAccountService{
         this.jwtUtils = jwtUtils;
         this.emailService = emailService;
         this.googleService = googleService;
+        this.cloudinaryService = cloudinaryService;
     }
     private AccountDTO mapToDTO(Account account) {
         AccountDTO dto = new AccountDTO();
@@ -72,6 +79,7 @@ public class AccountService implements IAccountService{
         dto.setPhone(account.getPhone());
         dto.setRole(account.getRole());
         dto.setStatus(account.getStatus());
+        dto.setImage_url(account.getImage_url());
         dto.setDateOfBirth(account.getDateOfBirth());
         dto.setCreatedAt(account.getCreatedAt());
         dto.setUpdatedAt(account.getUpdatedAt());
@@ -175,6 +183,7 @@ public class AccountService implements IAccountService{
         account.setRole(RoleEnums.ADMIN);
         account.setDateOfBirth(dto.getDateOfBirth());
         account.setStatus(ActivationEnums.ACTIVE);
+        account.setImage_url(dto.getImage_url());
         return account;
     }
     @Override
@@ -194,7 +203,7 @@ public class AccountService implements IAccountService{
                                                         String sortDir,
                                                         String sortBy) {
         Sort.Direction sort;
-        if(sortDir=="asc") {
+        if(sortDir.equals("asc")) {
             sort =Sort.Direction.ASC;
         }else{
         sort =Sort.Direction.DESC;}
@@ -249,29 +258,31 @@ public class AccountService implements IAccountService{
         return mapToDTO(account);
     }
     @Override
-    public boolean updateUser(AccountDTO user) {
+    public boolean updateUser(UpdateAccountRequest user) {
         Account updatedAccount= accountRepository.findById(user.getId().toString()).orElse(null);
         if(updatedAccount==null){
             return false;
         }
-        updatedAccount.setAddress(user.getAddress());
-        updatedAccount.setEmail(user.getEmail());
-        updatedAccount.setPhone(user.getPhone());
-        updatedAccount.setUpdatedAt(user.getUpdatedAt());
+        updatedAccount.setUpdatedAt(LocalDateTime.now());
         updatedAccount.setRole(user.getRole());
-        updatedAccount.setDateOfBirth(user.getDateOfBirth());
-        updatedAccount.setCreatedAt(user.getCreatedAt());
         updatedAccount.setStatus(user.getStatus());
-        updatedAccount.setName(user.getName());
-
         accountRepository.save(updatedAccount);
         return true;
     }
     @Override
-    public boolean deleteUser(String id) {
-        Account existingAccount = accountRepository.getById(id);
-        if (existingAccount != null) {
-            accountRepository.delete(existingAccount);
+    public boolean updateProfile(UpdateProfileRequest user, MultipartFile image) {
+        Account existingAccount = accountRepository.findById(user.getId().toString()).orElse(null);
+
+        String imageurl= cloudinaryService.uploadFile(image);
+        if (existingAccount != null&&imageurl!=null) {
+            existingAccount.setImage_url(imageurl);
+            existingAccount.setUpdatedAt(LocalDateTime.now());
+            existingAccount.setPhone(user.getPhone());
+            existingAccount.setDateOfBirth(user.getDateOfBirth());
+            existingAccount.setEmail(user.getEmail());
+            existingAccount.setName(user.getName());
+            existingAccount.setAddress(user.getAddress());
+            accountRepository.save(existingAccount);
             return true;
         }
         return false;

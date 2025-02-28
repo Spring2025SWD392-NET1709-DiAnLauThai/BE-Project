@@ -56,6 +56,7 @@ public class Account {
     private Set<Designs> designs;
     @OneToMany(mappedBy = "account",cascade = CascadeType.ALL)
     private Set<Task> tasks;
+
     private String image_url;
     @OneToMany(mappedBy = "account",cascade = CascadeType.ALL)
     private Set<Bookings> bookings;

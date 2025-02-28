@@ -1,11 +1,14 @@
 package com.be.back_end.controller;
 
 import com.be.back_end.dto.ColorDTO;
+import com.be.back_end.dto.response.ApiResponse;
+import com.be.back_end.dto.response.ErrorResponse;
 import com.be.back_end.model.Color;
 import com.be.back_end.service.ColorService.IColorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Collections;
 import java.util.List;
 
 @RestController
@@ -18,16 +21,21 @@ public class ColorController {
     }
 
     @PostMapping
-    public ResponseEntity<String> addColor(@RequestBody ColorDTO colorDTO) {
-        if (colorService.createColor(colorDTO)) {
-            return ResponseEntity.ok("Color added successfully");
+    public ResponseEntity<?> addColor(@RequestBody ColorDTO colorDTO) {
+        if (colorService.addColor(colorDTO)) {
+            return ResponseEntity.status(200).body(new ApiResponse<>(200,null,"Color added"));
         }
-        return ResponseEntity.badRequest().body("Color failed to add");
+        return ResponseEntity.status(400).body(new ErrorResponse(400,null, List.of("color failed to add")));
     }
 
     @GetMapping
-    public ResponseEntity<List<Color>> getAllColors() {
-        return ResponseEntity.ok(colorService.getAllColors());
+    public ResponseEntity<?> getAllColors() {
+        List<Color>colors= colorService.getAllColors();
+        if(colors.isEmpty())
+        {
+            return ResponseEntity.status(204).body(new ApiResponse<>(204,null,"No color data"));
+        }
+        return ResponseEntity.status(200).body(new ApiResponse<>(200,colors,"Colors return" ));
     }
 
     @GetMapping("/{id}")

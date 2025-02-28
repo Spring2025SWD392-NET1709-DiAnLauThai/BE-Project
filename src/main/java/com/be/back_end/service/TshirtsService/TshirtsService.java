@@ -2,23 +2,31 @@ package com.be.back_end.service.TshirtsService;
 
 import com.be.back_end.dto.TshirtsDTO;
 
+import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.enums.ActivationEnums;
 import com.be.back_end.model.Account;
 import com.be.back_end.model.Tshirts;
 import com.be.back_end.repository.AccountRepository;
 import com.be.back_end.repository.TshirtsRepository;
+import com.be.back_end.utils.AccountUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class TshirtsService implements  ITshirtsService{
 
-
+    private final AccountUtils accountUtils;
     private final TshirtsRepository tshirtsRepository;
     private final AccountRepository accountRepository;
-    public TshirtsService(TshirtsRepository tshirtsRepository, AccountRepository accountRepository) {
+    public TshirtsService(AccountUtils accountUtils, TshirtsRepository tshirtsRepository, AccountRepository accountRepository) {
+        this.accountUtils = accountUtils;
         this.tshirtsRepository = tshirtsRepository;
         this.accountRepository = accountRepository;
     }
@@ -27,7 +35,7 @@ public class TshirtsService implements  ITshirtsService{
 
         dto.setDescription(tshirts.getDescription());
         dto.setName(tshirts.getName());
-
+        dto.setCreatedAt(tshirts.getCreatedAt());
         dto.setImageUrl(tshirts.getImage_url());
 
         return dto;
@@ -35,33 +43,59 @@ public class TshirtsService implements  ITshirtsService{
 
     private Tshirts mapToEntity(TshirtsDTO dto) {
         Tshirts tshirt = new Tshirts();
-        if (dto.getAccountId() != null) {
-            Account account = accountRepository.findById(dto.getAccountId()).orElse(null);
 
-        }
         tshirt.setName(dto.getName());
         tshirt.setDescription(dto.getDescription());
-
+        tshirt.setCreatedAt(LocalDateTime.now());
         tshirt.setImage_url(dto.getImageUrl());
         tshirt.setStatus(ActivationEnums.ACTIVE);
 
         return tshirt;
     }
     @Override
-    public TshirtsDTO createTshirt(TshirtsDTO tshirt) {
+    public boolean createTshirt(TshirtsDTO tshirt) {
         Tshirts newtshirt= mapToEntity(tshirt);
         tshirtsRepository.save(newtshirt);
-        return tshirt;
+        return true;
+
     }
     @Override
-    public List<TshirtsDTO> getAllTshirts() {
-        List<Tshirts> tshirts= tshirtsRepository.findAll();
-        List<TshirtsDTO> list= new ArrayList<>();
-        for(Tshirts tshirt:tshirts)
+    public PaginatedResponseDTO<TshirtsDTO> getAllTshirts(String keyword,
+                                                          int page,
+                                                          int size,
+                                                          LocalDateTime dateFrom,
+                                                          LocalDateTime dateTo,
+                                                          String sortDir,
+                                                          String sortBy) {
+        Sort.Direction sort;
+        if(sortDir.equals("asc")){
+            sort=Sort.Direction.ASC;
+        }else{
+        sort= Sort.Direction.DESC;}
+        Pageable pageable= PageRequest.of(page-1,size,sort,sortBy);
+        Page<Tshirts> tshirts;
+        if(dateFrom!=null&&dateTo!=null)
         {
-            list.add(mapToDTO(tshirt));
+           tshirts= tshirtsRepository.findByCreatedAtBetween(dateFrom,dateTo,pageable);
+        }else if(keyword!=null)
+        {
+            tshirts=tshirtsRepository.findByNameContainingIgnoreCase(keyword,pageable);
+        }else{
+        tshirts=tshirtsRepository.findAll(pageable);}
+        List<TshirtsDTO> tshirtsDTOList= new ArrayList<>();
+        for(Tshirts tshirt:tshirts.getContent())
+        {
+            tshirtsDTOList.add(mapToDTO(tshirt));
         }
-        return list;
+        PaginatedResponseDTO<TshirtsDTO>response =new PaginatedResponseDTO<>();
+        response.setContent(tshirtsDTOList);
+        response.setPageSize(tshirts.getSize());
+        response.setPageNumber(tshirts.getNumber());
+        response.setTotalPages(tshirts.getTotalPages());
+        response.setTotalElements(tshirts.getTotalElements());
+        return  response;
+
+
     }
     @Override
     public TshirtsDTO getTshirtById(String id) {
@@ -78,13 +112,5 @@ public class TshirtsService implements  ITshirtsService{
         tshirtsRepository.save(updateTshirt);
         return true;
     }
-    @Override
-    public boolean deleteTshirt(String id) {
-        Tshirts existingTshirt = tshirtsRepository.getById(id);
-        if (existingTshirt != null) {
-            tshirtsRepository.delete(existingTshirt);
-            return true;
-        }
-        return false;
-    }
+
 }
