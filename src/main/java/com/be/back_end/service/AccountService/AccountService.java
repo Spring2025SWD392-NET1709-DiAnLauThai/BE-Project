@@ -271,21 +271,29 @@ public class AccountService implements IAccountService{
     }
     @Override
     public boolean updateProfile(UpdateProfileRequest user, MultipartFile image) {
-        Account existingAccount = accountRepository.findById(user.getId().toString()).orElse(null);
-
-        String imageurl= cloudinaryService.uploadFile(image);
-        if (existingAccount != null&&imageurl!=null) {
-            existingAccount.setImage_url(imageurl);
-            existingAccount.setUpdatedAt(LocalDateTime.now());
-            existingAccount.setPhone(user.getPhone());
-            existingAccount.setDateOfBirth(user.getDateOfBirth());
-            existingAccount.setEmail(user.getEmail());
-            existingAccount.setName(user.getName());
-            existingAccount.setAddress(user.getAddress());
-            accountRepository.save(existingAccount);
-            return true;
+        if (user.getId() == null || user.getId().isEmpty()) {
+            throw new IllegalArgumentException("User ID cannot be null or empty");
         }
-        return false;
+
+        Account existingAccount = accountRepository.findById(user.getId()).orElse(null);
+        if (existingAccount == null) {
+            return false; // Account not found
+        }
+
+        String imageurl = cloudinaryService.uploadFile(image);
+        if (imageurl != null) {
+            existingAccount.setImage_url(imageurl);
+        }
+
+        existingAccount.setUpdatedAt(LocalDateTime.now());
+        existingAccount.setPhone(user.getPhone());
+        existingAccount.setDateOfBirth(user.getDateOfBirth());
+        existingAccount.setEmail(user.getEmail());
+        existingAccount.setName(user.getName());
+        existingAccount.setAddress(user.getAddress());
+
+        accountRepository.save(existingAccount);
+        return true;
     }
 
     @Override

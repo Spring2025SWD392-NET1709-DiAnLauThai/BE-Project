@@ -103,22 +103,18 @@ public class AccountController {
         return ResponseEntity.ok(new ApiResponse<>(200, null, "Account updated"));
     }
 
-    @RequestMapping(
-            path = "/profile",
-            method = RequestMethod.PUT,
-            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PutMapping()
-    public ResponseEntity<?> updateProfile(
-            @RequestBody UpdateProfileRequest account,
-            @RequestBody MultipartFile imageFile
-    ) {
-        boolean updated = accountService.updateProfile(account, imageFile);
+
+    @PutMapping(path = "/profile", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> updateProfile(@ModelAttribute UpdateProfileRequest account) {
+        boolean updated = accountService.updateProfile(account, account.getImageFile());
         if (!updated) {
             return ResponseEntity.status(400)
                     .body(new ErrorResponse(400, null, List.of("Account failed to update")));
         }
         return ResponseEntity.ok(new ApiResponse<>(200, null, "Account updated"));
     }
+
+
 
 
 }
