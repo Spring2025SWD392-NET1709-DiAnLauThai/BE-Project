@@ -93,7 +93,7 @@ public class JwtUtils {
     ResponseCookie cookie = ResponseCookie.from(jwtCookie, jwt)
         .path("/")
         .maxAge(24 * 60 * 60)
-        .httpOnly(true)
+        .httpOnly(false)
         .secure(false)
         .sameSite("Lax")
         .domain("localhost")

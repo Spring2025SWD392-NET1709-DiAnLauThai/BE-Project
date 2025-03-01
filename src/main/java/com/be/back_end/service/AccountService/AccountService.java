@@ -280,9 +280,11 @@ public class AccountService implements IAccountService{
             return false; // Account not found
         }
 
-        String imageurl = cloudinaryService.uploadFile(image);
-        if (imageurl != null) {
-            existingAccount.setImage_url(imageurl);
+        if (image != null && !image.isEmpty()) {
+            String imageurl = cloudinaryService.uploadFile(image);
+            if (imageurl != null) {
+                existingAccount.setImage_url(imageurl);
+            }
         }
 
         existingAccount.setUpdatedAt(LocalDateTime.now());
