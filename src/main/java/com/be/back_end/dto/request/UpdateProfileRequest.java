@@ -4,6 +4,7 @@ import com.be.back_end.enums.ActivationEnums;
 import com.be.back_end.enums.RoleEnums;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,5 +18,5 @@ public class UpdateProfileRequest {
     private String address;
     private String phone;
     private LocalDate dateOfBirth;
-
+    private MultipartFile imageFile;
 }
