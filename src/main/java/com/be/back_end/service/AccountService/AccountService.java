@@ -197,7 +197,6 @@ public class AccountService implements IAccountService{
                                                         int page,
                                                         int size,
                                                         RoleEnums role,
-                                                        ActivationEnums status,
                                                         LocalDateTime dateFrom,
                                                         LocalDateTime dateTo,
                                                         String sortDir,
@@ -209,31 +208,24 @@ public class AccountService implements IAccountService{
         sort =Sort.Direction.DESC;}
         Pageable pageable = PageRequest.of(page-1, size,sort,sortBy);
         Page<Account> accounts;
-        if (role != null && status != null && dateFrom != null && dateTo != null) {
-            accounts = accountRepository.findByRoleAndStatusAndCreatedAtBetween(role, status, dateFrom, dateTo, pageable);
-        }
-        else if (role != null && status != null) {
-            accounts = accountRepository.findByRoleAndStatus(role, status, pageable);
-        }
-        else if (role != null && dateFrom != null && dateTo != null) {
+        if (role != null && dateFrom != null && dateTo != null && keyword != null && !keyword.trim().isEmpty()) {
+            accounts = accountRepository.findByRoleAndCreatedAtBetweenAndEmailContainingIgnoreCaseOrNameContainingIgnoreCase(
+                    role, dateFrom, dateTo, keyword, keyword, pageable);
+        } else if (role != null && dateFrom != null && dateTo != null) {
             accounts = accountRepository.findByRoleAndCreatedAtBetween(role, dateFrom, dateTo, pageable);
-        }
-        else if (status != null && dateFrom != null && dateTo != null) {
-            accounts = accountRepository.findByStatusAndCreatedAtBetween(status, dateFrom, dateTo, pageable);
-        }
-        else if (role != null) {
-            accounts = accountRepository.findByRole(role, pageable);
-        }
-        else if (status != null) {
-            accounts = accountRepository.findByStatus(status, pageable);
-        }
-        else if (dateFrom != null && dateTo != null) {
+        } else if (dateFrom != null && dateTo != null && keyword != null && !keyword.trim().isEmpty()) {
+            accounts = accountRepository.findByCreatedAtBetweenAndEmailContainingIgnoreCaseOrNameContainingIgnoreCase(
+                    dateFrom, dateTo, keyword, keyword, pageable);
+        } else if (role != null && keyword != null && !keyword.trim().isEmpty()) {
+            accounts = accountRepository.findByRoleAndEmailContainingIgnoreCaseOrNameContainingIgnoreCase(
+                    role, keyword, keyword, pageable);
+        } else if (dateFrom != null && dateTo != null) {
             accounts = accountRepository.findByCreatedAtBetween(dateFrom, dateTo, pageable);
-        }
-        else if (keyword != null && !keyword.trim().isEmpty()) {
+        } else if (keyword != null && !keyword.trim().isEmpty()) {
             accounts = accountRepository.findByEmailContainingIgnoreCaseOrNameContainingIgnoreCase(keyword, keyword, pageable);
-        }
-        else {
+        } else if (role != null) {
+            accounts = accountRepository.findByRole(role, pageable);
+        } else {
             accounts = accountRepository.findAll(pageable);
         }
         List<AccountDTO> accountDTOs = new ArrayList<>();
