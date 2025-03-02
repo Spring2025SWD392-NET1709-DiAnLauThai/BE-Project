@@ -347,6 +347,7 @@ public class AccountService implements IAccountService{
         }
     }
 
+
     private AccountCreationResponse mapToResponse(Account account) {
         AccountCreationResponse response = new AccountCreationResponse();
         response.setId(UUID.fromString(account.getId()));

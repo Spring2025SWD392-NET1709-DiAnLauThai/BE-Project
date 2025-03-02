@@ -1,6 +1,9 @@
 package com.be.back_end.enums;
 
 public enum BookingEnums {
-    ACTIVE,
-    INACTIVE
+    DEPOSIT_PAID,
+    CONFIRMED,
+    PENDING,
+    COMPLETE,
+    REFUNDED
 }
