@@ -27,12 +27,12 @@ import java.util.List;
 
 @Service
 public class TaskService implements ITaskService{
-        private final TasKRepository tasKRepository;
+        private final TasKRepository taskRepository;
         private final BookingRepository bookingRepository;
         private final AccountRepository accountRepository;
         private final IEmailService emailService;
     public TaskService(TasKRepository tasKRepository, BookingRepository bookingRepository, AccountRepository accountRepository, IEmailService emailService) {
-        this.tasKRepository = tasKRepository;
+        this.taskRepository = tasKRepository;
         this.bookingRepository = bookingRepository;
         this.accountRepository = accountRepository;
         this.emailService = emailService;
@@ -57,17 +57,25 @@ public class TaskService implements ITaskService{
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sort, "startDate"));
         Page<Task> tasks;
         if (startDate != null && endDate != null && designerEmail != null && taskStatus != null) {
-            tasks = tasKRepository.findByStartDateBetweenAndAccount_EmailContainingIgnoreCaseAndTaskStatus(
+            tasks = taskRepository.findByStartDateBetweenAndAccount_EmailContainingIgnoreCaseAndTaskStatus(
                     startDate, endDate, designerEmail, taskStatus, pageable);
+        } else if (startDate != null && endDate != null && designerEmail != null) {
+            tasks = taskRepository.findByStartDateBetweenAndAccount_EmailContainingIgnoreCase(
+                    startDate, endDate, designerEmail, pageable);
         } else if (startDate != null && endDate != null && taskStatus != null) {
-            tasks = tasKRepository.findByStartDateBetweenAndTaskStatus(startDate, endDate, taskStatus, pageable);
+            tasks = taskRepository.findByStartDateBetweenAndTaskStatus(startDate, endDate, taskStatus, pageable);
         } else if (designerEmail != null && taskStatus != null) {
-            tasks = tasKRepository.findByAccount_EmailContainingIgnoreCaseAndTaskStatus(designerEmail, taskStatus, pageable);
+            tasks = taskRepository.findByAccount_EmailContainingIgnoreCaseAndTaskStatus(designerEmail, taskStatus, pageable);
+        } else if (startDate != null && endDate != null) {
+            tasks = taskRepository.findByStartDateBetween(startDate, endDate, pageable);
+        } else if (designerEmail != null) {
+            tasks = taskRepository.findByAccount_EmailContainingIgnoreCase(designerEmail, pageable);
         } else if (taskStatus != null) {
-            tasks = tasKRepository.findByTaskStatus(taskStatus, pageable);
+            tasks = taskRepository.findByTaskStatus(taskStatus, pageable);
         } else {
-            tasks = tasKRepository.findAll(pageable);
+            tasks = taskRepository.findAll(pageable);
         }
+
         List<TaskListResponse> taskListResponses= new ArrayList<>();
         for(Task task:tasks.getContent()){
             taskListResponses.add(mapToTaskListResponse(task));
@@ -109,7 +117,7 @@ public class TaskService implements ITaskService{
         task.setEndDate(taskCreateRequest.getEndDate());
         task.setBooking(bookings);
         task.setAccount(designer);
-        tasKRepository.save(task);
+        taskRepository.save(task);
         try {
             emailService.sendAssignmentEmail(designer.getEmail(), designer.getName(), bookings.getCode());
         } catch (MessagingException e) {

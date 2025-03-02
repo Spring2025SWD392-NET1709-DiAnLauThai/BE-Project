@@ -20,7 +20,6 @@ public interface IAccountService {
                                                  int page,
                                                  int size,
                                                  RoleEnums role,
-                                                 ActivationEnums status,
                                                  LocalDateTime dateFrom,
                                                  LocalDateTime dateTo,
                                                  String sortDir,
