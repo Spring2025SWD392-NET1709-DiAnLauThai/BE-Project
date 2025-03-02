@@ -9,6 +9,6 @@ public interface IBookingService {
     boolean createbooking(BookingDTO bookingDTO);
     List<Bookings> getAllbookings();
     Bookings getbookingById(String id);
-    Bookings updatebooking(String id, BookingDTO bookingDTO);
+
     boolean deletebooking(String id);
 }

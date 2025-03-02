@@ -46,6 +46,27 @@ public class EmailService implements IEmailService{
     }
 
     @Override
+    public void sendAssignmentEmail(String to, String name, String bookingCode) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        Context context = new Context();
+        context.setVariable("name", name);
+        context.setVariable("bookingCode", bookingCode);
+        String htmlContent = templateEngine.process("task-assignment", context);
+        helper.setTo(to);
+        helper.setSubject("Task Assignment Notification");
+        helper.setText(htmlContent, true);
+        try {
+            mailSender.send(message);
+            System.out.println("Assignment email sent successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new MessagingException("Error sending assignment email", e);
+        }
+    }
+
+
+    @Override
     public void sendPasswordEmail(String to, String name, String password) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
