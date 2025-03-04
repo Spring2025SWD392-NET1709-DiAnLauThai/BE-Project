@@ -14,6 +14,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class VNPayUtils {
@@ -30,8 +31,7 @@ public class VNPayUtils {
         String vnp_Command = "pay";
         String vnp_CurrCode = "VND";
         String vnp_Locale = "vn";
-        String vnp_TxnRef = getRandomNumber(8);
-        String vnp_IpAddr = getIpAddress(request);
+        String vnp_IpAddr = getIpAddress(request); //IP address of the customer making the transaction
         String vnp_BankCode="VNBANK";
         int newAmount= Integer.parseInt(amount)*100;
 
@@ -41,6 +41,9 @@ public class VNPayUtils {
         String vnp_CreateDate = formatter.format(cld.getTime());
         cld.add(Calendar.MINUTE, 15);
         String vnp_ExpireDate = formatter.format(cld.getTime());
+
+        //Truyen Transcation ID hay gi do
+        String vnp_TxnRef = getRandomNumberString(8);
 
         Map<String, String> params = new HashMap<>();
         params.put("vnp_Version", vnp_Version);
@@ -91,7 +94,10 @@ public class VNPayUtils {
         return vnPayConfig.getVnp_PayUrl() + "?" + queryUrl;
     }
 
-    private static String hmacSHA512(final String key, final String data) {
+
+
+
+    private  String hmacSHA512(final String key, final String data) {
         try {
 
             if (key == null || data == null) {
@@ -114,7 +120,7 @@ public class VNPayUtils {
         }
     }
 
-    private static String getIpAddress(HttpServletRequest request){
+    private  String getIpAddress(HttpServletRequest request){
         String ip = request.getHeader("X-Forwarded-For");
         if (ip == null || ip.isEmpty() || "unknown".equalsIgnoreCase(ip)) {
             ip = request.getHeader("Proxy-Client-IP");
@@ -140,11 +146,14 @@ public class VNPayUtils {
         return ip;
     }
 
-    private static String getRandomNumber(int len){
+    private String getRandomNumberString(int length){
+        if (length <= 0) {
+            throw new IllegalArgumentException("Length must be greater than 0");
+        }
         Random rnd = new Random();
         String chars = "0123456789";
-        StringBuilder sb = new StringBuilder(len);
-        for (int i = 0; i < len; i++) {
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
             sb.append(chars.charAt(rnd.nextInt(chars.length())));
         }
         return sb.toString();

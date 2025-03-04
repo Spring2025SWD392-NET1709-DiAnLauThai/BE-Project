@@ -69,7 +69,7 @@ public class DesignService implements IDesignService {
 
     @Override
     public boolean removeById(String id) {
-        Designs existingDesign = designsRepository.getById(id);
+        Designs existingDesign = designsRepository.findById(id).orElse(null);
         if (existingDesign != null) {
             designsRepository.delete(existingDesign);
             return true;

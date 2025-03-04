@@ -15,5 +15,9 @@ public class TransactionRequest {
     private LocalDateTime payment_date;
     private String payment_amount;
     private String booking_info;
-    private String booking_type;
+    private String transactionType;
+    private String transactionStatus;
+    private String bankCode;
+    private String reason;
+
 }

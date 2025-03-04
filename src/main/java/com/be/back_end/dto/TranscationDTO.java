@@ -15,4 +15,8 @@ public class TranscationDTO {
     private String payment_method;
     private LocalDateTime payment_date;
     private BigDecimal payment_amount;
+    private String transactionStatus;
+    private String bankCode;
+    private String reason;
+    private String transactionType;
 }

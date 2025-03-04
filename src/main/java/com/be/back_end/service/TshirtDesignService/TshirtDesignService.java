@@ -62,12 +62,11 @@ public class TshirtDesignService implements ITshirtDesignService{
 
     @Override
     public boolean deleteTshirtDesign(String id) {
-        TshirtDesign existingTshirtDesign = tshirtDesignRepository.getById(id);
-        if (existingTshirtDesign != null) {
+        TshirtDesign existingTshirtDesign = tshirtDesignRepository.findById(id).orElse(null);
+        if(existingTshirtDesign!=null){
             tshirtDesignRepository.delete(existingTshirtDesign);
-            return true;
         }
-        return false;
+        return true;
     }
 
     private TshirtDesignDTO mapToDTO(TshirtDesign TshirtDesign) {

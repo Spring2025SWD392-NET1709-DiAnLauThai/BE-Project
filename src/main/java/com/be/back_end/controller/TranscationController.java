@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/transcations")
@@ -27,15 +28,6 @@ public class TranscationController {
         this.vnpayService = vnpayService;
     }
 
-    @GetMapping
-    public ResponseEntity<List<TranscationDTO>> getAllTranscation() {
-        List<TranscationDTO> payments = transcationService.getAll();
-        if (payments.isEmpty()) {
-            System.out.println("No Transcation found.");
-        }
-        return ResponseEntity.ok(payments);
-    }
-
     @PostMapping
     public ResponseEntity<TranscationDTO> createTranscation(@RequestBody TranscationDTO TranscationDTO) {
         TranscationDTO createdDesign = transcationService.create(TranscationDTO);
@@ -43,8 +35,31 @@ public class TranscationController {
         return ResponseEntity.ok(createdDesign);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<?> getTranscationById(@PathVariable String id) {
+
+    //Normal Get All
+    @GetMapping("/system")
+    public ResponseEntity<?> getTranscationForSystem() {
+        List<TranscationDTO> payments = transcationService.getAll();
+        if (payments.isEmpty()) {
+            System.out.println("No Transcation found.");
+        }
+        return ResponseEntity.ok(payments);
+    }
+
+    //Get all transcations belong to Customer, via Bookings
+    //Input is customer id, then get all booking, then get all transcation in each bookings
+    //Might need to recreate customer response
+    @GetMapping("/customer/{id}")
+    public ResponseEntity<?> getTranscationForCustomer(@PathVariable String id) throws Exception {
+        List<TranscationDTO> transcations = transcationService.getAllForCustomer(id);
+        if (transcations.isEmpty()) {
+            System.out.println("No Transcation found.");
+        }
+        return ResponseEntity.ok(transcations);
+    }
+
+    @GetMapping("/detail/{id}")
+    public ResponseEntity<?> getTranscationDetail(@PathVariable String id) {
         TranscationDTO design = transcationService.getById(id);
         if (design == null) {
             return ResponseEntity.badRequest().body("Transcation not found with ID: " + id);
@@ -52,29 +67,12 @@ public class TranscationController {
         return ResponseEntity.ok(design);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<?> updateTranscation(@PathVariable String id, @RequestBody TranscationDTO TranscationDTO) {
-        boolean updated = transcationService.update(id, TranscationDTO);
-        if (!updated) {
-            return ResponseEntity.badRequest().body("Failed to update. Transcation not found with ID: " + id);
-        }
-        return ResponseEntity.ok("Transcation updated successfully.");
-    }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteTranscation(@PathVariable String id) {
-        boolean deleted = transcationService.delete(id);
-        if (!deleted) {
-            return ResponseEntity.badRequest().body("Failed to delete. Transcation not found with ID: " + id);
-        }
-        return ResponseEntity.ok("Transcation deleted successfully.");
-    }
-
-    @GetMapping("/makePayment")
+    @PostMapping("/makePayment")
     public ResponseEntity<TransactionResponse> makePayment(@RequestBody TransactionRequest transactionRequest, HttpServletRequest request) {
         String amount = transactionRequest.getPayment_amount();
         String orderInfo = transactionRequest.getBooking_info();
-        String orderType = transactionRequest.getBooking_type();
+        String orderType = transactionRequest.getTransactionType();
         TransactionResponse response = vnpayService.createPaymentUrl(amount, orderInfo, orderType,request);
         return ResponseEntity.ok(response);
     }
@@ -94,6 +92,8 @@ public class TranscationController {
                     .build());
         }
     }
+
+
 
 }
 

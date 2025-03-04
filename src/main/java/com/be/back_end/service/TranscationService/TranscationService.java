@@ -1,12 +1,17 @@
 
 package com.be.back_end.service.TranscationService;
 
+import com.be.back_end.dto.BookingDTO;
 import com.be.back_end.dto.TranscationDTO;
 
 import com.be.back_end.dto.response.TransactionResponse;
+import com.be.back_end.model.Account;
+import com.be.back_end.model.Bookings;
 import com.be.back_end.model.Transaction;
 
 
+import com.be.back_end.repository.AccountRepository;
+import com.be.back_end.repository.BookingRepository;
 import com.be.back_end.repository.TranscationRepository;
 import com.be.back_end.utils.VNPayUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,19 +19,22 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Service
 public class TranscationService implements ITranscationService, IVNPayService {
 
     private final TranscationRepository transcationRepository;
     private final VNPayUtils vnPayUtils;
+    private final BookingRepository bookingRepository;
+    private final AccountRepository accountRepository;
 
     @Autowired
-    public TranscationService(TranscationRepository transcationRepository, VNPayUtils vnPayUtils) {
+    public TranscationService(TranscationRepository transcationRepository, VNPayUtils vnPayUtils, BookingRepository bookingRepository, AccountRepository accountRepository) {
         this.transcationRepository = transcationRepository;
         this.vnPayUtils=vnPayUtils;
+        this.bookingRepository = bookingRepository;
+        this.accountRepository = accountRepository;
     }
 
     @Override
@@ -53,26 +61,58 @@ public class TranscationService implements ITranscationService, IVNPayService {
         return mapToDTO(transaction);
     }
 
-    @Override
-    public boolean update(String id, TranscationDTO user) {
-        Transaction updatedTransaction = transcationRepository.findById(id).orElse(null);
-        if (updatedTransaction == null) {
-            return false;
-        }
-        updatedTransaction = mapToEntity(user);
-        transcationRepository.save(updatedTransaction);
-        return true;
-    }
 
     @Override
-    public boolean delete(String id) {
-        Transaction existingTransaction = transcationRepository.getById(id);
-        if (existingTransaction != null) {
-            transcationRepository.delete(existingTransaction);
-            return true;
-        }
-        return false;
+    public List<TranscationDTO> getAllForCustomer(String id) {
+
+
+            //Get a Customer
+            Account account = accountRepository.findById(id).orElse(null);
+
+            if (account != null) {
+
+                String accountId = account.getId();
+                List<Bookings> bookingsList = bookingRepository.findByaccount(account);
+                if (bookingsList.isEmpty()) {
+                    System.out.println("Booking list is empty");
+                    return null;
+                }
+
+                //Get Transcation for every booking available
+                List<Transaction> transactionList = null;
+                for (Bookings Bookings : bookingsList) {
+                    transactionList = transcationRepository.findAllById(Collections.singleton(Bookings.getId()));
+
+                }
+
+                if (transactionList.isEmpty()) {
+                    System.out.println("Transcation list is empty");
+                    return null;
+                }
+
+                //Conver them to DTO
+                List<TranscationDTO> transcationDTOList = null;
+                for (Transaction transaction : transactionList) {
+                    TranscationDTO transcationDTO = mapToDTO(transaction);
+                    transcationDTOList.add(transcationDTO);
+                }
+
+                if (transcationDTOList.isEmpty()) {
+                    System.out.println("TranscationDTO list is empty");
+                    return null;
+                }
+
+                return transcationDTOList;
+
+            }
+            System.out.println("Customer is empty");
+            return null;
+
     }
+
+
+
+
 
 
     private TranscationDTO mapToDTO(Transaction Transaction) {
@@ -113,6 +153,8 @@ public class TranscationService implements ITranscationService, IVNPayService {
         }
 
     }
+
+
 
 }
 

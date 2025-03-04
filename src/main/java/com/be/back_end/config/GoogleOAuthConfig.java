@@ -3,6 +3,7 @@ package com.be.back_end.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+
 @Configuration
 public class GoogleOAuthConfig {
     @Value("${google.client.id}")
@@ -26,3 +27,4 @@ public class GoogleOAuthConfig {
         return redirectUri;
     }
 }
+

@@ -1,5 +1,7 @@
 package com.be.back_end.service.GoogleService;
+
 import com.be.back_end.config.GoogleOAuthConfig;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -9,9 +11,11 @@ import java.util.Map;
 
 @Service
 public class GoogleService implements  IGoogleService{
+
     private final GoogleOAuthConfig googleOAuthConfig;
     private final RestTemplate restTemplate = new RestTemplate();
 
+    @Autowired
     public GoogleService(GoogleOAuthConfig googleOAuthConfig) {
         this.googleOAuthConfig = googleOAuthConfig;
     }
@@ -56,3 +60,4 @@ public class GoogleService implements  IGoogleService{
         return (String) response.getBody().get("access_token");
     }
 }
+
