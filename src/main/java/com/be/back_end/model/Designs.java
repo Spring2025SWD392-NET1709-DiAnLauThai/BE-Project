@@ -23,23 +23,16 @@ public class Designs {
     @Column(name="designid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     private String id;
 
-    @Column(name="uploaddate",updatable = false)
-    private LocalDateTime upload_date;
-
     @ManyToOne
     @JoinColumn(name = "accountid", nullable = false)  // Foreign key in the User table. This is createdBy
     private Account account;
 
-    @Column(name="designname")
-    private String designName;
 
     @Column(name="designfile")
     private String designFile;
 
     @OneToMany(mappedBy = "design", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TshirtDesign> tshirtDesigns;
-
-    private BigDecimal price;
 
     @OneToMany(mappedBy = "design",cascade = CascadeType.ALL)
     private Set<Bookingdetails> bookingdetails;
@@ -49,7 +42,7 @@ public class Designs {
         if (id == null) {
             id = UUID.randomUUID().toString();
         }
-        upload_date = LocalDateTime.now();
+
 
     }
 }

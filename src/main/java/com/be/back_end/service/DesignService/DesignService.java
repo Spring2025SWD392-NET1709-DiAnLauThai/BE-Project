@@ -4,29 +4,46 @@ package com.be.back_end.service.DesignService;
 import com.be.back_end.dto.AccountDTO;
 import com.be.back_end.dto.DesignDTO;
 
+import com.be.back_end.dto.request.BookingCreateRequest;
+import com.be.back_end.dto.request.CreateDesignRequest;
+import com.be.back_end.dto.response.CreateDesignResponse;
+import com.be.back_end.enums.ActivationEnums;
 import com.be.back_end.enums.RoleEnums;
-import com.be.back_end.model.Account;
-import com.be.back_end.model.Designs;
-import com.be.back_end.repository.DesignRepository;
+import com.be.back_end.model.*;
+import com.be.back_end.repository.*;
+import com.be.back_end.service.CloudinaryService.ICloudinaryService;
+import com.be.back_end.service.TshirtColorService.ITshirtColorService;
+import com.be.back_end.service.TshirtDesignService.ITshirtDesignService;
+import com.be.back_end.service.TshirtsService.ITshirtsService;
+import com.be.back_end.utils.AccountUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class DesignService implements IDesignService {
-
-
+    private final ICloudinaryService cloudinaryService;
+    private final AccountUtils accountUtils;
     private final DesignRepository designsRepository;
-
+    private final ITshirtsService tshirtsService;
+    private final ITshirtDesignService tshirtDesignService;
+    private final ITshirtColorService tshirtColorService;
     @Autowired
-    public DesignService(DesignRepository designsRepository) {
+    public DesignService(ICloudinaryService cloudinaryService, AccountUtils accountUtils, DesignRepository designsRepository, ITshirtsService tshirtsService, ITshirtDesignService tshirtDesignService, ITshirtColorService tshirtColorService) {
+        this.cloudinaryService = cloudinaryService;
+        this.accountUtils = accountUtils;
         this.designsRepository = designsRepository;
+
+        this.tshirtsService = tshirtsService;
+        this.tshirtDesignService = tshirtDesignService;
+        this.tshirtColorService = tshirtColorService;
     }
 
 
-    @Override
+/*    @Override
     public List<DesignDTO> getAll() {
         List<Designs> designsList= designsRepository.findAll();
         List<DesignDTO> list= new ArrayList<>();
@@ -87,9 +104,9 @@ public class DesignService implements IDesignService {
 
 
         return dto;
-    }
+    }*/
 
-    private Designs mapToEntity(DesignDTO dto) {
+/*    private Designs mapToEntity(DesignDTO dto) {
         Designs design = new Designs();
 
         design.setDesignName(dto.getDesignName());
@@ -97,5 +114,20 @@ public class DesignService implements IDesignService {
         design.setPrice(dto.getPrice());
 
         return design;
+    }*/
+
+
+
+    @Override
+    public Designs createAndSaveDesign(BookingCreateRequest.BookingDetailCreateRequest detailRequest) {
+        Designs newDesign = new Designs();
+        newDesign.setDesignFile(detailRequest.getDesignFile());
+        newDesign.setAccount(accountUtils.getCurrentAccount());  // Set the current account
+        return designsRepository.save(newDesign);
     }
+
+
+
+
+
 }

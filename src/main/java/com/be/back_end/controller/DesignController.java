@@ -2,8 +2,15 @@ package com.be.back_end.controller;
 
 import com.be.back_end.dto.AccountDTO;
 import com.be.back_end.dto.DesignDTO;
+import com.be.back_end.dto.request.CreateDesignRequest;
+import com.be.back_end.dto.response.ApiResponse;
+import com.be.back_end.dto.response.CreateDesignResponse;
+import com.be.back_end.dto.response.ErrorResponse;
 import com.be.back_end.model.Designs;
 import com.be.back_end.service.DesignService.IDesignService;
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +25,7 @@ public class DesignController {
         this.designService = designService;
     }
 
-    @GetMapping
+   /* @GetMapping
     public ResponseEntity<List<DesignDTO>> getAllDesigns() {
         List<DesignDTO> designs = designService.getAll();
         if (designs.isEmpty()) {
@@ -60,4 +67,18 @@ public class DesignController {
         }
         return ResponseEntity.ok("Design deleted successfully.");
     }
+
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> createDesign(@ModelAttribute CreateDesignRequest createDesignRequest) {
+        try {
+            // Call service to process design creation
+            CreateDesignResponse response = designService.createDesign(createDesignRequest);
+
+            return ResponseEntity.ok(new ApiResponse<>(200, response, "Design created successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ErrorResponse(400, "Design creation failed", List.of(e.getMessage()))
+            );
+        }
+    }*/
 }

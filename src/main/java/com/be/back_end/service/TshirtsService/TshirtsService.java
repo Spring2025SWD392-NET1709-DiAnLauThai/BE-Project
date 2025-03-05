@@ -2,6 +2,7 @@ package com.be.back_end.service.TshirtsService;
 
 import com.be.back_end.dto.TshirtsDTO;
 
+import com.be.back_end.dto.request.CreateDesignRequest;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.enums.ActivationEnums;
 import com.be.back_end.model.Account;
@@ -52,12 +53,14 @@ public class TshirtsService implements  ITshirtsService{
 
         return tshirt;
     }
-    @Override
-    public boolean createTshirt(TshirtsDTO tshirt) {
-        Tshirts newtshirt= mapToEntity(tshirt);
-        tshirtsRepository.save(newtshirt);
-        return true;
-
+   @Override
+    public Tshirts saveTshirt(CreateDesignRequest createDesignRequest) {
+        Tshirts tshirt = new Tshirts();
+        tshirt.setDescription(createDesignRequest.getDescription());
+        tshirt.setStatus(ActivationEnums.INACTIVE);
+        tshirt.setName(null);
+        tshirt.setImage_url(null);
+        return tshirtsRepository.save(tshirt);
     }
     @Override
     public PaginatedResponseDTO<TshirtsDTO> getAllTshirts(String keyword,

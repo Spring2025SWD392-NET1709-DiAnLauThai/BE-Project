@@ -4,7 +4,9 @@ import com.be.back_end.dto.TshirtDesignDTO;
 import com.be.back_end.dto.TshirtDesignDTO;
 
 import com.be.back_end.enums.RoleEnums;
+import com.be.back_end.model.Designs;
 import com.be.back_end.model.TshirtDesign;
+import com.be.back_end.model.Tshirts;
 import com.be.back_end.repository.DesignRepository;
 import com.be.back_end.repository.TshirtDesignRepository;
 import org.springframework.beans.factory.annotation.Autowired;
