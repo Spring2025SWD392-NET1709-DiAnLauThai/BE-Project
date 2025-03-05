@@ -12,6 +12,4 @@ public class TaskCreateRequest {
     private String bookingId;
     private String designerId;
 
-    private LocalDate startDate;
-    private LocalDate endDate;
 }

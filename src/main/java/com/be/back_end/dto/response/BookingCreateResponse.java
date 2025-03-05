@@ -21,10 +21,9 @@ public class BookingCreateResponse {
     private String accountId;
     private String code;
     private String title;
-    private int duration;
     private BookingEnums status;
-    private LocalDateTime dateCreated;
-    private LocalDateTime lastUpdated;
+    private LocalDateTime startdate;
+    private LocalDateTime enddate;
     private List<BookingDetailResponse> bookingDetails;
     private String vnpayurl;
     @Getter

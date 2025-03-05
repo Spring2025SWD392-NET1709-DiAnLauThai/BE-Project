@@ -61,7 +61,7 @@ public class BookingService implements IBookingService {
                 sb.append(allCharacters.charAt(random.nextInt(allCharacters.length())));
             }
             bookingCode = sb.toString();
-        } while (bookingRepository.existsByCode(bookingCode)); // ✅ Ensure uniqueness
+        } while (bookingRepository.existsByCode(bookingCode));
 
         return bookingCode;
     }
@@ -103,10 +103,9 @@ public class BookingService implements IBookingService {
                 booking.getAccount().getId(),
                 booking.getCode(),
                 booking.getTitle(),
-                booking.getDuration(),
                 booking.getStatus(),
-                booking.getDate_created(),
-                booking.getLast_updated(),
+                booking.getStartdate(),
+                booking.getEnddate(),
                 bookingDetails,
                 paymentUrl
         );
@@ -123,10 +122,9 @@ public class BookingService implements IBookingService {
     public Bookings createAndSaveNewBooking(BookingCreateRequest bookingDTO) {
         Bookings booking = new Bookings();
         booking.setStatus(BookingEnums.DEPOSIT_PAID);
-        booking.setDate_created(LocalDateTime.now());
-        booking.setLast_updated(LocalDateTime.now());
+        booking.setStartdate(LocalDateTime.now());
+        booking.setEnddate(LocalDateTime.now());
         booking.setTitle(bookingDTO.getTitle());
-        booking.setDuration(bookingDTO.getDuration());
         String bookingCode = generateBookingCode(8);
         booking.setAccount(accountUtils.getCurrentAccount());
         booking.setFeedback(null);

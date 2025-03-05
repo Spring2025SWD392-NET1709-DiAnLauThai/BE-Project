@@ -7,6 +7,7 @@ import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Getter
@@ -14,7 +15,8 @@ import java.util.List;
 @NoArgsConstructor
 public class BookingCreateRequest {
     private String title;
-    private int duration;
+    private LocalDateTime startdate;
+    private LocalDateTime enddate;
     private List<BookingDetailCreateRequest> bookingdetails;
 
     @Getter

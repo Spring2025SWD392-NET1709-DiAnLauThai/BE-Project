@@ -31,11 +31,6 @@ public class Task {
     @Column(name = "taskstatus", nullable = false)
     private String taskStatus;
 
-    @Column(name = "startdate", nullable = false)
-    private LocalDate startDate;
-
-    @Column(name = "enddate", nullable = false)
-    private LocalDate endDate;
 
     @PrePersist
     protected void onCreate() {

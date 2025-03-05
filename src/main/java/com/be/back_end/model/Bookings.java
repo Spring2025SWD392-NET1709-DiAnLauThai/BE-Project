@@ -48,10 +48,11 @@ public class Bookings {
     private BookingEnums status;
 
     @Column(name="datecreated")
-    private LocalDateTime date_created;
+    private LocalDateTime startdate;
 
-    @Column(name="lastupdated")
-    private LocalDateTime last_updated;
+    @Column(name="enddate")
+    private LocalDateTime enddate;
+
 
 
     @Column(name = "code")
@@ -60,19 +61,14 @@ public class Bookings {
     @Column(name = "title")
     private String title;
 
-    @Column(name = "duration")
-    private int duration;
+
     @PrePersist
     protected void onCreate() {
         if (Id == null) {
             Id = UUID.randomUUID().toString();
         }
-        date_created = LocalDateTime.now();
-        last_updated = LocalDateTime.now();
+
     }
-    @PreUpdate
-    protected void onUpdate() {
-        last_updated = LocalDateTime.now();
-    }
+
 
 }
