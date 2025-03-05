@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.util.Optional;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Bookings, String> {
@@ -18,4 +19,7 @@ public interface BookingRepository extends JpaRepository<Bookings, String> {
     @Query("SELECT COUNT(b) FROM Bookingdetails b WHERE b.booking.id = :bookingId")
     Integer getTotalQuantityByBookingId(@Param("bookingId") String bookingId);
 
+    boolean existsByCode(String code);
+
+    Optional<Bookings> findByCode(String code);
 }

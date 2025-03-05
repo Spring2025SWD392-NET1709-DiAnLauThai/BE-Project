@@ -12,11 +12,16 @@ import com.be.back_end.repository.BookingRepository;
 import com.be.back_end.service.BookingDetailService.IBookingdetailService;
 import com.be.back_end.service.CloudinaryService.ICloudinaryService;
 import com.be.back_end.service.DesignService.IDesignService;
+import com.be.back_end.service.TranscationService.IVNPayService;
 import com.be.back_end.utils.AccountUtils;
+import com.be.back_end.utils.VNPayUtils;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
+import java.net.http.HttpRequest;
 import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -31,13 +36,15 @@ public class BookingService implements IBookingService {
     private final IBookingdetailService bookingdetailService;
     private final BookingDetailsRepository bookingDetailsRepository;
     private final ICloudinaryService cloudinaryService;
-    public BookingService(BookingRepository bookingRepository, AccountUtils accountUtils, IDesignService designService, IBookingdetailService bookingdetailService, BookingDetailsRepository bookingDetailsRepository, ICloudinaryService cloudinaryService) {
+    private final VNPayUtils  vnPayUtils;
+    public BookingService(BookingRepository bookingRepository, AccountUtils accountUtils, IDesignService designService, IBookingdetailService bookingdetailService, BookingDetailsRepository bookingDetailsRepository, ICloudinaryService cloudinaryService, IVNPayService ivnPayService, VNPayUtils vnPayUtils) {
         this.bookingRepository = bookingRepository;
         this.accountUtils = accountUtils;
         this.designService = designService;
         this.bookingdetailService = bookingdetailService;
         this.bookingDetailsRepository = bookingDetailsRepository;
         this.cloudinaryService = cloudinaryService;
+        this.vnPayUtils = vnPayUtils;
     }
 
     private String generateBookingCode(int length) {
@@ -46,21 +53,27 @@ public class BookingService implements IBookingService {
         String allCharacters = upperCaseLetters + numbers;
 
         SecureRandom random = new SecureRandom();
-        StringBuilder sb = new StringBuilder(length);
+        String bookingCode;
 
-        for (int i = 0; i < length; i++) {
-            sb.append(allCharacters.charAt(random.nextInt(allCharacters.length())));
-        }
+        do {
+            StringBuilder sb = new StringBuilder(length);
+            for (int i = 0; i < length; i++) {
+                sb.append(allCharacters.charAt(random.nextInt(allCharacters.length())));
+            }
+            bookingCode = sb.toString();
+        } while (bookingRepository.existsByCode(bookingCode)); // ✅ Ensure uniqueness
 
-        return sb.toString();
+        return bookingCode;
     }
 
 
 
 
 
+
     @Override
-    public BookingCreateResponse createBooking(BookingCreateRequest request) {
+    public BookingCreateResponse createBooking(BookingCreateRequest request, HttpServletRequest httpRequest) {
+
         Bookings booking = createAndSaveNewBooking(request);
         List<BookingCreateResponse.BookingDetailResponse> bookingDetails = new ArrayList<>();
         if (request.getBookingdetails() != null) {
@@ -71,7 +84,18 @@ public class BookingService implements IBookingService {
         booking.setTotal_price(totalPrice != null ? totalPrice : BigDecimal.ZERO);
         booking.setTotal_quantity(totalQuantity != null ? totalQuantity : 0);
         bookingRepository.save(booking);
-
+        String paymentUrl;
+        try {
+            paymentUrl = vnPayUtils.generatePaymentUrlWithBookingId(
+                    totalPrice.toString(),
+                    booking.getTitle(),
+                    booking.getStatus().toString(),
+                    httpRequest,
+                    booking.getCode()
+            );
+        } catch (UnsupportedEncodingException e) {
+            paymentUrl = null;
+        }
         return new BookingCreateResponse(
                 booking.getId(),
                 booking.getTotal_price(),
@@ -83,7 +107,8 @@ public class BookingService implements IBookingService {
                 booking.getStatus(),
                 booking.getDate_created(),
                 booking.getLast_updated(),
-                bookingDetails
+                bookingDetails,
+                paymentUrl
         );
     }
 

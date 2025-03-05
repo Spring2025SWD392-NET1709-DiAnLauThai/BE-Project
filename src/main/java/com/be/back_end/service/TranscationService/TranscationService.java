@@ -4,9 +4,12 @@ package com.be.back_end.service.TranscationService;
 import com.be.back_end.dto.TranscationDTO;
 
 import com.be.back_end.dto.response.TransactionResponse;
+import com.be.back_end.enums.BookingEnums;
+import com.be.back_end.model.Bookings;
 import com.be.back_end.model.Transaction;
 
 
+import com.be.back_end.repository.BookingRepository;
 import com.be.back_end.repository.TranscationRepository;
 import com.be.back_end.utils.VNPayUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -14,6 +17,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,10 +28,12 @@ public class TranscationService implements ITranscationService, IVNPayService {
     private final TranscationRepository transcationRepository;
     private final VNPayUtils vnPayUtils;
 
+    private final BookingRepository bookingRepository;
     @Autowired
-    public TranscationService(TranscationRepository transcationRepository, VNPayUtils vnPayUtils) {
+    public TranscationService(TranscationRepository transcationRepository, VNPayUtils vnPayUtils, BookingRepository bookingRepository) {
         this.transcationRepository = transcationRepository;
         this.vnPayUtils=vnPayUtils;
+        this.bookingRepository = bookingRepository;
     }
 
     @Override
@@ -113,6 +120,58 @@ public class TranscationService implements ITranscationService, IVNPayService {
         }
 
     }
+
+
+
+
+    public String processPaymentCallback(HttpServletRequest request) {
+        String responseCode = request.getParameter("vnp_ResponseCode");
+        String bookingcode = request.getParameter("vnp_TxnRef");
+        String bankCode = request.getParameter("vnp_BankCode");
+        String amount = request.getParameter("vnp_Amount");
+        String reason = request.getParameter("vnp_OrderInfo");
+        String transactionMethod = request.getParameter("vnp_CardType");
+
+        String transactionStatus = responseCode.equals("00") ? "SUCCESS" : "FAILED";
+        createTransaction(bookingcode, amount, bankCode, transactionStatus, reason, transactionMethod);
+
+        if ("SUCCESS".equals(transactionStatus)) {
+            updateBookingStatus(bookingcode);
+        }
+
+        return transactionStatus;
+    }
+
+
+    private void createTransaction(String bookingCode, String amount, String bankCode,
+                                   String transactionStatus, String reason, String transactionMethod) {
+        Bookings booking = bookingRepository.findByCode(bookingCode)
+                .orElseThrow(() -> new RuntimeException("Booking not found with code: " + bookingCode));
+        BigDecimal transactionAmount;
+        try {
+            transactionAmount = new BigDecimal(amount).divide(BigDecimal.valueOf(100));
+        } catch (NumberFormatException e) {
+            throw new RuntimeException("Invalid amount format: " + amount);
+        }
+        Transaction transaction = new Transaction();
+        transaction.setBookings(booking);
+        transaction.setTransactionName("VNPay Payment");
+        transaction.setTransactionMethod(transactionMethod);
+        transaction.setTransactionAmount(transactionAmount);
+        transaction.setTransactionStatus(transactionStatus);
+        transaction.setBankCode(bankCode);
+        transaction.setReason(reason);
+        transaction.setTransactionType("DEPOSITED");
+        transaction.setTransactionDate(LocalDateTime.now());
+        transcationRepository.save(transaction);
+    }
+    private void updateBookingStatus(String bookingCode) {
+        Bookings booking = bookingRepository.findByCode(bookingCode)
+                .orElseThrow(() -> new RuntimeException("Booking not found with code: " + bookingCode));
+        booking.setStatus(BookingEnums.CONFIRMED);
+        bookingRepository.save(booking);
+    }
+
 
 }
 

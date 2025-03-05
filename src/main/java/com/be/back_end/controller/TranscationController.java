@@ -4,11 +4,14 @@ package com.be.back_end.controller;
 import com.be.back_end.dto.TranscationDTO;
 
 import com.be.back_end.dto.request.TransactionRequest;
+import com.be.back_end.dto.response.ApiResponse;
+import com.be.back_end.dto.response.ErrorResponse;
 import com.be.back_end.dto.response.TransactionResponse;
 import com.be.back_end.service.TranscationService.ITranscationService;
 
 import com.be.back_end.service.TranscationService.IVNPayService;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -79,7 +82,7 @@ public class TranscationController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/callback")
+    /*@GetMapping("/callback")
     public ResponseEntity<TransactionResponse> payCallbackHandler(HttpServletRequest request) {
         String status = request.getParameter("vnp_ResponseCode");
         if (status.equals("00")) {
@@ -92,6 +95,17 @@ public class TranscationController {
                     .code("99: Fail")
                     .message("Giao dich that bai")
                     .build());
+        }
+    }*/
+    @GetMapping("/callback")
+    public ResponseEntity<?> payCallbackHandler(HttpServletRequest request) {
+        try {
+            String transactionStatus = vnpayService.processPaymentCallback(request);
+            return ResponseEntity.ok(new ApiResponse<>(200, transactionStatus,
+                    transactionStatus.equals("SUCCESS") ? "Payment successful" : "Payment failed"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(500, "Transaction processing failed", List.of(e.getMessage())));
         }
     }
 
