@@ -44,60 +44,54 @@ public class TaskService implements ITaskService{
             LocalDate startDate,
             LocalDate endDate,
             String designerEmail,
-            String  taskStatus,
+            String taskStatus,
             int page,
             int size,
             String sortDir) {
-        Sort.Direction sort;
-        if(sortDir.equals("asc")){
-            sort=Sort.Direction.ASC;
-        }else{
-            sort= Sort.Direction.DESC;}
-
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sort, "startDate"));
+        Sort.Direction sort = sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sort, "booking.startdate"));
         Page<Task> tasks;
         if (startDate != null && endDate != null && designerEmail != null && taskStatus != null) {
-            tasks = taskRepository.findByStartDateBetweenAndAccount_EmailContainingIgnoreCaseAndTaskStatus(
+            tasks = taskRepository.findByBooking_StartdateBetweenAndBooking_Account_EmailContainingIgnoreCaseAndBooking_Status(
                     startDate, endDate, designerEmail, taskStatus, pageable);
         } else if (startDate != null && endDate != null && designerEmail != null) {
-            tasks = taskRepository.findByStartDateBetweenAndAccount_EmailContainingIgnoreCase(
+            tasks = taskRepository.findByBooking_StartdateBetweenAndBooking_Account_EmailContainingIgnoreCase(
                     startDate, endDate, designerEmail, pageable);
         } else if (startDate != null && endDate != null && taskStatus != null) {
-            tasks = taskRepository.findByStartDateBetweenAndTaskStatus(startDate, endDate, taskStatus, pageable);
+            tasks = taskRepository.findByBooking_StartdateBetweenAndBooking_Status(
+                    startDate, endDate, taskStatus, pageable);
         } else if (designerEmail != null && taskStatus != null) {
-            tasks = taskRepository.findByAccount_EmailContainingIgnoreCaseAndTaskStatus(designerEmail, taskStatus, pageable);
+            tasks = taskRepository.findByBooking_Account_EmailContainingIgnoreCaseAndBooking_Status(
+                    designerEmail, taskStatus, pageable);
         } else if (startDate != null && endDate != null) {
-            tasks = taskRepository.findByStartDateBetween(startDate, endDate, pageable);
+            tasks = taskRepository.findByBooking_StartdateBetween(startDate, endDate, pageable);
         } else if (designerEmail != null) {
-            tasks = taskRepository.findByAccount_EmailContainingIgnoreCase(designerEmail, pageable);
+            tasks = taskRepository.findByBooking_Account_EmailContainingIgnoreCase(designerEmail, pageable);
         } else if (taskStatus != null) {
-            tasks = taskRepository.findByTaskStatus(taskStatus, pageable);
+            tasks = taskRepository.findByBooking_Status(taskStatus, pageable);
         } else {
             tasks = taskRepository.findAll(pageable);
         }
-
-        List<TaskListResponse> taskListResponses= new ArrayList<>();
-        for(Task task:tasks.getContent()){
+        List<TaskListResponse> taskListResponses = new ArrayList<>();
+        for (Task task : tasks.getContent()) {
             taskListResponses.add(mapToTaskListResponse(task));
         }
-        PaginatedResponseDTO<TaskListResponse>response =new PaginatedResponseDTO<>();
+        PaginatedResponseDTO<TaskListResponse> response = new PaginatedResponseDTO<>();
         response.setContent(taskListResponses);
         response.setPageSize(tasks.getSize());
         response.setPageNumber(tasks.getNumber());
         response.setTotalPages(tasks.getTotalPages());
         response.setTotalElements(tasks.getTotalElements());
-        return  response;
-
-
+        return response;
     }
+
     private TaskListResponse mapToTaskListResponse(Task task) {
         TaskListResponse response = new TaskListResponse();
         response.setId(task.getId());
         response.setDesigner_name(task.getAccount().getEmail());
         response.setBooking(task.getBooking().getCode());
         response.setTaskStatus(task.getTaskStatus());
-        response.setStartDate(task.getStartDate());
-        response.setEndDate(task.getEndDate());
+
         return response;
     }
     @Override
@@ -113,8 +107,7 @@ public class TaskService implements ITaskService{
         }
         Task task = new Task();
         task.setTaskStatus(TaskStatusEnum.ASSIGNED.toString());
-        task.setStartDate(taskCreateRequest.getStartDate());
-        task.setEndDate(taskCreateRequest.getEndDate());
+
         task.setBooking(bookings);
         task.setAccount(designer);
         taskRepository.save(task);
