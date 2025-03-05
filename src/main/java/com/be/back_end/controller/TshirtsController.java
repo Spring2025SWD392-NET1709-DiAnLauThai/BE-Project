@@ -33,15 +33,7 @@ public class TshirtsController {
         this.cloudinaryService = cloudinaryService;
     }
 
-    @PostMapping
-    public ResponseEntity<?> createTshirt(@RequestBody TshirtsDTO tshirt) {
-        boolean createdTshirt = tshirtsService.createTshirt(tshirt);
-        if (!createdTshirt) {
-            return ResponseEntity.status(400)
-                    .body(new ErrorResponse(400, null, List.of("Tshirt failed to be created")));
-        }
-        return ResponseEntity.ok(new ApiResponse<>(200, null, "Tshirt created successfully"));
-    }
+
 
     @RequestMapping(
             path = "/tshirt/upload",

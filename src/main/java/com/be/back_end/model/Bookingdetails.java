@@ -20,7 +20,7 @@ public class Bookingdetails {
     private String id;
 
     @ManyToOne
-    @JoinColumn(name="tshirtid",nullable = false)
+    @JoinColumn(name="tshirtid")
     private Tshirts tshirt;
 
     @ManyToOne
@@ -31,8 +31,8 @@ public class Bookingdetails {
     @JoinColumn(name="designid",nullable = false)
     private Designs design;
 
+    private String description;
 
-    private int quantity;
     @Column(name="unitprice")
     private BigDecimal unit_price;
     @PrePersist

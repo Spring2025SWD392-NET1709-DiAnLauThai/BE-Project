@@ -14,4 +14,5 @@ import java.util.UUID;
 public interface TshirtsRepository extends JpaRepository<Tshirts,String> {
     Page<Tshirts> findByNameContainingIgnoreCase( String name, Pageable pageable);
     Page<Tshirts> findByCreatedAtBetween(LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
+
 }
