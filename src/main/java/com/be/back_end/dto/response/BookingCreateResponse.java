@@ -26,7 +26,7 @@ public class BookingCreateResponse {
     private LocalDateTime dateCreated;
     private LocalDateTime lastUpdated;
     private List<BookingDetailResponse> bookingDetails;
-
+    private String vnpayurl;
     @Getter
     @Setter
     @NoArgsConstructor
