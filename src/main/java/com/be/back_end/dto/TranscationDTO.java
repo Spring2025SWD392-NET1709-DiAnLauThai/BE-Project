@@ -10,9 +10,14 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 public class TranscationDTO {
-    private Bookings bookings;
-    private String payment_name;
-    private String payment_method;
-    private LocalDateTime payment_date;
-    private BigDecimal payment_amount;
+    private String id;
+    private String bookingId;
+    private String transactionName;
+    private String transactionMethod;
+    private LocalDateTime transactionDate;
+    private BigDecimal transactionAmount;
+    private String transactionStatus;
+    private String bankCode;
+    private String reason;
+    private String transactionType;
 }

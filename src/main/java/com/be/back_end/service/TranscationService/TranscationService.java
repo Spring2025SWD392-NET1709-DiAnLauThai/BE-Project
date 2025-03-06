@@ -5,10 +5,12 @@ import com.be.back_end.dto.TranscationDTO;
 
 import com.be.back_end.dto.response.TransactionResponse;
 import com.be.back_end.enums.BookingEnums;
+import com.be.back_end.model.Account;
 import com.be.back_end.model.Bookings;
 import com.be.back_end.model.Transaction;
 
 
+import com.be.back_end.repository.AccountRepository;
 import com.be.back_end.repository.BookingRepository;
 import com.be.back_end.repository.TranscationRepository;
 import com.be.back_end.utils.VNPayUtils;
@@ -20,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -27,12 +30,13 @@ public class TranscationService implements ITranscationService, IVNPayService {
 
     private final TranscationRepository transcationRepository;
     private final VNPayUtils vnPayUtils;
-
+    private final AccountRepository accountRepository;
     private final BookingRepository bookingRepository;
     @Autowired
-    public TranscationService(TranscationRepository transcationRepository, VNPayUtils vnPayUtils, BookingRepository bookingRepository) {
+    public TranscationService(TranscationRepository transcationRepository, VNPayUtils vnPayUtils, AccountRepository accountRepository, BookingRepository bookingRepository) {
         this.transcationRepository = transcationRepository;
         this.vnPayUtils=vnPayUtils;
+        this.accountRepository = accountRepository;
         this.bookingRepository = bookingRepository;
     }
 
@@ -60,46 +64,47 @@ public class TranscationService implements ITranscationService, IVNPayService {
         return mapToDTO(transaction);
     }
 
-    @Override
-    public boolean update(String id, TranscationDTO user) {
-        Transaction updatedTransaction = transcationRepository.findById(id).orElse(null);
-        if (updatedTransaction == null) {
-            return false;
+    public List<TranscationDTO> getAllForCustomer(String CustomerId) {
+
+
+        //Get a Customer
+        Account account = accountRepository.findById(CustomerId).orElse(null);
+
+        if (account != null) {
+            List<Bookings> bookingsList = bookingRepository.findAllByAccount(account);
+            if (bookingsList.isEmpty()) {
+                System.out.println("No bookings found for customer ID: " + CustomerId);
+                return Collections.emptyList();
+            }
+
+            //Get Transcation for every booking available. Flatten it to return every single transcation
+
+            List<Transaction> transactionList = bookingsList.stream()
+                    .flatMap(booking->transcationRepository.findAllByBookings(booking).stream())
+                    .toList();
+
+            if (transactionList.isEmpty()) {
+                System.out.println("Transcation list is empty");
+                return null;
+            }
+
+            //Convert them into DTO
+            List<TranscationDTO> transcationDTOList = transactionList.stream()
+                    .map(this::mapToDTO)
+                    .toList();
+
+
+            if (transcationDTOList.isEmpty()) {
+                System.out.println("TranscationDTO list is empty");
+                return null;
+            }
+
+            return transcationDTOList;
+
         }
-        updatedTransaction = mapToEntity(user);
-        transcationRepository.save(updatedTransaction);
-        return true;
-    }
+        System.out.println("Customer is empty");
+        return null;
 
-    @Override
-    public boolean delete(String id) {
-        Transaction existingTransaction = transcationRepository.getById(id);
-        if (existingTransaction != null) {
-            transcationRepository.delete(existingTransaction);
-            return true;
-        }
-        return false;
-    }
-
-
-    private TranscationDTO mapToDTO(Transaction Transaction) {
-        TranscationDTO dto = new TranscationDTO();
-        dto.setBookings(Transaction.getBookings());
-        dto.setPayment_date(Transaction.getTransactionDate());
-        dto.setPayment_amount(Transaction.getTransactionAmount());
-        dto.setPayment_method(Transaction.getTransactionMethod());
-        dto.setPayment_name(Transaction.getTransactionName());
-        return dto;
-    }
-
-    private Transaction mapToEntity(TranscationDTO dto) {
-        Transaction transaction = new Transaction();
-        transaction.setBookings(dto.getBookings());
-        transaction.setTransactionDate(dto.getPayment_date());
-        transaction.setTransactionAmount(dto.getPayment_amount());
-        transaction.setTransactionMethod(dto.getPayment_method());
-        transaction.setTransactionName(dto.getPayment_name());
-        return transaction;
     }
 
 
@@ -173,5 +178,36 @@ public class TranscationService implements ITranscationService, IVNPayService {
     }
 
 
+    public TranscationDTO mapToDTO(Transaction Transaction) {
+        TranscationDTO dto = new TranscationDTO();
+        dto.setId(Transaction.getId());
+        dto.setBookingId(Transaction.getBookings().getId());
+        dto.setTransactionName(Transaction.getTransactionName());
+        dto.setTransactionMethod(Transaction.getTransactionMethod());
+        dto.setTransactionDate(Transaction.getTransactionDate());
+        dto.setTransactionStatus(Transaction.getTransactionStatus());
+        dto.setTransactionAmount(Transaction.getTransactionAmount());
+        dto.setTransactionType(Transaction.getTransactionType());
+        dto.setReason(Transaction.getReason());
+        dto.setBankCode(Transaction.getBankCode());
+        return dto;
+    }
+
+    //Be careful of this function
+    public Transaction mapToEntity(TranscationDTO dto) {
+        Transaction transaction = new Transaction();
+        Bookings bookings= bookingRepository.findById(dto.getBookingId()).orElse(null);
+        transaction.setId(dto.getId());
+        transaction.setBookings(bookings);
+        transaction.setTransactionName(dto.getTransactionName());
+        transaction.setTransactionMethod(dto.getTransactionMethod());
+        transaction.setTransactionDate(dto.getTransactionDate());
+        transaction.setTransactionStatus(dto.getTransactionStatus());
+        transaction.setTransactionAmount(dto.getTransactionAmount());
+        transaction.setTransactionType(dto.getTransactionType());
+        transaction.setReason(dto.getReason());
+        transaction.setBankCode(dto.getBankCode());
+        return transaction;
+    }
 }
 
