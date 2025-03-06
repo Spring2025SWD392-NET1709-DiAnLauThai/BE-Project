@@ -64,39 +64,35 @@ public class TranscationService implements ITranscationService, IVNPayService {
         return mapToDTO(transaction);
     }
 
-    public List<TranscationDTO> getAllForCustomer(String id) {
+    public List<TranscationDTO> getAllForCustomer(String CustomerId) {
 
 
         //Get a Customer
-        Account account = accountRepository.findById(id).orElse(null);
+        Account account = accountRepository.findById(CustomerId).orElse(null);
 
         if (account != null) {
-
-            String accountId = account.getId();
-            List<Bookings> bookingsList = bookingRepository.findByaccount(account);
+            List<Bookings> bookingsList = bookingRepository.findAllByAccount(account);
             if (bookingsList.isEmpty()) {
-                System.out.println("Booking list is empty");
-                return null;
+                System.out.println("No bookings found for customer ID: " + CustomerId);
+                return Collections.emptyList();
             }
 
-            //Get Transcation for every booking available
-            List<Transaction> transactionList = null;
-            for (Bookings Bookings : bookingsList) {
-                transactionList = transcationRepository.findAllById(Collections.singleton(Bookings.getId()));
+            //Get Transcation for every booking available. Flatten it to return every single transcation
 
-            }
+            List<Transaction> transactionList = bookingsList.stream()
+                    .flatMap(booking->transcationRepository.findAllByBookings(booking).stream())
+                    .toList();
 
             if (transactionList.isEmpty()) {
                 System.out.println("Transcation list is empty");
                 return null;
             }
 
-            //Conver them to DTO
-            List<TranscationDTO> transcationDTOList = null;
-            for (Transaction transaction : transactionList) {
-                TranscationDTO transcationDTO = mapToDTO(transaction);
-                transcationDTOList.add(transcationDTO);
-            }
+            //Convert them into DTO
+            List<TranscationDTO> transcationDTOList = transactionList.stream()
+                    .map(this::mapToDTO)
+                    .toList();
+
 
             if (transcationDTOList.isEmpty()) {
                 System.out.println("TranscationDTO list is empty");
