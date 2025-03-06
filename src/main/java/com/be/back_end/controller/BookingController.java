@@ -1,9 +1,7 @@
 package com.be.back_end.controller;
 
 import com.be.back_end.dto.request.BookingCreateRequest;
-import com.be.back_end.dto.response.ApiResponse;
-import com.be.back_end.dto.response.BookingCreateResponse;
-import com.be.back_end.dto.response.ErrorResponse;
+import com.be.back_end.dto.response.*;
 import com.be.back_end.service.BookingService.IBookingService;
 import com.be.back_end.service.TranscationService.ITranscationService;
 import com.be.back_end.service.TranscationService.IVNPayService;
@@ -46,6 +44,30 @@ public class BookingController {
             );
         }
     }
+    @GetMapping
+    public ResponseEntity<?> getAllBookings(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        if (page < 1 || size <= 0) {
+            ErrorResponse errorResponse = new ErrorResponse(
+                    400,
+                    "Invalid page or size",
+                    List.of("Page and size must be positive values")
+            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
+
+        PaginatedResponseDTO<BookingResponse> paginatedBookings = bookingService.getAllBookings(page, size);
+
+        if (paginatedBookings.getContent().isEmpty()) {
+            ApiResponse<?> apiResponse = new ApiResponse<>(200, paginatedBookings, "No bookings found");
+            return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+        }
+
+        ApiResponse<?> apiResponse = new ApiResponse<>(200, paginatedBookings, "Bookings retrieved successfully");
+        return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
+    }
+
 
 
 

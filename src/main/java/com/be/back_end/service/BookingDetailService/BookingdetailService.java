@@ -4,6 +4,8 @@ import com.be.back_end.dto.BookingdetailsDTO;
 
 import com.be.back_end.dto.request.BookingCreateRequest;
 import com.be.back_end.dto.response.BookingCreateResponse;
+import com.be.back_end.dto.response.BookingDetailResponseDTO;
+import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.model.*;
 import com.be.back_end.repository.BookingDetailsRepository;
 import com.be.back_end.repository.BookingRepository;
@@ -12,6 +14,8 @@ import com.be.back_end.repository.TshirtDesignRepository;
 import com.be.back_end.service.CloudinaryService.ICloudinaryService;
 import com.be.back_end.service.DesignService.IDesignService;
 import com.be.back_end.utils.AccountUtils;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BookingdetailService implements IBookingdetailService {
@@ -92,8 +97,28 @@ public class BookingdetailService implements IBookingdetailService {
 
 
     @Override
-    public List<Bookingdetails> getAllbookingdetails() {
-        return bookingDetailsRepository.findAll();
+    public PaginatedResponseDTO<BookingDetailResponseDTO> getAllBookingDetailsByBookingId(String bookingId, int page, int size) {
+        Page<Bookingdetails> bookingDetailsPage = bookingDetailsRepository.findByBookingId(bookingId, PageRequest.of(page - 1, size));
+        List<BookingDetailResponseDTO> bookingDetailDTOs = new ArrayList<>();
+        for (Bookingdetails bookingDetail : bookingDetailsPage.getContent()) {
+            Designs design = bookingDetail.getDesign();
+            BookingDetailResponseDTO dto = new BookingDetailResponseDTO(
+                    bookingDetail.getId(),
+                    bookingDetail.getBooking().getId(),
+                    design.getId(),
+                    design.getDesignFile(),
+                    bookingDetail.getDescription(),
+                    bookingDetail.getUnit_price()
+            );
+            bookingDetailDTOs.add(dto);
+        }
+        PaginatedResponseDTO<BookingDetailResponseDTO> paginatedResponseDTO = new PaginatedResponseDTO<>();
+        paginatedResponseDTO.setContent(bookingDetailDTOs);
+        paginatedResponseDTO.setPageNumber(bookingDetailsPage.getNumber() + 1);
+        paginatedResponseDTO.setPageSize(bookingDetailsPage.getSize());
+        paginatedResponseDTO.setTotalElements(bookingDetailsPage.getTotalElements());
+        paginatedResponseDTO.setTotalPages(bookingDetailsPage.getTotalPages());
+        return paginatedResponseDTO;
     }
 
     @Override
