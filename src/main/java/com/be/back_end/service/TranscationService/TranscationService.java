@@ -108,27 +108,6 @@ public class TranscationService implements ITranscationService, IVNPayService {
     }
 
 
-    private TranscationDTO mapToDTO(Transaction Transaction) {
-        TranscationDTO dto = new TranscationDTO();
-        dto.setBookings(Transaction.getBookings());
-        dto.setPayment_date(Transaction.getTransactionDate());
-        dto.setPayment_amount(Transaction.getTransactionAmount());
-        dto.setPayment_method(Transaction.getTransactionMethod());
-        dto.setPayment_name(Transaction.getTransactionName());
-        return dto;
-    }
-
-    private Transaction mapToEntity(TranscationDTO dto) {
-        Transaction transaction = new Transaction();
-        transaction.setBookings(dto.getBookings());
-        transaction.setTransactionDate(dto.getPayment_date());
-        transaction.setTransactionAmount(dto.getPayment_amount());
-        transaction.setTransactionMethod(dto.getPayment_method());
-        transaction.setTransactionName(dto.getPayment_name());
-        return transaction;
-    }
-
-
     public TransactionResponse createPaymentUrl(String amount, String orderInfo, String orderType, HttpServletRequest request) {
         try{
             String paymentUrl = vnPayUtils.generatePaymentUrl(amount, orderInfo, orderType, request);
@@ -199,5 +178,36 @@ public class TranscationService implements ITranscationService, IVNPayService {
     }
 
 
+    public TranscationDTO mapToDTO(Transaction Transaction) {
+        TranscationDTO dto = new TranscationDTO();
+        dto.setId(Transaction.getId());
+        dto.setBookingId(Transaction.getBookings().getId());
+        dto.setTransactionName(Transaction.getTransactionName());
+        dto.setTransactionMethod(Transaction.getTransactionMethod());
+        dto.setTransactionDate(Transaction.getTransactionDate());
+        dto.setTransactionStatus(Transaction.getTransactionStatus());
+        dto.setTransactionAmount(Transaction.getTransactionAmount());
+        dto.setTransactionType(Transaction.getTransactionType());
+        dto.setReason(Transaction.getReason());
+        dto.setBankCode(Transaction.getBankCode());
+        return dto;
+    }
+
+    //Be careful of this function
+    public Transaction mapToEntity(TranscationDTO dto) {
+        Transaction transaction = new Transaction();
+        Bookings bookings= bookingRepository.findById(dto.getBookingId()).orElse(null);
+        transaction.setId(dto.getId());
+        transaction.setBookings(bookings);
+        transaction.setTransactionName(dto.getTransactionName());
+        transaction.setTransactionMethod(dto.getTransactionMethod());
+        transaction.setTransactionDate(dto.getTransactionDate());
+        transaction.setTransactionStatus(dto.getTransactionStatus());
+        transaction.setTransactionAmount(dto.getTransactionAmount());
+        transaction.setTransactionType(dto.getTransactionType());
+        transaction.setReason(dto.getReason());
+        transaction.setBankCode(dto.getBankCode());
+        return transaction;
+    }
 }
 
