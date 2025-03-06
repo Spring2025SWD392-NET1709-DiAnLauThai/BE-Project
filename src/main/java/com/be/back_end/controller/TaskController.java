@@ -27,10 +27,10 @@ public class TaskController {
         this.taskService = taskService;
     }
 
-   /* @GetMapping
-    public ResponseEntity<?> getAllTshirt( @RequestParam(required = false) LocalDate startDate,
+    @GetMapping
+    public ResponseEntity<?> getAllTask( @RequestParam(required = false) LocalDate startDate,
                                            @RequestParam(required = false) LocalDate endDate,
-                                           @RequestParam(required = false) String designerEmail,
+                                           @RequestParam(required = false) String designerName,
                                            @RequestParam(required = false) TaskStatusEnum taskStatus,
                                            @RequestParam(defaultValue = "1") int page,
                                            @RequestParam(defaultValue = "10") int size,
@@ -42,12 +42,12 @@ public class TaskController {
         String taskStatusStr = (taskStatus != null) ? taskStatus.toString() : null;
 
         PaginatedResponseDTO<TaskListResponse> tasks = taskService.getAllTask(
-                startDate, endDate, designerEmail, taskStatusStr , page, size, sortDir);
+                startDate, endDate, designerName, taskStatusStr , page, size, sortDir);
         if (tasks.getContent().isEmpty()) {
             return ResponseEntity.ok(new ApiResponse<>(200, tasks, "No data available"));
         }
         return ResponseEntity.ok(new ApiResponse<>(200, tasks, "Page returned: " + page));
-    }*/
+    }
 
 
     @PostMapping("/assign")

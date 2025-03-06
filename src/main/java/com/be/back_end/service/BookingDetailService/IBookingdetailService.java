@@ -20,7 +20,6 @@ public interface IBookingdetailService {
 
 
     PaginatedResponseDTO<BookingDetailResponseDTO> getAllBookingDetailsByBookingId(String bookingId, int page, int size);
-    Bookingdetails getbookingdetailById(String id);
     /*Bookingdetails updatebookingdetail(String id, BookingdetailsDTO dto);*/
     boolean deletebookingdetail(String id);
     List<BookingCreateResponse.BookingDetailResponse> processBookingDetails(BookingCreateRequest request, Bookings booking);

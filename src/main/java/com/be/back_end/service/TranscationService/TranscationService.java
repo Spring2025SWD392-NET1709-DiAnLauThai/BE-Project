@@ -168,7 +168,7 @@ public class TranscationService implements ITranscationService, IVNPayService {
     private void updateBookingStatus(String bookingCode) {
         Bookings booking = bookingRepository.findByCode(bookingCode)
                 .orElseThrow(() -> new RuntimeException("Booking not found with code: " + bookingCode));
-        booking.setStatus(BookingEnums.CONFIRMED);
+        booking.setStatus(BookingEnums.DEPOSIT_PAID);
         bookingRepository.save(booking);
     }
 

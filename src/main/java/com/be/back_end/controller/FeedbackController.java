@@ -1,8 +1,10 @@
 package com.be.back_end.controller;
 
-import com.be.back_end.dto.FeedbackDTO;
+import com.be.back_end.dto.request.FeedbackCreateRequest;
+import com.be.back_end.dto.response.ApiResponse;
 import com.be.back_end.model.Feedback;
 import com.be.back_end.service.FeedbackService.IFeedbackService;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,9 +18,12 @@ public class FeedbackController {
         this.feedbackService = feedbackService;
     }
 
-    @PostMapping
-    public String addFeedback(@RequestBody FeedbackDTO feedbackDTO) {
-        return feedbackService.createFeedback(feedbackDTO) ? "Feedback added" : "Failed to add feedback";
+    /*@PostMapping
+    public ResponseEntity<?> addFeedback(@RequestBody FeedbackCreateRequest feedbackCreateRequest) {
+
+            feedbackService.createFeedback(feedbackCreateRequest);
+            return ResponseEntity.ok(new ApiResponse<>(200,null,"Feedback Created for this booking"));
+
     }
 
     @GetMapping
@@ -32,12 +37,9 @@ public class FeedbackController {
     }
 
     @PutMapping("/{id}")
-    public Feedback updateFeedback(@PathVariable String id, @RequestBody FeedbackDTO feedbackDTO) {
-        return feedbackService.updateFeedback(id, feedbackDTO);
-    }
+    public Feedback updateFeedback(@PathVariable String id, @RequestBody FeedbackCreateRequest feedbackCreateRequest) {
+        return feedbackService.updateFeedback(id, feedbackCreateRequest);
+    }*/
 
-    @DeleteMapping("/{id}")
-    public String deleteFeedback(@PathVariable String id) {
-        return feedbackService.deleteFeedback(id) ? "Feedback deleted" : "Failed to delete feedback";
-    }
+
 }

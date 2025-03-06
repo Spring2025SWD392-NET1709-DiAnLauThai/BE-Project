@@ -1,6 +1,5 @@
 package com.be.back_end.service.TaskService;
 
-import com.be.back_end.dto.TshirtsDTO;
 import com.be.back_end.dto.request.TaskCreateRequest;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.dto.response.TaskListResponse;
@@ -8,10 +7,9 @@ import com.be.back_end.enums.TaskStatusEnum;
 import com.be.back_end.model.Account;
 import com.be.back_end.model.Bookings;
 import com.be.back_end.model.Task;
-import com.be.back_end.model.Tshirts;
 import com.be.back_end.repository.AccountRepository;
 import com.be.back_end.repository.BookingRepository;
-import com.be.back_end.repository.TasKRepository;
+import com.be.back_end.repository.TaskRepository;
 import com.be.back_end.service.EmailService.IEmailService;
 import jakarta.mail.MessagingException;
 import org.springframework.data.domain.Page;
@@ -19,19 +17,19 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
 @Service
 public class TaskService implements ITaskService{
-        private final TasKRepository taskRepository;
+        private final TaskRepository taskRepository;
         private final BookingRepository bookingRepository;
         private final AccountRepository accountRepository;
         private final IEmailService emailService;
-    public TaskService(TasKRepository tasKRepository, BookingRepository bookingRepository, AccountRepository accountRepository, IEmailService emailService) {
+    public TaskService(TaskRepository tasKRepository, BookingRepository bookingRepository, AccountRepository accountRepository, IEmailService emailService) {
         this.taskRepository = tasKRepository;
         this.bookingRepository = bookingRepository;
         this.accountRepository = accountRepository;
@@ -39,11 +37,12 @@ public class TaskService implements ITaskService{
     }
 
 
+    @Transactional(readOnly = true)
     @Override
     public PaginatedResponseDTO<TaskListResponse> getAllTask(
             LocalDate startDate,
             LocalDate endDate,
-            String designerEmail,
+            String designerName,
             String taskStatus,
             int page,
             int size,
@@ -51,24 +50,24 @@ public class TaskService implements ITaskService{
         Sort.Direction sort = sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sort, "booking.startdate"));
         Page<Task> tasks;
-        if (startDate != null && endDate != null && designerEmail != null && taskStatus != null) {
-            tasks = taskRepository.findByBooking_StartdateBetweenAndBooking_Account_EmailContainingIgnoreCaseAndBooking_Status(
-                    startDate, endDate, designerEmail, taskStatus, pageable);
-        } else if (startDate != null && endDate != null && designerEmail != null) {
-            tasks = taskRepository.findByBooking_StartdateBetweenAndBooking_Account_EmailContainingIgnoreCase(
-                    startDate, endDate, designerEmail, pageable);
+        if (startDate != null && endDate != null && designerName != null && taskStatus != null) {
+            tasks = taskRepository.findByBooking_StartdateBetweenAndAccount_NameContainingIgnoreCaseAndTaskStatus(
+                    startDate, endDate, designerName, taskStatus, pageable);
+        } else if (startDate != null && endDate != null && designerName != null) {
+            tasks = taskRepository.findByBooking_StartdateBetweenAndAccount_NameContainingIgnoreCase(
+                    startDate, endDate, designerName, pageable);
         } else if (startDate != null && endDate != null && taskStatus != null) {
-            tasks = taskRepository.findByBooking_StartdateBetweenAndBooking_Status(
+            tasks = taskRepository.findByBooking_StartdateBetweenAndTaskStatus(
                     startDate, endDate, taskStatus, pageable);
-        } else if (designerEmail != null && taskStatus != null) {
-            tasks = taskRepository.findByBooking_Account_EmailContainingIgnoreCaseAndBooking_Status(
-                    designerEmail, taskStatus, pageable);
+        } else if (designerName != null && taskStatus != null) {
+            tasks = taskRepository.findByAccount_NameContainingIgnoreCaseAndTaskStatus(
+                    designerName, taskStatus, pageable);
         } else if (startDate != null && endDate != null) {
             tasks = taskRepository.findByBooking_StartdateBetween(startDate, endDate, pageable);
-        } else if (designerEmail != null) {
-            tasks = taskRepository.findByBooking_Account_EmailContainingIgnoreCase(designerEmail, pageable);
+        } else if (designerName != null) {
+            tasks = taskRepository.findByAccount_NameContainingIgnoreCase(designerName, pageable);
         } else if (taskStatus != null) {
-            tasks = taskRepository.findByBooking_Status(taskStatus, pageable);
+            tasks = taskRepository.findByTaskStatus(taskStatus, pageable);
         } else {
             tasks = taskRepository.findAll(pageable);
         }
@@ -87,11 +86,12 @@ public class TaskService implements ITaskService{
 
     private TaskListResponse mapToTaskListResponse(Task task) {
         TaskListResponse response = new TaskListResponse();
-        response.setId(task.getId());
-        response.setDesigner_name(task.getAccount().getEmail());
-        response.setBooking(task.getBooking().getCode());
+        response.setTaskId(task.getId());
+        response.setDesignerName(task.getAccount().getName());
         response.setTaskStatus(task.getTaskStatus());
-
+        response.setStartDate(task.getBooking().getStartdate());
+        response.setEndDate(task.getBooking().getEnddate());
+        response.setBookingId(task.getBooking().getId());
         return response;
     }
     @Override

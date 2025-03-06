@@ -17,6 +17,7 @@ import com.be.back_end.utils.AccountUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
@@ -96,6 +97,7 @@ public class BookingdetailService implements IBookingdetailService {
 
 
 
+    @Transactional(readOnly = true)
     @Override
     public PaginatedResponseDTO<BookingDetailResponseDTO> getAllBookingDetailsByBookingId(String bookingId, int page, int size) {
         Page<Bookingdetails> bookingDetailsPage = bookingDetailsRepository.findByBookingId(bookingId, PageRequest.of(page - 1, size));
@@ -121,10 +123,6 @@ public class BookingdetailService implements IBookingdetailService {
         return paginatedResponseDTO;
     }
 
-    @Override
-    public Bookingdetails getbookingdetailById(String id) {
-        return bookingDetailsRepository.findById(id).orElse(null);
-    }
 
 /*    @Override
     public Bookingdetails updatebookingdetail(String id, BookingdetailsDTO dto) {
