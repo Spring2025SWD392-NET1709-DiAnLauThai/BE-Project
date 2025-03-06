@@ -5,10 +5,12 @@ import com.be.back_end.dto.TranscationDTO;
 
 import com.be.back_end.dto.response.TransactionResponse;
 import com.be.back_end.enums.BookingEnums;
+import com.be.back_end.model.Account;
 import com.be.back_end.model.Bookings;
 import com.be.back_end.model.Transaction;
 
 
+import com.be.back_end.repository.AccountRepository;
 import com.be.back_end.repository.BookingRepository;
 import com.be.back_end.repository.TranscationRepository;
 import com.be.back_end.utils.VNPayUtils;
@@ -20,6 +22,7 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -27,12 +30,13 @@ public class TranscationService implements ITranscationService, IVNPayService {
 
     private final TranscationRepository transcationRepository;
     private final VNPayUtils vnPayUtils;
-
+    private final AccountRepository accountRepository;
     private final BookingRepository bookingRepository;
     @Autowired
-    public TranscationService(TranscationRepository transcationRepository, VNPayUtils vnPayUtils, BookingRepository bookingRepository) {
+    public TranscationService(TranscationRepository transcationRepository, VNPayUtils vnPayUtils, AccountRepository accountRepository, BookingRepository bookingRepository) {
         this.transcationRepository = transcationRepository;
         this.vnPayUtils=vnPayUtils;
+        this.accountRepository = accountRepository;
         this.bookingRepository = bookingRepository;
     }
 
@@ -60,25 +64,51 @@ public class TranscationService implements ITranscationService, IVNPayService {
         return mapToDTO(transaction);
     }
 
-    @Override
-    public boolean update(String id, TranscationDTO user) {
-        Transaction updatedTransaction = transcationRepository.findById(id).orElse(null);
-        if (updatedTransaction == null) {
-            return false;
-        }
-        updatedTransaction = mapToEntity(user);
-        transcationRepository.save(updatedTransaction);
-        return true;
-    }
+    public List<TranscationDTO> getAllForCustomer(String id) {
 
-    @Override
-    public boolean delete(String id) {
-        Transaction existingTransaction = transcationRepository.getById(id);
-        if (existingTransaction != null) {
-            transcationRepository.delete(existingTransaction);
-            return true;
+
+        //Get a Customer
+        Account account = accountRepository.findById(id).orElse(null);
+
+        if (account != null) {
+
+            String accountId = account.getId();
+            List<Bookings> bookingsList = bookingRepository.findByaccount(account);
+            if (bookingsList.isEmpty()) {
+                System.out.println("Booking list is empty");
+                return null;
+            }
+
+            //Get Transcation for every booking available
+            List<Transaction> transactionList = null;
+            for (Bookings Bookings : bookingsList) {
+                transactionList = transcationRepository.findAllById(Collections.singleton(Bookings.getId()));
+
+            }
+
+            if (transactionList.isEmpty()) {
+                System.out.println("Transcation list is empty");
+                return null;
+            }
+
+            //Conver them to DTO
+            List<TranscationDTO> transcationDTOList = null;
+            for (Transaction transaction : transactionList) {
+                TranscationDTO transcationDTO = mapToDTO(transaction);
+                transcationDTOList.add(transcationDTO);
+            }
+
+            if (transcationDTOList.isEmpty()) {
+                System.out.println("TranscationDTO list is empty");
+                return null;
+            }
+
+            return transcationDTOList;
+
         }
-        return false;
+        System.out.println("Customer is empty");
+        return null;
+
     }
 
 
