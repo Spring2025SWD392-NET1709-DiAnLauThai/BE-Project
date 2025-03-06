@@ -3,7 +3,10 @@ package com.be.back_end.repository;
 
 import com.be.back_end.model.Account;
 import com.be.back_end.model.Bookings;
+
 import com.be.back_end.model.Transaction;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -25,6 +28,9 @@ public interface BookingRepository extends JpaRepository<Bookings, String> {
     boolean existsByCode(String code);
 
     Optional<Bookings> findByCode(String code);
+
     List<Bookings> findAllByAccount(Account account);
     Bookings findByTransactions(Transaction transaction);
+    Page<Bookings> findAll(Pageable pageable);
+
 }
