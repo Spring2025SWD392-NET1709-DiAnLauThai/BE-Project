@@ -6,20 +6,21 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 public class TaskListResponse {
 
-    private String id;
+    private String taskId;
 
-    private String designer_name;
-
-    private String booking;
+    private String designerName;
 
     private String taskStatus;
 
-    private LocalDate startDate;
+    private String bookingId;
 
-    private LocalDate endDate;
+    private LocalDateTime startDate;
+
+    private LocalDateTime endDate;
 
 }

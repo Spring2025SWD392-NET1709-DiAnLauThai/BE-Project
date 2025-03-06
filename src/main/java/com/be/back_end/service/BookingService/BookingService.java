@@ -22,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.UnsupportedEncodingException;
@@ -126,7 +127,7 @@ public class BookingService implements IBookingService {
     @Override
     public Bookings createAndSaveNewBooking(BookingCreateRequest bookingDTO) {
         Bookings booking = new Bookings();
-        booking.setStatus(BookingEnums.DEPOSIT_PAID);
+        booking.setStatus(BookingEnums.UNPAID);
         booking.setStartdate(LocalDateTime.now());
         booking.setEnddate(LocalDateTime.now());
         booking.setTitle(bookingDTO.getTitle());
@@ -138,6 +139,7 @@ public class BookingService implements IBookingService {
     }
 
 
+    @Transactional(readOnly = true)
     @Override
     public PaginatedResponseDTO<BookingResponse> getAllBookings(
             int page,

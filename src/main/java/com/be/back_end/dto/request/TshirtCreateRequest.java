@@ -11,7 +11,6 @@ public class TshirtCreateRequest {
     private String description;
     private String imgurl;
     private String tshirtname;
-
-    private List<Color> colorlist;
+    private List<String> colorlist;
 
 }

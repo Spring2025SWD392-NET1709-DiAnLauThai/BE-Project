@@ -1,20 +1,7 @@
 package com.be.back_end.controller;
 
-import com.be.back_end.dto.AccountDTO;
-import com.be.back_end.dto.DesignDTO;
-import com.be.back_end.dto.request.CreateDesignRequest;
-import com.be.back_end.dto.response.ApiResponse;
-import com.be.back_end.dto.response.CreateDesignResponse;
-import com.be.back_end.dto.response.ErrorResponse;
-import com.be.back_end.model.Designs;
 import com.be.back_end.service.DesignService.IDesignService;
-import jakarta.validation.Valid;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/design")

@@ -1,7 +1,10 @@
 package com.be.back_end.service.FeedbackService;
 
-import com.be.back_end.dto.FeedbackDTO;
+import com.be.back_end.dto.request.FeedbackCreateRequest;
+import com.be.back_end.enums.FeedbackTypeEnums;
+import com.be.back_end.model.Bookings;
 import com.be.back_end.model.Feedback;
+import com.be.back_end.repository.BookingRepository;
 import com.be.back_end.repository.FeedbackRepository;
 import org.springframework.stereotype.Service;
 
@@ -10,18 +13,26 @@ import java.util.List;
 @Service
 public class FeedbackService implements IFeedbackService {
     private final FeedbackRepository feedbackRepository;
-
-    public FeedbackService(FeedbackRepository feedbackRepository) {
+    private final BookingRepository bookingRepository;
+    public FeedbackService(FeedbackRepository feedbackRepository, BookingRepository bookingRepository) {
         this.feedbackRepository = feedbackRepository;
+        this.bookingRepository = bookingRepository;
     }
 
     @Override
-    public boolean createFeedback(FeedbackDTO feedbackDTO) {
+    public boolean createFeedback(FeedbackCreateRequest feedbackCreateRequest) {
         Feedback feedback = new Feedback();
-        feedback.setType(feedbackDTO.getType());
-        feedback.setRating(feedbackDTO.getRating());
-        feedback.setDetail(feedbackDTO.getDetail());
-        feedbackRepository.save(feedback);
+        Bookings bookings=bookingRepository.findById(feedbackCreateRequest.getBookingId()).orElse(null);
+        if(bookings==null){
+
+        }
+
+        feedback.setType(FeedbackTypeEnums.ORDER);
+        feedback.setRating(feedbackCreateRequest.getRating());
+        feedback.setDetail(feedbackCreateRequest.getDetail());
+        Feedback savedFeedback=feedbackRepository.save(feedback);
+        bookings.setFeedback(savedFeedback);
+        bookingRepository.save(bookings);
         return true;
     }
 
@@ -36,12 +47,12 @@ public class FeedbackService implements IFeedbackService {
     }
 
     @Override
-    public Feedback updateFeedback(String id, FeedbackDTO feedbackDTO) {
+    public Feedback updateFeedback(String id, FeedbackCreateRequest feedbackCreateRequest) {
         Feedback feedback = feedbackRepository.findById(id).orElse(null);
         if (feedback != null) {
-            feedback.setType(feedbackDTO.getType());
-            feedback.setRating(feedbackDTO.getRating());
-            feedback.setDetail(feedbackDTO.getDetail());
+            feedback.setType(feedbackCreateRequest.getType());
+            feedback.setRating(feedbackCreateRequest.getRating());
+            feedback.setDetail(feedbackCreateRequest.getDetail());
             return feedbackRepository.save(feedback);
         }
         return null;

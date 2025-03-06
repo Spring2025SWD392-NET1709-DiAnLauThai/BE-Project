@@ -1,14 +1,11 @@
 package com.be.back_end.controller;
 
-import com.be.back_end.dto.AccountDTO;
 import com.be.back_end.dto.TshirtsDTO;
+import com.be.back_end.dto.request.TshirtCreateRequest;
 import com.be.back_end.dto.response.ApiResponse;
 import com.be.back_end.dto.response.ErrorResponse;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
-import com.be.back_end.enums.ActivationEnums;
-import com.be.back_end.enums.RoleEnums;
 import com.be.back_end.model.Tshirts;
-import com.be.back_end.service.AccountService.IAccountService;
 import com.be.back_end.service.CloudinaryService.ICloudinaryService;
 import com.be.back_end.service.TshirtsService.ITshirtsService;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,7 +16,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/tshirts")
@@ -35,6 +31,16 @@ public class TshirtsController {
 
 
 
+
+    @PostMapping("/create")
+    public ResponseEntity<?> tshirtupload(@RequestBody TshirtCreateRequest dto) {
+        Tshirts tshirt = tshirtsService.saveTshirt(dto);
+        if (tshirt == null) {
+            return ResponseEntity.status(400)
+                    .body(new ErrorResponse(400, null, List.of("Tshirt failed to add")));
+        }
+        return ResponseEntity.ok(new ApiResponse<>(200, tshirt, "Uploaded successfully"));
+    }
     @RequestMapping(
             path = "/tshirt/upload",
             method = RequestMethod.POST,

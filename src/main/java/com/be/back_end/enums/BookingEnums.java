@@ -5,5 +5,6 @@ public enum BookingEnums {
     CONFIRMED,
     PENDING,
     COMPLETE,
-    REFUNDED
+    REFUNDED,
+    UNPAID,
 }

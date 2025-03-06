@@ -1,14 +1,11 @@
-package com.be.back_end.dto;
+package com.be.back_end.dto.request;
 
 import com.be.back_end.enums.FeedbackTypeEnums;
 import lombok.Data;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
 @Data
-public class FeedbackDTO {
-    private String id;
+public class FeedbackCreateRequest {
+    private String bookingId;
     private FeedbackTypeEnums type;
     private int rating;
     private String detail;
