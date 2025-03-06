@@ -9,7 +9,6 @@ public interface ITranscationService {
     TranscationDTO create(TranscationDTO user);
     List<TranscationDTO> getAll();
     TranscationDTO getById(String id);
-    boolean update(String id, TranscationDTO user);
-    boolean delete(String id);
+    List<TranscationDTO> getAllForCustomer(String id);
 }
 
