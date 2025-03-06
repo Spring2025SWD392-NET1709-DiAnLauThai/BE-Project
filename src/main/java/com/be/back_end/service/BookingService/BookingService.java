@@ -3,6 +3,8 @@ package com.be.back_end.service.BookingService;
 import com.be.back_end.dto.BookingDTO;
 import com.be.back_end.dto.request.BookingCreateRequest;
 import com.be.back_end.dto.response.BookingCreateResponse;
+import com.be.back_end.dto.response.BookingResponse;
+import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.enums.BookingEnums;
 import com.be.back_end.model.Account;
 import com.be.back_end.model.Bookings;
@@ -16,6 +18,9 @@ import com.be.back_end.service.TranscationService.IVNPayService;
 import com.be.back_end.utils.AccountUtils;
 import com.be.back_end.utils.VNPayUtils;
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -134,9 +139,27 @@ public class BookingService implements IBookingService {
 
 
     @Override
-    public List<Bookings> getAllbookings() {
-        return bookingRepository.findAll();
+    public PaginatedResponseDTO<BookingResponse> getAllBookings(
+            int page,
+            int size) {
+        Pageable pageable = PageRequest.of(page - 1, size);
+        Page<Bookings> bookingsPage = bookingRepository.findAll(pageable);
+        List<BookingResponse> bookingResponseList = new ArrayList<>();
+        for (Bookings booking : bookingsPage.getContent()) {
+            bookingResponseList.add(new BookingResponse(booking));
+        }
+        PaginatedResponseDTO<BookingResponse> response = new PaginatedResponseDTO<>();
+        response.setContent(bookingResponseList);
+        response.setPageSize(bookingsPage.getSize());
+        response.setPageNumber(bookingsPage.getNumber());
+        response.setTotalPages(bookingsPage.getTotalPages());
+        response.setTotalElements(bookingsPage.getTotalElements());
+
+        return response;
     }
+
+
+
 
     @Override
     public Bookings getbookingById(String id) {
