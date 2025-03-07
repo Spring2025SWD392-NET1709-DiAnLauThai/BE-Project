@@ -106,8 +106,6 @@ public class BookingdetailService implements IBookingdetailService {
             Designs design = bookingDetail.getDesign();
             BookingDetailResponseDTO dto = new BookingDetailResponseDTO(
                     bookingDetail.getId(),
-                    bookingDetail.getBooking().getId(),
-                    design.getId(),
                     design.getDesignFile(),
                     bookingDetail.getDescription(),
                     bookingDetail.getUnit_price()
