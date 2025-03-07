@@ -20,4 +20,12 @@ public interface ITaskService {
             int page,
             int size,
             String sortDir);
+    PaginatedResponseDTO<TaskListResponse> getAllTaskForCurrentDesigner(
+            LocalDate startDate,
+            LocalDate endDate,
+            String designerName,
+            String taskStatus,
+            int page,
+            int size,
+            String sortDir);
 }

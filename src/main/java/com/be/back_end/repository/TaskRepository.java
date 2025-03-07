@@ -11,6 +11,27 @@ import java.time.LocalDate;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task,String> {
+    Page<Task> findByBooking_StartdateBetweenAndAccount_IdAndAccount_NameContainingIgnoreCaseAndTaskStatus(
+            LocalDate startDate, LocalDate endDate, String designerId, String designerName, String taskStatus, Pageable pageable);
+
+    Page<Task> findByBooking_StartdateBetweenAndAccount_IdAndAccount_NameContainingIgnoreCase(
+            LocalDate startDate, LocalDate endDate, String designerId, String designerName, Pageable pageable);
+
+    Page<Task> findByBooking_StartdateBetweenAndAccount_IdAndTaskStatus(
+            LocalDate startDate, LocalDate endDate, String designerId, String taskStatus, Pageable pageable);
+
+    Page<Task> findByAccount_IdAndAccount_NameContainingIgnoreCaseAndTaskStatus(
+            String designerId, String designerName, String taskStatus, Pageable pageable);
+
+    Page<Task> findByBooking_StartdateBetweenAndAccount_Id(
+            LocalDate startDate, LocalDate endDate, String designerId, Pageable pageable);
+
+    Page<Task> findByAccount_IdAndAccount_NameContainingIgnoreCase(
+            String designerId, String designerName, Pageable pageable);
+
+    Page<Task> findByAccount_IdAndTaskStatus(String designerId, String taskStatus, Pageable pageable);
+
+    Page<Task> findByAccount_Id(String designerId, Pageable pageable);
     Page<Task> findByTaskStatus(String taskStatus, Pageable pageable);
     Page<Task> findByAccount_NameContainingIgnoreCase(String designerName, Pageable pageable);
     Page<Task> findByAccount_NameContainingIgnoreCaseAndTaskStatus(

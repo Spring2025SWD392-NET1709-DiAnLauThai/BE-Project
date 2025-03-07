@@ -48,6 +48,27 @@ public class TaskController {
         }
         return ResponseEntity.ok(new ApiResponse<>(200, tasks, "Page returned: " + page));
     }
+    @GetMapping("/designer")
+    public ResponseEntity<?> getAllTaskForDesigner( @RequestParam(required = false) LocalDate startDate,
+                                         @RequestParam(required = false) LocalDate endDate,
+                                         @RequestParam(required = false) String designerName,
+                                         @RequestParam(required = false) TaskStatusEnum taskStatus,
+                                         @RequestParam(defaultValue = "1") int page,
+                                         @RequestParam(defaultValue = "10") int size,
+                                         @RequestParam(defaultValue = "asc") String sortDir) {
+        if (page <1 || size <= 0) {
+            return ResponseEntity.status(400)
+                    .body(new ErrorResponse(400, null, List.of("Page and size must be positive values")));
+        }
+        String taskStatusStr = (taskStatus != null) ? taskStatus.toString() : null;
+
+        PaginatedResponseDTO<TaskListResponse> tasks = taskService.getAllTaskForCurrentDesigner(
+                startDate, endDate, designerName, taskStatusStr , page, size, sortDir);
+        if (tasks.getContent().isEmpty()) {
+            return ResponseEntity.ok(new ApiResponse<>(200, tasks, "No data available"));
+        }
+        return ResponseEntity.ok(new ApiResponse<>(200, tasks, "Page returned: " + page));
+    }
 
 
     @PostMapping("/assign")
