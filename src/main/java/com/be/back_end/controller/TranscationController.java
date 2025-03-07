@@ -1,11 +1,12 @@
 
 package com.be.back_end.controller;
 
-import com.be.back_end.dto.TranscationDTO;
+import com.be.back_end.dto.TransactionDTO;
 
 import com.be.back_end.dto.request.TransactionRequest;
 import com.be.back_end.dto.response.ApiResponse;
 import com.be.back_end.dto.response.ErrorResponse;
+import com.be.back_end.dto.response.TransactionDetailResponse;
 import com.be.back_end.dto.response.TransactionResponse;
 import com.be.back_end.service.TranscationService.ITranscationService;
 
@@ -41,8 +42,8 @@ public class TranscationController {
     }*/
 
     @PostMapping
-    public ResponseEntity<TranscationDTO> createTranscation(@RequestBody TranscationDTO TranscationDTO) {
-        TranscationDTO createdDesign = transcationService.create(TranscationDTO);
+    public ResponseEntity<TransactionDTO> createTranscation(@RequestBody TransactionDTO TransactionDTO) {
+        TransactionDTO createdDesign = transcationService.create(TransactionDTO);
         System.out.println("Transcation created successfully.");
         return ResponseEntity.ok(createdDesign);
     }
@@ -50,7 +51,7 @@ public class TranscationController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getTranscationById(@PathVariable String id) {
-        TranscationDTO design = transcationService.getById(id);
+        TransactionDTO design = transcationService.getById(id);
         if (design == null) {
             return ResponseEntity.badRequest().body("Transcation not found with ID: " + id);
         }
@@ -60,7 +61,7 @@ public class TranscationController {
     //Normal Get All
     @GetMapping("/system")
     public ResponseEntity<?> getTranscationForSystem() {
-        List<TranscationDTO> payments = transcationService.getAll();
+        List<TransactionDTO> payments = transcationService.getAll();
         if (payments.isEmpty()) {
             System.out.println("No Transcation found.");
         }
@@ -72,7 +73,7 @@ public class TranscationController {
     //Might need to recreate customer response
     @GetMapping("/customer/{id}")
     public ResponseEntity<?> getTranscationForCustomer(@PathVariable String id) throws Exception {
-        List<TranscationDTO> transcations = transcationService.getAllForCustomer(id);
+        List<TransactionDTO> transcations = transcationService.getAllForCustomer(id);
         if (transcations.isEmpty()) {
             System.out.println("No Transcation found.");
         }
@@ -81,13 +82,14 @@ public class TranscationController {
 
 
     //Not Yet Completed
+    //Tham vao la ID cua booking de lay Transaction va BookingDetail
     @GetMapping("/detail/{id}")
-    public ResponseEntity<?> getTranscationDetail(@PathVariable String id) {
-        TranscationDTO design = transcationService.getById(id);
-        if (design == null) {
-            return ResponseEntity.badRequest().body("Transcation not found with ID: " + id);
+    public ResponseEntity<?> getTransactionDetail(@PathVariable String id) {
+        TransactionDetailResponse transactionDetail = transcationService.getTransactionDetail(id);
+        if (transactionDetail == null) {
+            return ResponseEntity.badRequest().body("Failed to create detail response ");
         }
-        return ResponseEntity.ok(design);
+        return ResponseEntity.ok(transactionDetail);
     }
 
 
