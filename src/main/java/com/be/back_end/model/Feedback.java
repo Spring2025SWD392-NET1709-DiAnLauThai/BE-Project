@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -27,8 +28,9 @@ public class Feedback {
     private String detail;
     @Column(name = "createddate", updatable = false)
     private LocalDateTime Createddate;
-    @OneToOne(mappedBy = "feedback")
-    private Bookings order;
+
+    @OneToMany(mappedBy = "feedback", cascade = CascadeType.ALL)
+    private Set<TshirtFeedback> tshirtFeedbacks;
 
     @ManyToOne
     @JoinColumn(name="accountid",nullable = false)

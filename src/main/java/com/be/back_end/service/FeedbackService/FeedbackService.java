@@ -22,17 +22,12 @@ public class FeedbackService implements IFeedbackService {
     @Override
     public boolean createFeedback(FeedbackCreateRequest feedbackCreateRequest) {
         Feedback feedback = new Feedback();
-        Bookings bookings=bookingRepository.findById(feedbackCreateRequest.getBookingId()).orElse(null);
-        if(bookings==null){
 
-        }
 
         feedback.setType(FeedbackTypeEnums.ORDER);
         feedback.setRating(feedbackCreateRequest.getRating());
         feedback.setDetail(feedbackCreateRequest.getDetail());
-        Feedback savedFeedback=feedbackRepository.save(feedback);
-        bookings.setFeedback(savedFeedback);
-        bookingRepository.save(bookings);
+        feedbackRepository.save(feedback);
         return true;
     }
 

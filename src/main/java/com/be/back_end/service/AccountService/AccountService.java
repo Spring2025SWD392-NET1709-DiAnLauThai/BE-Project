@@ -199,6 +199,7 @@ public class AccountService implements IAccountService{
                                                         RoleEnums role,
                                                         LocalDateTime dateFrom,
                                                         LocalDateTime dateTo,
+                                                        ActivationEnums activationEnums,
                                                         String sortDir,
                                                         String sortBy) {
         Sort.Direction sort;
@@ -208,9 +209,20 @@ public class AccountService implements IAccountService{
         sort =Sort.Direction.DESC;}
         Pageable pageable = PageRequest.of(page-1, size,sort,sortBy);
         Page<Account> accounts;
-        if (role != null && dateFrom != null && dateTo != null && keyword != null && !keyword.trim().isEmpty()) {
-            accounts = accountRepository.findByRoleAndCreatedAtBetweenAndEmailContainingIgnoreCaseOrNameContainingIgnoreCase(
-                    role, dateFrom, dateTo, keyword, keyword, pageable);
+        if (role != null && activationEnums != null && dateFrom != null && dateTo != null && keyword != null && !keyword.trim().isEmpty()) {
+            accounts = accountRepository.findByRoleAndStatusAndCreatedAtBetweenAndEmailContainingIgnoreCaseOrNameContainingIgnoreCase(
+                    role, activationEnums, dateFrom, dateTo, keyword, keyword, pageable);
+        } else if (role != null && activationEnums != null && dateFrom != null && dateTo != null) {
+            accounts = accountRepository.findByRoleAndStatusAndCreatedAtBetween(role, activationEnums, dateFrom, dateTo, pageable);
+        } else if (role != null && activationEnums != null && keyword != null && !keyword.trim().isEmpty()) {
+            accounts = accountRepository.findByRoleAndStatusAndEmailContainingIgnoreCaseOrNameContainingIgnoreCase(
+                    role, activationEnums, keyword, keyword, pageable);
+        } else if (activationEnums != null && dateFrom != null && dateTo != null) {
+            accounts = accountRepository.findByStatusAndCreatedAtBetween(activationEnums, dateFrom, dateTo, pageable);
+        } else if (role != null && activationEnums != null) {
+            accounts = accountRepository.findByRoleAndStatus(role, activationEnums, pageable);
+        } else if (activationEnums != null) {
+            accounts = accountRepository.findByStatus(activationEnums, pageable);
         } else if (role != null && dateFrom != null && dateTo != null) {
             accounts = accountRepository.findByRoleAndCreatedAtBetween(role, dateFrom, dateTo, pageable);
         } else if (dateFrom != null && dateTo != null && keyword != null && !keyword.trim().isEmpty()) {

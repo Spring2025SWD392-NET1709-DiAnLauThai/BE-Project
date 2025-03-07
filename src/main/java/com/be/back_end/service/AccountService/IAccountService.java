@@ -22,6 +22,7 @@ public interface IAccountService {
                                                  RoleEnums role,
                                                  LocalDateTime dateFrom,
                                                  LocalDateTime dateTo,
+                                                 ActivationEnums activationEnums,
                                                  String sortDir,
                                                  String sortBy);
     AccountDTO getUserById(String id);

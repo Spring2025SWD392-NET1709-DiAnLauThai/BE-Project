@@ -43,6 +43,8 @@ public class Tshirts {
     @OneToMany(mappedBy = "tshirt", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TShirtColor> tShirtColors;
 
+    @OneToMany(mappedBy = "tshirt", cascade = CascadeType.ALL)
+    private Set<TshirtFeedback> tshirtFeedbacks;
 
     @Column(name="createdat")
     private LocalDateTime createdAt;

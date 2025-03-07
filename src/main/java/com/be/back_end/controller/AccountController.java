@@ -65,6 +65,7 @@ public class AccountController {
 
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime dateFrom,
             @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime dateTo,
+            @RequestParam(required = false) ActivationEnums activationEnums,
             @RequestParam(defaultValue = "asc") String sortDir,
             @RequestParam(defaultValue = "createdAt") String sortBy
     ) {
@@ -73,7 +74,7 @@ public class AccountController {
                     .body(new ErrorResponse(400, null, List.of("Page and size must be positive values")));
         }
         PaginatedResponseDTO<AccountDTO> accounts = accountService.getAllUsers(
-                keyword, page, size, role, dateFrom, dateTo, sortDir, sortBy
+                keyword, page, size, role, dateFrom, dateTo,activationEnums, sortDir, sortBy
         );
         if (accounts.getContent().isEmpty()) {
             return ResponseEntity.status(204).body(new ApiResponse<>(204, null, "No data available"));
