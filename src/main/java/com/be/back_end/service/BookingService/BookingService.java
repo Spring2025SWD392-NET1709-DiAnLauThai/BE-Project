@@ -133,7 +133,7 @@ public class BookingService implements IBookingService {
         booking.setTitle(bookingDTO.getTitle());
         String bookingCode = generateBookingCode(8);
         booking.setAccount(accountUtils.getCurrentAccount());
-        booking.setFeedback(null);
+
         booking.setCode(bookingCode);
         return bookingRepository.save(booking);
     }

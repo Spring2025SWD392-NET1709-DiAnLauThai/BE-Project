@@ -30,9 +30,6 @@ public class Bookings {
     @Column(name="totalquantity")
     private int total_quantity;
 
-    @OneToOne
-    @JoinColumn(name="feedbackid", unique = true)
-    private Feedback feedback;
 
     @ManyToOne
     @JoinColumn(name="accountid",nullable = false)
@@ -42,8 +39,7 @@ public class Bookings {
     private Set<Bookingdetails> bookingDetails;
     @OneToMany(mappedBy = "bookings",cascade = CascadeType.ALL)
     private Set<Transaction> transactions;
-    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
-    private Task task;
+
     @Enumerated(EnumType.STRING)
     private BookingEnums status;
 

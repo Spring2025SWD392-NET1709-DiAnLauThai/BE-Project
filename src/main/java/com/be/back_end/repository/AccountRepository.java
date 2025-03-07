@@ -1,5 +1,6 @@
 package com.be.back_end.repository;
 
+import com.be.back_end.enums.ActivationEnums;
 import com.be.back_end.enums.RoleEnums;
 import com.be.back_end.model.Account;
 import org.springframework.data.domain.Page;
@@ -30,4 +31,19 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 
     Page<Account> findByRoleAndCreatedAtBetweenAndEmailContainingIgnoreCaseOrNameContainingIgnoreCase(
             RoleEnums role, LocalDateTime dateFrom, LocalDateTime dateTo, String email, String name, Pageable pageable);
+
+    // 🔹 New Queries for Filtering by Activation Status
+    Page<Account> findByStatus(ActivationEnums status, Pageable pageable);
+
+    Page<Account> findByRoleAndStatus(RoleEnums role, ActivationEnums status, Pageable pageable);
+
+    Page<Account> findByStatusAndCreatedAtBetween(ActivationEnums status, LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
+
+    Page<Account> findByRoleAndStatusAndCreatedAtBetween(RoleEnums role, ActivationEnums status, LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
+
+    Page<Account> findByRoleAndStatusAndEmailContainingIgnoreCaseOrNameContainingIgnoreCase(
+            RoleEnums role, ActivationEnums status, String email, String name, Pageable pageable);
+
+    Page<Account> findByRoleAndStatusAndCreatedAtBetweenAndEmailContainingIgnoreCaseOrNameContainingIgnoreCase(
+            RoleEnums role, ActivationEnums status, LocalDateTime dateFrom, LocalDateTime dateTo, String email, String name, Pageable pageable);
 }
