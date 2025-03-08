@@ -43,7 +43,13 @@ public class Bookings {
     @Enumerated(EnumType.STRING)
     private BookingEnums status;
 
-    @Column(name="datecreated")
+    @Column(name="datecreated", nullable = false, updatable = false)
+    private LocalDateTime datecreated;
+
+    @Column(name="updateddate")
+    private LocalDateTime updateddate;
+
+    @Column(name="startdate")
     private LocalDateTime startdate;
 
     @Column(name="enddate")
@@ -63,8 +69,12 @@ public class Bookings {
         if (Id == null) {
             Id = UUID.randomUUID().toString();
         }
-
+        datecreated = LocalDateTime.now();
+        updateddate = datecreated;
     }
-
+    @PreUpdate
+    protected void onUpdate() {
+        updateddate = LocalDateTime.now();
+    }
 
 }

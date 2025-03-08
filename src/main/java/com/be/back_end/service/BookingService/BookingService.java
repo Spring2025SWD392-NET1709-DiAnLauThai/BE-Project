@@ -133,8 +133,8 @@ public class BookingService implements IBookingService {
     public Bookings createAndSaveNewBooking(BookingCreateRequest bookingDTO) {
         Bookings booking = new Bookings();
         booking.setStatus(BookingEnums.UNPAID);
-        booking.setStartdate(LocalDateTime.now());
-        booking.setEnddate(LocalDateTime.now());
+        booking.setStartdate(bookingDTO.getStartdate());
+        booking.setEnddate(bookingDTO.getEnddate());
         booking.setTitle(bookingDTO.getTitle());
         String bookingCode = generateBookingCode(8);
         booking.setAccount(accountUtils.getCurrentAccount());
