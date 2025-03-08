@@ -11,10 +11,12 @@ import com.be.back_end.service.TranscationService.ITranscationService;
 
 import com.be.back_end.service.TranscationService.IVNPayService;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -116,14 +118,27 @@ public class TranscationController {
         }
     }*/
     @GetMapping("/callback")
-    public ResponseEntity<?> payCallbackHandler(HttpServletRequest request) {
+    public ResponseEntity<?> payCallbackHandler(HttpServletRequest request, HttpServletResponse response) {
         try {
             String transactionStatus = vnpayService.processPaymentCallback(request);
-            return ResponseEntity.ok(new ApiResponse<>(200, transactionStatus,
-                    transactionStatus.equals("SUCCESS") ? "Payment successful" : "Payment failed"));
+            String redirectUrl = "http://localhost:3000/success-booking";
+            String redirectWithParams = redirectUrl + "?status=" + transactionStatus +
+                    "&message=" + (transactionStatus.equals("SUCCESS")
+                    ? "Payment successful"
+                    : "Payment failed");
+            response.sendRedirect(redirectWithParams);
+            return ResponseEntity.ok(
+                    new ApiResponse<>(200, transactionStatus,
+                            transactionStatus.equals("SUCCESS") ? "Payment successful" : "Payment failed")
+            );
         } catch (Exception e) {
+            try {
+                response.sendRedirect("http://localhost:3000/success-booking?status=FAILED&message=Transaction%20processing%20failed");
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse(500, "Transaction processing failed", List.of(e.getMessage())));
+                    .body(new ErrorResponse(500, "Transaction failed", List.of(e.getMessage())));
         }
     }
 

@@ -9,8 +9,10 @@ import com.be.back_end.enums.BookingEnums;
 import com.be.back_end.model.Account;
 import com.be.back_end.model.Bookings;
 import com.be.back_end.model.Designs;
+import com.be.back_end.model.Task;
 import com.be.back_end.repository.BookingDetailsRepository;
 import com.be.back_end.repository.BookingRepository;
+import com.be.back_end.repository.TaskRepository;
 import com.be.back_end.service.BookingDetailService.IBookingdetailService;
 import com.be.back_end.service.CloudinaryService.ICloudinaryService;
 import com.be.back_end.service.DesignService.IDesignService;
@@ -32,6 +34,7 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,7 +46,8 @@ public class BookingService implements IBookingService {
     private final BookingDetailsRepository bookingDetailsRepository;
     private final ICloudinaryService cloudinaryService;
     private final VNPayUtils  vnPayUtils;
-    public BookingService(BookingRepository bookingRepository, AccountUtils accountUtils, IDesignService designService, IBookingdetailService bookingdetailService, BookingDetailsRepository bookingDetailsRepository, ICloudinaryService cloudinaryService, IVNPayService ivnPayService, VNPayUtils vnPayUtils) {
+    private final TaskRepository taskRepository;
+    public BookingService(BookingRepository bookingRepository, AccountUtils accountUtils, IDesignService designService, IBookingdetailService bookingdetailService, BookingDetailsRepository bookingDetailsRepository, ICloudinaryService cloudinaryService, IVNPayService ivnPayService, VNPayUtils vnPayUtils, TaskRepository taskRepository) {
         this.bookingRepository = bookingRepository;
         this.accountUtils = accountUtils;
         this.designService = designService;
@@ -51,6 +55,7 @@ public class BookingService implements IBookingService {
         this.bookingDetailsRepository = bookingDetailsRepository;
         this.cloudinaryService = cloudinaryService;
         this.vnPayUtils = vnPayUtils;
+        this.taskRepository = taskRepository;
     }
 
     private String generateBookingCode(int length) {
@@ -139,7 +144,7 @@ public class BookingService implements IBookingService {
     }
 
 
-    @Transactional(readOnly = true)
+    @Transactional()
     @Override
     public PaginatedResponseDTO<BookingResponse> getAllBookings(
             int page,
@@ -148,7 +153,21 @@ public class BookingService implements IBookingService {
         Page<Bookings> bookingsPage = bookingRepository.findAll(pageable);
         List<BookingResponse> bookingResponseList = new ArrayList<>();
         for (Bookings booking : bookingsPage.getContent()) {
-            bookingResponseList.add(new BookingResponse(booking));
+            String designerName = taskRepository.findByBookingId(booking.getId())
+                    .map(task -> task.getAccount().getName())
+                    .orElse(null);
+
+            BookingResponse response = new BookingResponse();
+            response.setId(booking.getId());
+            response.setTitle(booking.getTitle());
+            response.setStatus(booking.getStatus().toString());
+            response.setEndDate(booking.getEnddate());
+            response.setStartDate(booking.getStartdate());
+            response.setTotalQuantity(booking.getTotal_quantity());
+            response.setTotalPrice(booking.getTotal_price());
+            response.setCode(booking.getCode());
+            response.setAssignedDesigner(designerName);
+            bookingResponseList.add(response);
         }
         PaginatedResponseDTO<BookingResponse> response = new PaginatedResponseDTO<>();
         response.setContent(bookingResponseList);
