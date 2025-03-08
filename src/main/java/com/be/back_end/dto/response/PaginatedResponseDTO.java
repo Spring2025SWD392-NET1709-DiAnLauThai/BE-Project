@@ -13,6 +13,4 @@ public class PaginatedResponseDTO<T> {
     private long totalElements;
     private int totalPages;
 
-
-
 }

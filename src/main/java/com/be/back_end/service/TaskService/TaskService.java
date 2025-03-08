@@ -152,18 +152,15 @@ public class TaskService implements ITaskService{
     }
     @Override
     public boolean assignTask(TaskCreateRequest taskCreateRequest) {
-        if (!bookingRepository.existsById(taskCreateRequest.getBookingId())
-                || !accountRepository.existsById(taskCreateRequest.getDesignerId())) {
-            return false;
-        }
         Bookings bookings = bookingRepository.findById(taskCreateRequest.getBookingId()).orElse(null);
         Account designer = accountRepository.findById(taskCreateRequest.getDesignerId()).orElse(null);
+
         if (bookings == null || designer == null) {
             return false;
         }
+
         Task task = new Task();
         task.setTaskStatus(TaskStatusEnum.ASSIGNED.toString());
-
         task.setBooking(bookings);
         task.setAccount(designer);
         taskRepository.save(task);
