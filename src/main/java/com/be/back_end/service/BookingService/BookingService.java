@@ -163,6 +163,8 @@ public class BookingService implements IBookingService {
             response.setStatus(booking.getStatus().toString());
             response.setEndDate(booking.getEnddate());
             response.setStartDate(booking.getStartdate());
+            response.setUpdateDate(booking.getUpdateddate());
+            response.setCreatedDate(booking.getDatecreated());
             response.setTotalQuantity(booking.getTotal_quantity());
             response.setTotalPrice(booking.getTotal_price());
             response.setCode(booking.getCode());

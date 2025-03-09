@@ -20,6 +20,8 @@ public class BookingResponse {
     private String status;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
+    private LocalDateTime updateDate;
+    private LocalDateTime createdDate;
     private String code;
     private String title;
 
