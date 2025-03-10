@@ -1,4 +1,4 @@
-package com.be.back_end.security.jwt;
+package com.be.back_end.config.jwt;
 
 import java.io.IOException;
 

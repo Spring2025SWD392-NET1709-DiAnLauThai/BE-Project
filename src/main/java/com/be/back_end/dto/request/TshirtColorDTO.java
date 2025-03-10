@@ -1,4 +1,4 @@
-package com.be.back_end.dto;
+package com.be.back_end.dto.request;
 
 import lombok.Data;
 

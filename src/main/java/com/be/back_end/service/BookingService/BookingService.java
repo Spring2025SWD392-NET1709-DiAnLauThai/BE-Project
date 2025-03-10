@@ -1,15 +1,12 @@
 package com.be.back_end.service.BookingService;
 
-import com.be.back_end.dto.BookingDTO;
 import com.be.back_end.dto.request.BookingCreateRequest;
 import com.be.back_end.dto.response.BookingCreateResponse;
 import com.be.back_end.dto.response.BookingResponse;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.enums.BookingEnums;
-import com.be.back_end.model.Account;
+import com.be.back_end.enums.RoleEnums;
 import com.be.back_end.model.Bookings;
-import com.be.back_end.model.Designs;
-import com.be.back_end.model.Task;
 import com.be.back_end.repository.BookingDetailsRepository;
 import com.be.back_end.repository.BookingRepository;
 import com.be.back_end.repository.TaskRepository;
@@ -25,17 +22,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.net.http.HttpRequest;
 import java.security.SecureRandom;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class BookingService implements IBookingService {
@@ -149,8 +141,15 @@ public class BookingService implements IBookingService {
     public PaginatedResponseDTO<BookingResponse> getAllBookings(
             int page,
             int size) {
+        RoleEnums currentRole= accountUtils.getCurrentAccount().getRole();
+
         Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Bookings> bookingsPage = bookingRepository.findAll(pageable);
+        Page<Bookings> bookingsPage;
+        if(currentRole.equals(RoleEnums.CUSTOMER)){
+            bookingsPage=bookingRepository.findAllByAccount(accountUtils.getCurrentAccount(),pageable);
+
+        }else{
+        bookingsPage = bookingRepository.findAll(pageable);}
         List<BookingResponse> bookingResponseList = new ArrayList<>();
         for (Bookings booking : bookingsPage.getContent()) {
             String designerName = taskRepository.findByBookingId(booking.getId())

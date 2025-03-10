@@ -1,6 +1,6 @@
 package com.be.back_end.service.TshirtColorService;
 
-import com.be.back_end.dto.TshirtColorDTO;
+import com.be.back_end.dto.request.TshirtColorDTO;
 import com.be.back_end.model.Color;
 import com.be.back_end.model.TShirtColor;
 import com.be.back_end.model.Tshirts;

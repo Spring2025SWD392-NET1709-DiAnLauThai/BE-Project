@@ -1,6 +1,6 @@
 package com.be.back_end.service.TshirtsService;
 
-import com.be.back_end.dto.TshirtsDTO;
+import com.be.back_end.dto.response.TshirtsDTO;
 import com.be.back_end.dto.request.TshirtCreateRequest;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.model.Tshirts;

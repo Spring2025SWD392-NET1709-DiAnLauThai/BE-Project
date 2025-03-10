@@ -1,7 +1,7 @@
 
 package com.be.back_end.service.TranscationService;
 
-import com.be.back_end.dto.TranscationDTO;
+import com.be.back_end.dto.response.TranscationDTO;
 
 import com.be.back_end.dto.response.TransactionResponse;
 import com.be.back_end.enums.BookingEnums;

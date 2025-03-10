@@ -1,6 +1,5 @@
-package com.be.back_end.dto;
+package com.be.back_end.dto.response;
 
-import com.be.back_end.model.Bookings;
 import lombok.Getter;
 import lombok.Setter;
 
