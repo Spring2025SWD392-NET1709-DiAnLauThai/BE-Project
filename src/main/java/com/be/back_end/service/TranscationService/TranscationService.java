@@ -1,16 +1,17 @@
 
 package com.be.back_end.service.TranscationService;
 
-import com.be.back_end.dto.TranscationDTO;
+import com.be.back_end.dto.TransactionDTO;
 
+import com.be.back_end.dto.response.BookingDetailResponseDTO;
+import com.be.back_end.dto.response.TransactionDetailResponse;
 import com.be.back_end.dto.response.TransactionResponse;
 import com.be.back_end.enums.BookingEnums;
-import com.be.back_end.model.Account;
-import com.be.back_end.model.Bookings;
-import com.be.back_end.model.Transaction;
+import com.be.back_end.model.*;
 
 
 import com.be.back_end.repository.AccountRepository;
+import com.be.back_end.repository.BookingDetailsRepository;
 import com.be.back_end.repository.BookingRepository;
 import com.be.back_end.repository.TranscationRepository;
 import com.be.back_end.utils.VNPayUtils;
@@ -18,12 +19,14 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.awt.print.Book;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 
 @Service
 public class TranscationService implements ITranscationService, IVNPayService {
@@ -32,25 +35,27 @@ public class TranscationService implements ITranscationService, IVNPayService {
     private final VNPayUtils vnPayUtils;
     private final AccountRepository accountRepository;
     private final BookingRepository bookingRepository;
+    private final BookingDetailsRepository bookingDetailsRepository;
     @Autowired
-    public TranscationService(TranscationRepository transcationRepository, VNPayUtils vnPayUtils, AccountRepository accountRepository, BookingRepository bookingRepository) {
+    public TranscationService(TranscationRepository transcationRepository, VNPayUtils vnPayUtils, AccountRepository accountRepository, BookingRepository bookingRepository, BookingDetailsRepository bookingDetailsRepository) {
         this.transcationRepository = transcationRepository;
         this.vnPayUtils=vnPayUtils;
         this.accountRepository = accountRepository;
         this.bookingRepository = bookingRepository;
+        this.bookingDetailsRepository = bookingDetailsRepository;
     }
 
     @Override
-    public TranscationDTO create(TranscationDTO dto) {
+    public TransactionDTO create(TransactionDTO dto) {
         Transaction newTransaction = mapToEntity(dto);
         transcationRepository.save(newTransaction);
         return dto;
     }
 
     @Override
-    public List<TranscationDTO> getAll() {
+    public List<TransactionDTO> getAll() {
         List<Transaction> transactions = transcationRepository.findAll();
-        List<TranscationDTO> list = new ArrayList<>();
+        List<TransactionDTO> list = new ArrayList<>();
         for (Transaction transaction : transactions) {
             list.add(mapToDTO(transaction));
             System.out.println(transaction.getId());
@@ -59,12 +64,12 @@ public class TranscationService implements ITranscationService, IVNPayService {
     }
 
     @Override
-    public TranscationDTO getById(String id) {
+    public TransactionDTO getById(String id) {
         Transaction transaction = transcationRepository.findById(id).orElse(null);
         return mapToDTO(transaction);
     }
 
-    public List<TranscationDTO> getAllForCustomer(String CustomerId) {
+    public List<TransactionDTO> getAllForCustomer(String CustomerId) {
 
 
         //Get a Customer
@@ -89,22 +94,71 @@ public class TranscationService implements ITranscationService, IVNPayService {
             }
 
             //Convert them into DTO
-            List<TranscationDTO> transcationDTOList = transactionList.stream()
+            List<TransactionDTO> transactionDTOList = transactionList.stream()
                     .map(this::mapToDTO)
                     .toList();
 
 
-            if (transcationDTOList.isEmpty()) {
+            if (transactionDTOList.isEmpty()) {
                 System.out.println("TranscationDTO list is empty");
                 return null;
             }
 
-            return transcationDTOList;
+            return transactionDTOList;
 
         }
         System.out.println("Customer is empty");
         return null;
 
+    }
+
+
+    @Override
+    public TransactionDetailResponse getTransactionDetail(String id) {
+        Transaction transaction= transcationRepository.findById(id).orElse(null);
+        if(transaction==null){
+            System.out.println("Transaction not found");
+            return null;
+        }
+
+        Bookings booking= bookingRepository.findByTransactions(transaction);
+
+        if(booking==null){
+            System.out.println("Booking not found");
+            return null;
+        }
+
+        List<Bookingdetails> bookingdetails = bookingDetailsRepository.findByBooking(booking);
+
+        if(bookingdetails==null){
+            System.out.println("BookingDetail not found");
+            return null;
+        }
+
+        TransactionDTO transactionDTO =mapToDTO(transaction);
+        List<BookingDetailResponseDTO> bookingDetailResponseDTO=bookingdetails.stream()
+                .map(this::BookingDetailMapToDTO)
+                .toList();
+
+        return TransactionDetailResponse.builder()
+                .transaction(transactionDTO)
+                .bookingDetail(bookingDetailResponseDTO)
+                .build();
+
+
+    }
+
+    private BookingDetailResponseDTO BookingDetailMapToDTO(Bookingdetails bookingdetails) {
+        Designs design = bookingdetails.getDesign();
+
+        return BookingDetailResponseDTO.builder()
+                .bookingDetailId(bookingdetails.getId())
+                .bookingId(bookingdetails.getBooking().getId())
+                .designId(design.getId())
+                .designFile(design.getDesignFile())
+                .description(bookingdetails.getDescription())
+                .unitPrice(bookingdetails.getUnit_price())
+                .build();
     }
 
 
@@ -178,8 +232,8 @@ public class TranscationService implements ITranscationService, IVNPayService {
     }
 
 
-    public TranscationDTO mapToDTO(Transaction Transaction) {
-        TranscationDTO dto = new TranscationDTO();
+    public TransactionDTO mapToDTO(Transaction Transaction) {
+        TransactionDTO dto = new TransactionDTO();
         dto.setId(Transaction.getId());
         dto.setBookingId(Transaction.getBookings().getId());
         dto.setTransactionName(Transaction.getTransactionName());
@@ -194,7 +248,7 @@ public class TranscationService implements ITranscationService, IVNPayService {
     }
 
     //Be careful of this function
-    public Transaction mapToEntity(TranscationDTO dto) {
+    public Transaction mapToEntity(TransactionDTO dto) {
         Transaction transaction = new Transaction();
         Bookings bookings= bookingRepository.findById(dto.getBookingId()).orElse(null);
         transaction.setId(dto.getId());
