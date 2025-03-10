@@ -1,6 +1,5 @@
 package com.be.back_end.controller;
 
-import com.be.back_end.dto.TshirtsDTO;
 import com.be.back_end.dto.response.ApiResponse;
 import com.be.back_end.dto.response.ErrorResponse;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
@@ -8,14 +7,10 @@ import com.be.back_end.dto.response.TaskListResponse;
 import com.be.back_end.enums.TaskStatusEnum;
 import com.be.back_end.service.TaskService.ITaskService;
 import com.be.back_end.dto.request.TaskCreateRequest;
-import jakarta.mail.MessagingException;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 
 @RestController

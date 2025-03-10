@@ -1,7 +1,7 @@
 
 package com.be.back_end.controller;
 
-import com.be.back_end.dto.TranscationDTO;
+import com.be.back_end.dto.response.TranscationDTO;
 
 import com.be.back_end.dto.request.TransactionRequest;
 import com.be.back_end.dto.response.ApiResponse;

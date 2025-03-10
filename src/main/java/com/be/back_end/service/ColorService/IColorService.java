@@ -1,7 +1,6 @@
 package com.be.back_end.service.ColorService;
 
-import com.be.back_end.dto.AccountDTO;
-import com.be.back_end.dto.ColorDTO;
+import com.be.back_end.dto.request.ColorDTO;
 import com.be.back_end.model.Color;
 
 import java.util.List;

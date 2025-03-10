@@ -1,6 +1,6 @@
 package com.be.back_end.controller;
 
-import com.be.back_end.dto.AccountDTO;
+import com.be.back_end.dto.request.AccountDTO;
 import com.be.back_end.dto.request.CreateAccountRequest;
 import com.be.back_end.dto.request.UpdateAccountRequest;
 import com.be.back_end.dto.request.UpdateProfileRequest;
@@ -21,7 +21,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import com.be.back_end.dto.response.ApiResponse;
-import org.springframework.web.multipart.MultipartFile;
 
 import static org.springframework.web.servlet.function.ServerResponse.status;
 

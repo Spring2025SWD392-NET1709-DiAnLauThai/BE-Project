@@ -1,9 +1,6 @@
 package com.be.back_end.service.TshirtDesignService;
 
-import com.be.back_end.dto.AccountDTO;
-import com.be.back_end.dto.TshirtDesignDTO;
-import com.be.back_end.model.Designs;
-import com.be.back_end.model.Tshirts;
+import com.be.back_end.dto.request.TshirtDesignDTO;
 
 import java.util.List;
 
