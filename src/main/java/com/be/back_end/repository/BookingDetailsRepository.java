@@ -1,6 +1,7 @@
 package com.be.back_end.repository;
 
 import com.be.back_end.model.Bookingdetails;
+import com.be.back_end.model.Bookings;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,5 +18,6 @@ public interface BookingDetailsRepository extends JpaRepository<Bookingdetails,S
     Page<Bookingdetails> findByBookingId(String bookingId, Pageable pageable);
 
     List<Bookingdetails> findByBookingId(String bookingId);
+    List<Bookingdetails> findByBooking(Bookings bookings);
 }
 
