@@ -153,8 +153,6 @@ public class TranscationService implements ITranscationService, IVNPayService {
 
         return BookingDetailResponseDTO.builder()
                 .bookingDetailId(bookingdetails.getId())
-                .bookingId(bookingdetails.getBooking().getId())
-                .designId(design.getId())
                 .designFile(design.getDesignFile())
                 .description(bookingdetails.getDescription())
                 .unitPrice(bookingdetails.getUnit_price())
