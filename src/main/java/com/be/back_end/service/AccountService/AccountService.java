@@ -1,7 +1,7 @@
 package com.be.back_end.service.AccountService;
 
 
-import com.be.back_end.dto.AccountDTO;
+import com.be.back_end.dto.request.AccountDTO;
 import com.be.back_end.dto.request.CreateAccountRequest;
 import com.be.back_end.dto.request.RegisterRequest;
 import com.be.back_end.dto.request.UpdateAccountRequest;
@@ -9,43 +9,31 @@ import com.be.back_end.dto.request.UpdateProfileRequest;
 import com.be.back_end.dto.response.AccountCreationResponse;
 import com.be.back_end.dto.response.JwtResponse;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
-import com.be.back_end.dto.response.TokenValidateDTO;
 
 import com.be.back_end.enums.ActivationEnums;
 import com.be.back_end.enums.RoleEnums;
 import com.be.back_end.model.Account;
 import com.be.back_end.repository.AccountRepository;
 
-import com.be.back_end.security.jwt.JwtUtils;
+import com.be.back_end.config.jwt.JwtUtils;
 import com.be.back_end.service.CloudinaryService.ICloudinaryService;
 import com.be.back_end.service.EmailService.IEmailService;
 import com.be.back_end.service.GoogleService.IGoogleService;
 import com.be.back_end.utils.AccountUtils;
 import com.be.back_end.utils.PasswordUtils;
 
-import jakarta.mail.MessagingException;
-import jakarta.mail.Multipart;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.ResponseCookie;
-import org.springframework.security.core.userdetails.User;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import lombok.extern.slf4j.Slf4j;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static java.util.Arrays.stream;
 

@@ -16,6 +16,8 @@ import java.util.List;
 public interface BookingDetailsRepository extends JpaRepository<Bookingdetails,String> {
 
     Page<Bookingdetails> findByBookingId(String bookingId, Pageable pageable);
+
+    List<Bookingdetails> findByBookingId(String bookingId);
     List<Bookingdetails> findByBooking(Bookings bookings);
 }
 

@@ -1,4 +1,4 @@
-package com.be.back_end.security;
+package com.be.back_end.config;
 
 import java.util.Arrays;
 import java.util.List;
@@ -18,8 +18,8 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import com.be.back_end.security.jwt.AuthEntryPointJwt;
-import com.be.back_end.security.jwt.AuthTokenFilter;
+import com.be.back_end.config.jwt.AuthEntryPointJwt;
+import com.be.back_end.config.jwt.AuthTokenFilter;
 import com.be.back_end.service.AccountService.AccountDetailsServiceImpl;
 
 

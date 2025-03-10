@@ -1,17 +1,15 @@
 package com.be.back_end.service.TshirtsService;
 
-import com.be.back_end.dto.TshirtsDTO;
+import com.be.back_end.dto.response.TshirtsDTO;
 
 import com.be.back_end.dto.request.TshirtCreateRequest;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.enums.ActivationEnums;
+import com.be.back_end.model.Bookingdetails;
 import com.be.back_end.model.Color;
 import com.be.back_end.model.TShirtColor;
 import com.be.back_end.model.Tshirts;
-import com.be.back_end.repository.AccountRepository;
-import com.be.back_end.repository.ColorRepository;
-import com.be.back_end.repository.TshirtColorRepository;
-import com.be.back_end.repository.TshirtsRepository;
+import com.be.back_end.repository.*;
 import com.be.back_end.utils.AccountUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,12 +30,14 @@ public class TshirtsService implements  ITshirtsService{
     private final AccountRepository accountRepository;
     private final ColorRepository  colorRepository;
     private final TshirtColorRepository tshirtColorRepository;
-    public TshirtsService(AccountUtils accountUtils, TshirtsRepository tshirtsRepository, AccountRepository accountRepository, ColorRepository colorRepository, TshirtColorRepository tshirtColorRepository) {
+    private final BookingDetailsRepository bookingDetailsRepository;
+    public TshirtsService(AccountUtils accountUtils, TshirtsRepository tshirtsRepository, AccountRepository accountRepository, ColorRepository colorRepository, TshirtColorRepository tshirtColorRepository, BookingDetailsRepository bookingDetailsRepository) {
         this.accountUtils = accountUtils;
         this.tshirtsRepository = tshirtsRepository;
         this.accountRepository = accountRepository;
         this.colorRepository = colorRepository;
         this.tshirtColorRepository = tshirtColorRepository;
+        this.bookingDetailsRepository = bookingDetailsRepository;
     }
     private TshirtsDTO mapToDTO(Tshirts tshirts) {
         TshirtsDTO dto = new TshirtsDTO();
@@ -62,23 +62,33 @@ public class TshirtsService implements  ITshirtsService{
         return tshirt;
     }
    @Override
-    public Tshirts saveTshirt(TshirtCreateRequest tshirtCreateRequest) {
-        Tshirts tshirt = new Tshirts();
-        tshirt.setDescription(tshirtCreateRequest.getDescription());
-        tshirt.setStatus(ActivationEnums.INACTIVE);
-        tshirt.setName(tshirtCreateRequest.getTshirtname());
-        tshirt.setImage_url(tshirtCreateRequest.getImgurl());
-        Tshirts savedTshirt=tshirtsRepository.save(tshirt);
-        List<Color> colors= colorRepository.findAllById(tshirtCreateRequest.getColorlist());
-        for(Color color:colors){
-            TShirtColor tShirtColor= new TShirtColor();
-            tShirtColor.setTshirt(savedTshirt);
-            tShirtColor.setColor(color);
-            tshirtColorRepository.save(tShirtColor);
-        }
-        return savedTshirt;
-    }
-
+   public Tshirts saveTshirt(TshirtCreateRequest tshirtCreateRequest) {
+       Bookingdetails bookingdetails = bookingDetailsRepository
+               .findById(tshirtCreateRequest.getBookingDetailId())
+               .orElse(null);
+       if (bookingdetails == null) {
+           return null;
+       }
+       Tshirts tshirt = new Tshirts();
+       tshirt.setDescription(tshirtCreateRequest.getDescription());
+       tshirt.setStatus(ActivationEnums.INACTIVE);
+       tshirt.setName(tshirtCreateRequest.getTshirtname());
+       tshirt.setImage_url(tshirtCreateRequest.getImgurl());
+       Tshirts savedTshirt = tshirtsRepository.save(tshirt);
+       List<Color> colors = colorRepository.findAllById(tshirtCreateRequest.getColorlist());
+       if (colors.isEmpty()) {
+           return null;
+       }
+       for (Color color : colors) {
+           TShirtColor tShirtColor = new TShirtColor();
+           tShirtColor.setTshirt(savedTshirt);
+           tShirtColor.setColor(color);
+           tshirtColorRepository.save(tShirtColor);
+       }
+       bookingdetails.setTshirt(tshirt);
+       bookingDetailsRepository.save(bookingdetails);
+       return savedTshirt;
+   }
     @Transactional(readOnly = true)
     @Override
     public PaginatedResponseDTO<TshirtsDTO> getAllTshirts(String keyword,

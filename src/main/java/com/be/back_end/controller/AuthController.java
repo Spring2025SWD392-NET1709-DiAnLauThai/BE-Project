@@ -17,7 +17,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import com.be.back_end.dto.request.SigninRequest;
 import com.be.back_end.dto.response.JwtResponse;
-import com.be.back_end.security.jwt.JwtUtils;
+import com.be.back_end.config.jwt.JwtUtils;
 import com.be.back_end.service.AccountService.AccountDetailsImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpHeaders;

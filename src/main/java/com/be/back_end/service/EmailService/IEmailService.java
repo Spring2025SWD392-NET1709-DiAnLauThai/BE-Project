@@ -1,7 +1,5 @@
 package com.be.back_end.service.EmailService;
 
-import com.be.back_end.dto.EmailDTO;
-
 import jakarta.mail.MessagingException;
 
 public interface IEmailService {

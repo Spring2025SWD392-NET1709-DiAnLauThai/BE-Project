@@ -1,6 +1,6 @@
 package com.be.back_end.controller;
 
-import com.be.back_end.dto.TshirtsDTO;
+import com.be.back_end.dto.response.TshirtsDTO;
 import com.be.back_end.dto.request.TshirtCreateRequest;
 import com.be.back_end.dto.response.ApiResponse;
 import com.be.back_end.dto.response.ErrorResponse;
@@ -39,7 +39,7 @@ public class TshirtsController {
             return ResponseEntity.status(400)
                     .body(new ErrorResponse(400, null, List.of("Tshirt failed to add")));
         }
-        return ResponseEntity.ok(new ApiResponse<>(200, tshirt, "Uploaded successfully"));
+        return ResponseEntity.ok(new ApiResponse<>(200, null, "Uploaded successfully"));
     }
     @RequestMapping(
             path = "/tshirt/upload",
