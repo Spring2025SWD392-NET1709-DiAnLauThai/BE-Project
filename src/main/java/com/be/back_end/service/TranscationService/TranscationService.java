@@ -1,7 +1,7 @@
 
 package com.be.back_end.service.TranscationService;
 
-import com.be.back_end.dto.response.TranscationDTO;
+import com.be.back_end.dto.response.TransactionDTO;
 
 import com.be.back_end.dto.response.BookingDetailResponseDTO;
 import com.be.back_end.dto.response.TransactionDetailResponse;

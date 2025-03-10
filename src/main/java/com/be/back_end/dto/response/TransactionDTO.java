@@ -1,8 +1,6 @@
 package com.be.back_end.dto.response;
 
 
-import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
