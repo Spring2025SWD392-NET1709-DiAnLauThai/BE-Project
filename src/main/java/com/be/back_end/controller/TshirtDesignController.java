@@ -1,6 +1,6 @@
 package com.be.back_end.controller;
 
-import com.be.back_end.dto.TshirtDesignDTO;
+import com.be.back_end.dto.request.TshirtDesignDTO;
 import com.be.back_end.service.TshirtDesignService.TshirtDesignService;
 
 import org.springframework.http.ResponseEntity;

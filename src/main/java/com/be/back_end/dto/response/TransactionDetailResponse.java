@@ -1,6 +1,6 @@
 package com.be.back_end.dto.response;
 
-import com.be.back_end.dto.TransactionDTO;
+import com.be.back_end.dto.response.TransactionDTO;
 import lombok.Builder;
 import lombok.Data;
 

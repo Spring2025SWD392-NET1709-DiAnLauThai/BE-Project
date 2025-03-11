@@ -1,6 +1,6 @@
 package com.be.back_end.controller;
 
-import com.be.back_end.dto.TshirtColorDTO;
+import com.be.back_end.dto.request.TshirtColorDTO;
 import com.be.back_end.service.TshirtColorService.ITshirtColorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;

@@ -1,6 +1,6 @@
 package com.be.back_end.controller;
 
-import com.be.back_end.dto.ColorDTO;
+import com.be.back_end.dto.request.ColorDTO;
 import com.be.back_end.dto.response.ApiResponse;
 import com.be.back_end.dto.response.ErrorResponse;
 import com.be.back_end.model.Color;
@@ -8,7 +8,6 @@ import com.be.back_end.service.ColorService.IColorService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
 import java.util.List;
 
 @RestController

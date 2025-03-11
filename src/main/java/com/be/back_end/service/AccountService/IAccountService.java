@@ -1,6 +1,6 @@
 package com.be.back_end.service.AccountService;
 
-import com.be.back_end.dto.AccountDTO;
+import com.be.back_end.dto.request.AccountDTO;
 import com.be.back_end.dto.request.CreateAccountRequest;
 import com.be.back_end.dto.request.RegisterRequest;
 import com.be.back_end.dto.request.UpdateAccountRequest;

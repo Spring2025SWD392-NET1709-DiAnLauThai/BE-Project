@@ -2,9 +2,7 @@ package com.be.back_end.utils;
 
 import com.be.back_end.model.Account;
 import com.be.back_end.repository.AccountRepository;
-import com.be.back_end.security.jwt.JwtUtils;
-import com.be.back_end.service.AccountService.AccountDetailsImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.be.back_end.config.jwt.JwtUtils;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;

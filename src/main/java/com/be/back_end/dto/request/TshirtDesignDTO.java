@@ -1,4 +1,4 @@
-package com.be.back_end.dto;
+package com.be.back_end.dto.request;
 
 import com.be.back_end.model.Designs;
 import com.be.back_end.model.Tshirts;

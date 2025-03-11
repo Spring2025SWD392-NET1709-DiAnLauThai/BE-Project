@@ -32,5 +32,6 @@ public interface BookingRepository extends JpaRepository<Bookings, String> {
     List<Bookings> findAllByAccount(Account account);
     Bookings findByTransactions(Transaction transaction);
     Page<Bookings> findAll(Pageable pageable);
+    Page<Bookings> findAllByAccount(Account account,Pageable pageable);
 
 }
