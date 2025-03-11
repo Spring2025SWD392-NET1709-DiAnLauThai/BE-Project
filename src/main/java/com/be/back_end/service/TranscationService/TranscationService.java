@@ -1,12 +1,21 @@
 
 package com.be.back_end.service.TranscationService;
 
+
+
+
+import com.be.back_end.dto.AccountDTO;
+import com.be.back_end.dto.TransactionDTO;
 import com.be.back_end.dto.response.TransactionDTO;
 
+
 import com.be.back_end.dto.response.BookingDetailResponseDTO;
+import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.dto.response.TransactionDetailResponse;
 import com.be.back_end.dto.response.TransactionResponse;
+import com.be.back_end.enums.ActivationEnums;
 import com.be.back_end.enums.BookingEnums;
+import com.be.back_end.enums.RoleEnums;
 import com.be.back_end.model.*;
 
 
@@ -17,6 +26,10 @@ import com.be.back_end.repository.TranscationRepository;
 import com.be.back_end.utils.VNPayUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.awt.print.Book;
@@ -52,15 +65,29 @@ public class TranscationService implements ITranscationService, IVNPayService {
         return dto;
     }
 
-    @Override
-    public List<TransactionDTO> getAll() {
-        List<Transaction> transactions = transcationRepository.findAll();
-        List<TransactionDTO> list = new ArrayList<>();
-        for (Transaction transaction : transactions) {
-            list.add(mapToDTO(transaction));
-            System.out.println(transaction.getId());
+
+
+    public PaginatedResponseDTO<TransactionDTO> getAll(int page, int size, String sortDir, String sortBy) {
+        Sort.Direction sort = sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page-1, size,sort,sortBy);
+        Page<Transaction> transactions;
+
+        transactions = transcationRepository.findAll(pageable);
+
+        List<TransactionDTO> transactionDTO = new ArrayList<>();
+        for (Transaction transaction : transactions.getContent()) {
+            transactionDTO.add(mapToDTO(transaction));
         }
-        return list;
+
+
+        PaginatedResponseDTO<TransactionDTO> response = new PaginatedResponseDTO<>();
+        response.setContent(transactionDTO);
+        response.setPageNumber(transactions.getNumber());
+        response.setPageSize(transactions.getSize());
+        response.setTotalElements(transactions.getTotalElements());
+        response.setTotalPages(transactions.getTotalPages());
+
+        return response;
     }
 
     @Override
@@ -69,48 +96,56 @@ public class TranscationService implements ITranscationService, IVNPayService {
         return mapToDTO(transaction);
     }
 
-    public List<TransactionDTO> getAllForCustomer(String CustomerId) {
 
+
+    public Page<Transaction> getTransactionPageByCustomer(String accountId,Pageable pageable) {
 
         //Get a Customer
-        Account account = accountRepository.findById(CustomerId).orElse(null);
+        Account account = accountRepository.findById(accountId).orElse(null);
 
         if (account != null) {
-            List<Bookings> bookingsList = bookingRepository.findAllByAccount(account);
-            if (bookingsList.isEmpty()) {
-                System.out.println("No bookings found for customer ID: " + CustomerId);
-                return Collections.emptyList();
-            }
 
-            //Get Transcation for every booking available. Flatten it to return every single transcation
+            //Get Transaction for every booking available from the Booking List
+            Page<Transaction> transactionPage = transcationRepository.findAllByAccountId(account.getId(),pageable);
 
-            List<Transaction> transactionList = bookingsList.stream()
-                    .flatMap(booking->transcationRepository.findAllByBookings(booking).stream())
-                    .toList();
-
-            if (transactionList.isEmpty()) {
-                System.out.println("Transcation list is empty");
+            if (transactionPage.isEmpty()) {
+                System.out.println("Transaction page is empty");
                 return null;
             }
-
-            //Convert them into DTO
-            List<TransactionDTO> transactionDTOList = transactionList.stream()
-                    .map(this::mapToDTO)
-                    .toList();
-
-
-            if (transactionDTOList.isEmpty()) {
-                System.out.println("TranscationDTO list is empty");
-                return null;
-            }
-
-            return transactionDTOList;
-
+            return transactionPage;
         }
         System.out.println("Customer is empty");
         return null;
 
     }
+
+    public PaginatedResponseDTO<TransactionDTO> getAllByCustomer(String customerId,int page, int size, String sortDir, String sortBy) {
+        Sort.Direction sort = sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Pageable pageable = PageRequest.of(page-1, size,sort,sortBy);
+        Page<Transaction> transactions;
+
+        transactions = getTransactionPageByCustomer(customerId,pageable);
+
+        List<TransactionDTO> transactionDTO = new ArrayList<>();
+        for (Transaction transaction : transactions.getContent()) {
+            transactionDTO.add(mapToDTO(transaction));
+        }
+
+        if(transactionDTO.isEmpty()){
+            System.out.println("TransactionDTO is empty or can't be created");
+            return null;
+        }
+
+        PaginatedResponseDTO<TransactionDTO> response = new PaginatedResponseDTO<>();
+        response.setContent(transactionDTO);
+        response.setPageNumber(transactions.getNumber());
+        response.setPageSize(transactions.getSize());
+        response.setTotalElements(transactions.getTotalElements());
+        response.setTotalPages(transactions.getTotalPages());
+
+        return response;
+    }
+
 
 
     @Override
@@ -153,8 +188,6 @@ public class TranscationService implements ITranscationService, IVNPayService {
 
         return BookingDetailResponseDTO.builder()
                 .bookingDetailId(bookingdetails.getId())
-                .bookingId(bookingdetails.getBooking().getId())
-                .designId(design.getId())
                 .designFile(design.getDesignFile())
                 .description(bookingdetails.getDescription())
                 .unitPrice(bookingdetails.getUnit_price())
@@ -179,8 +212,6 @@ public class TranscationService implements ITranscationService, IVNPayService {
         }
 
     }
-
-
 
 
     public String processPaymentCallback(HttpServletRequest request) {
@@ -224,6 +255,7 @@ public class TranscationService implements ITranscationService, IVNPayService {
         transaction.setTransactionDate(LocalDateTime.now());
         transcationRepository.save(transaction);
     }
+
     private void updateBookingStatus(String bookingCode) {
         Bookings booking = bookingRepository.findByCode(bookingCode)
                 .orElseThrow(() -> new RuntimeException("Booking not found with code: " + bookingCode));
@@ -247,7 +279,7 @@ public class TranscationService implements ITranscationService, IVNPayService {
         return dto;
     }
 
-    //Be careful of this function
+
     public Transaction mapToEntity(TransactionDTO dto) {
         Transaction transaction = new Transaction();
         Bookings bookings= bookingRepository.findById(dto.getBookingId()).orElse(null);
@@ -263,5 +295,18 @@ public class TranscationService implements ITranscationService, IVNPayService {
         transaction.setBankCode(dto.getBankCode());
         return transaction;
     }
+
+    /*
+    @Override
+    public List<TransactionDTO> getAll() {
+        List<Transaction> transactions = transcationRepository.findAll();
+        List<TransactionDTO> list = new ArrayList<>();
+        for (Transaction transaction : transactions) {
+            list.add(mapToDTO(transaction));
+            System.out.println(transaction.getId());
+        }
+        return list;
+    }
+   */
 }
 
