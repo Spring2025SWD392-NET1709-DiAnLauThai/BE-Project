@@ -1,11 +1,6 @@
 
 package com.be.back_end.service.TranscationService;
 
-
-
-
-import com.be.back_end.dto.AccountDTO;
-import com.be.back_end.dto.TransactionDTO;
 import com.be.back_end.dto.response.TransactionDTO;
 
 
@@ -23,6 +18,7 @@ import com.be.back_end.repository.AccountRepository;
 import com.be.back_end.repository.BookingDetailsRepository;
 import com.be.back_end.repository.BookingRepository;
 import com.be.back_end.repository.TranscationRepository;
+import com.be.back_end.utils.AccountUtils;
 import com.be.back_end.utils.VNPayUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -49,13 +45,17 @@ public class TranscationService implements ITranscationService, IVNPayService {
     private final AccountRepository accountRepository;
     private final BookingRepository bookingRepository;
     private final BookingDetailsRepository bookingDetailsRepository;
+
+    private final AccountUtils accountUtils;
     @Autowired
-    public TranscationService(TranscationRepository transcationRepository, VNPayUtils vnPayUtils, AccountRepository accountRepository, BookingRepository bookingRepository, BookingDetailsRepository bookingDetailsRepository) {
+    public TranscationService(TranscationRepository transcationRepository, VNPayUtils vnPayUtils, AccountRepository accountRepository, BookingRepository bookingRepository, BookingDetailsRepository bookingDetailsRepository, 
+            AccountUtils accountUtils) {
         this.transcationRepository = transcationRepository;
         this.vnPayUtils=vnPayUtils;
         this.accountRepository = accountRepository;
         this.bookingRepository = bookingRepository;
         this.bookingDetailsRepository = bookingDetailsRepository;
+        this.accountUtils = accountUtils;
     }
 
     @Override
@@ -98,10 +98,12 @@ public class TranscationService implements ITranscationService, IVNPayService {
 
 
 
-    public Page<Transaction> getTransactionPageByCustomer(String accountId,Pageable pageable) {
+    public Page<Transaction> getTransactionPageByCustomer(Pageable pageable) {
 
         //Get a Customer
-        Account account = accountRepository.findById(accountId).orElse(null);
+        Account currentAccount = accountUtils.getCurrentAccount();
+        String customerId = currentAccount.getId();
+        Account account = accountRepository.findById(customerId).orElse(null);
 
         if (account != null) {
 
@@ -119,12 +121,14 @@ public class TranscationService implements ITranscationService, IVNPayService {
 
     }
 
-    public PaginatedResponseDTO<TransactionDTO> getAllByCustomer(String customerId,int page, int size, String sortDir, String sortBy) {
+    public PaginatedResponseDTO<TransactionDTO> getAllByCustomer(int page, int size, String sortDir, String sortBy) {
+
+
         Sort.Direction sort = sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page-1, size,sort,sortBy);
         Page<Transaction> transactions;
 
-        transactions = getTransactionPageByCustomer(customerId,pageable);
+        transactions = getTransactionPageByCustomer(pageable);
 
         List<TransactionDTO> transactionDTO = new ArrayList<>();
         for (Transaction transaction : transactions.getContent()) {
