@@ -1,18 +1,19 @@
 package com.be.back_end.service.TaskService;
 
 import com.be.back_end.dto.request.TaskCreateRequest;
+import com.be.back_end.dto.request.TshirtSelectRequest;
+import com.be.back_end.dto.response.BookingResponseNoLinkDTO;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
+import com.be.back_end.dto.response.TaskDetailResponseDTO;
 import com.be.back_end.dto.response.TaskListResponse;
+import com.be.back_end.enums.BookingEnums;
 import com.be.back_end.enums.TaskStatusEnum;
-import com.be.back_end.model.Account;
-import com.be.back_end.model.Bookings;
-import com.be.back_end.model.Task;
-import com.be.back_end.repository.AccountRepository;
-import com.be.back_end.repository.BookingRepository;
-import com.be.back_end.repository.TaskRepository;
+import com.be.back_end.model.*;
+import com.be.back_end.repository.*;
 import com.be.back_end.service.EmailService.IEmailService;
 import com.be.back_end.utils.AccountUtils;
 import jakarta.mail.MessagingException;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,12 +32,17 @@ public class TaskService implements ITaskService{
         private final AccountRepository accountRepository;
         private final IEmailService emailService;
         private final AccountUtils accountUtils;
-    public TaskService(TaskRepository tasKRepository, BookingRepository bookingRepository, AccountRepository accountRepository, IEmailService emailService, AccountUtils accountUtils) {
+        private final BookingDetailsRepository bookingDetailsRepository;
+        private final TshirtsRepository tshirtsRepository;
+    public TaskService(TaskRepository tasKRepository, BookingRepository bookingRepository, AccountRepository accountRepository, IEmailService emailService, AccountUtils accountUtils, BookingDetailsRepository bookingDetailsRepository, TshirtsRepository tshirtsRepository) {
         this.taskRepository = tasKRepository;
         this.bookingRepository = bookingRepository;
         this.accountRepository = accountRepository;
         this.emailService = emailService;
         this.accountUtils = accountUtils;
+        this.bookingDetailsRepository = bookingDetailsRepository;
+
+        this.tshirtsRepository = tshirtsRepository;
     }
 
 
@@ -173,5 +179,90 @@ public class TaskService implements ITaskService{
 
         return true;
     }
+    @Override
+    public boolean assignTshirttoTask(TshirtSelectRequest tshirtSelectRequest) {
+        Bookingdetails bookingdetails = bookingDetailsRepository.findById(tshirtSelectRequest.getBookingDetailId())
+                .orElse(null);
+        Tshirts tshirt = tshirtsRepository.findById(tshirtSelectRequest.getTshirtId())
+                .orElse(null);
+
+        if (bookingdetails == null || tshirt == null) {
+            return false;
+        }
+        bookingdetails.setTshirt(tshirt);
+        bookingDetailsRepository.save(bookingdetails);
+
+        Bookings booking = bookingdetails.getBooking();
+        Task task= taskRepository.findByBookingId(booking.getId()).orElse(null);
+
+        boolean hasIncompleteDetails = bookingDetailsRepository
+                .existsByBookingIdAndTshirtIsNull(booking.getId());
+        if (!hasIncompleteDetails) {
+            task.setTaskStatus(TaskStatusEnum.READY_FOR_CUSTOMER.toString());
+            booking.setStatus(BookingEnums.COMPLETE);
+            taskRepository.save(task);
+            bookingRepository.save(booking);
+        }
+        return true;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public TaskDetailResponseDTO getTaskDetailByTaskId(String taskId) {
+        Task task = getTask(taskId);
+        Bookings booking = getBooking(task);
+        List<Bookingdetails> bookingDetails = getBookingDetails(task);
+
+        return buildTaskDetailResponseDTO(task, booking, bookingDetails);
+    }
+    private Task getTask(String taskId) {
+        return taskRepository.findById(taskId)
+                .orElseThrow(() -> new EntityNotFoundException("Task not found with ID: " + taskId));
+    }
+    private Bookings getBooking(Task task) {
+        return bookingRepository.findById(task.getBooking().getId())
+                .orElseThrow(() -> new EntityNotFoundException("Booking not found for Task ID: " + task.getId()));
+    }
+    private List<Bookingdetails> getBookingDetails(Task task) {
+        return bookingDetailsRepository.findByBookingId(task.getBooking().getId());
+    }
+    private TaskDetailResponseDTO buildTaskDetailResponseDTO(Task task, Bookings booking, List<Bookingdetails> bookingDetails) {
+        TaskDetailResponseDTO taskDetailResponseDTO = new TaskDetailResponseDTO();
+        taskDetailResponseDTO.setDesignerName(task.getAccount().getName());
+        taskDetailResponseDTO.setCode(booking.getCode());
+        taskDetailResponseDTO.setTitle(booking.getTitle());
+        taskDetailResponseDTO.setBookingStatus(booking.getStatus());
+        taskDetailResponseDTO.setEnddate(booking.getEnddate());
+        taskDetailResponseDTO.setTotalQuantity(booking.getTotal_quantity());
+        taskDetailResponseDTO.setTotalPrice(booking.getTotal_price());
+        taskDetailResponseDTO.setStartdate(booking.getStartdate());
+        taskDetailResponseDTO.setUpdateddate(booking.getUpdateddate());
+        taskDetailResponseDTO.setDatecreated(booking.getDatecreated());
+
+        List<TaskDetailResponseDTO.BookingDetailResponse> detailResponses = bookingDetails.stream()
+                .map(detail -> new TaskDetailResponseDTO.BookingDetailResponse(
+                        detail.getId(),
+                        detail.getDescription(),
+                        detail.getUnit_price(),
+                        new TaskDetailResponseDTO.DesignResponse(
+                                detail.getDesign().getDesignFile()
+                        ),
+                        detail.getTshirt() != null ? new TaskDetailResponseDTO.TShirtResponse(
+                                detail.getTshirt().getName(),
+                                detail.getTshirt().getDescription(),
+                                detail.getTshirt().getImage_url(),
+                                detail.getTshirt().getTShirtColors().stream()
+                                        .map(color -> new TaskDetailResponseDTO.TShirtColorResponse(
+                                                color.getColor().getColorName(),
+                                                color.getColor().getColorCode()))
+                                        .toList()
+                        ) : null
+                ))
+                .toList();
+
+        taskDetailResponseDTO.setBookingDetails(detailResponses);
+        return taskDetailResponseDTO;
+    }
+
 
 }

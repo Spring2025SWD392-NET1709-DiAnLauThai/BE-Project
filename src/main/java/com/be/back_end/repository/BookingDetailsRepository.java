@@ -19,5 +19,7 @@ public interface BookingDetailsRepository extends JpaRepository<Bookingdetails,S
 
     List<Bookingdetails> findByBookingId(String bookingId);
     List<Bookingdetails> findByBooking(Bookings bookings);
+
+    boolean existsByBookingIdAndTshirtIsNull(String bookingId);
 }
 

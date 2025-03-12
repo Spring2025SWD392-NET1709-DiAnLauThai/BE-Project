@@ -1,9 +1,7 @@
 package com.be.back_end.controller;
 
-import com.be.back_end.dto.response.ApiResponse;
-import com.be.back_end.dto.response.ErrorResponse;
-import com.be.back_end.dto.response.PaginatedResponseDTO;
-import com.be.back_end.dto.response.TaskListResponse;
+import com.be.back_end.dto.request.TshirtSelectRequest;
+import com.be.back_end.dto.response.*;
 import com.be.back_end.enums.TaskStatusEnum;
 import com.be.back_end.service.TaskService.ITaskService;
 import com.be.back_end.dto.request.TaskCreateRequest;
@@ -80,6 +78,41 @@ public class TaskController {
                 );
             }
 
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(
+                    new ErrorResponse(500, "Unexpected error occurred",
+                            List.of(e.getMessage()))
+            );
+        }
+    }
+    @GetMapping("/detail/{taskId}")
+    public ResponseEntity<?> getTaskDetailByTaskId(@PathVariable String taskId) {
+        try {
+            TaskDetailResponseDTO taskDetailResponseDTO = taskService.getTaskDetailByTaskId(taskId);
+            if (taskDetailResponseDTO == null) {
+                return ResponseEntity.status(404).body(
+                        new ErrorResponse(404, "Task not found", List.of("No task found with the provided ID."))
+                );
+            }
+            return ResponseEntity.ok(new ApiResponse<>(200, taskDetailResponseDTO, "Task detail retrieved successfully."));
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(
+                    new ErrorResponse(500, "Unexpected error occurred", List.of(e.getMessage()))
+            );
+        }
+    }
+    @PutMapping("/select/tshirt")
+    public ResponseEntity<?> assignTask(@RequestBody TshirtSelectRequest tshirtSelectRequest) {
+        try {
+            boolean isAssigned = taskService.assignTshirttoTask(tshirtSelectRequest);
+            if (isAssigned) {
+                return ResponseEntity.ok(new ApiResponse<>(200, List.of("Tshirt added to booking detail."), "Success"));
+            } else {
+                return ResponseEntity.badRequest().body(
+                        new ErrorResponse(400, "Failed to assign task",
+                                List.of("Invalid bookingdetail or tshirt."))
+                );
+            }
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(
                     new ErrorResponse(500, "Unexpected error occurred",
