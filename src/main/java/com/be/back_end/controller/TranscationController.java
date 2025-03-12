@@ -1,23 +1,23 @@
 
 package com.be.back_end.controller;
 
-import com.be.back_end.dto.response.TransactionDTO;
 
 import com.be.back_end.dto.request.TransactionRequest;
-import com.be.back_end.dto.response.ApiResponse;
-import com.be.back_end.dto.response.ErrorResponse;
-import com.be.back_end.dto.response.TransactionDetailResponse;
-import com.be.back_end.dto.response.TransactionResponse;
+import com.be.back_end.dto.response.*;
+import com.be.back_end.enums.ActivationEnums;
+import com.be.back_end.enums.RoleEnums;
 import com.be.back_end.service.TranscationService.ITranscationService;
 
 import com.be.back_end.service.TranscationService.IVNPayService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -33,15 +33,7 @@ public class TranscationController {
         this.vnpayService = vnpayService;
     }
 
-    /*
-    @GetMapping
-    public ResponseEntity<List<TranscationDTO>> getAllTranscation() {
-        List<TranscationDTO> payments = transcationService.getAll();
-        if (payments.isEmpty()) {
-            System.out.println("No Transcation found.");
-        }
-        return ResponseEntity.ok(payments);
-    }*/
+
 
     @PostMapping
     public ResponseEntity<TransactionDTO> createTranscation(@RequestBody TransactionDTO TransactionDTO) {
@@ -60,38 +52,59 @@ public class TranscationController {
         return ResponseEntity.ok(design);
     }
 
-    //Normal Get All
+
+
+
+    //Get all transaction belong to Customer, via Bookings
+    //Input is customer id, then get all booking, then get all transaction in each bookings
+    @GetMapping("/customer")
+    public ResponseEntity<?> getTranscationForCustomer(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(defaultValue = "transactionDate") String sortBy) {
+        if (page < 0 || size <= 0) {
+            return ResponseEntity.status(400)
+                    .body(new ErrorResponse(400, null, List.of("Page and size must be positive values")));
+        }
+        PaginatedResponseDTO<TransactionDTO> transactions = transcationService.getAllByCustomer(page,size,sortDir,sortBy);
+        if (transactions.getContent().isEmpty()) {
+            return ResponseEntity.status(204).body(new ApiResponse<>(204, null, "No data available"));
+        }
+        return ResponseEntity.ok(new ApiResponse<>(200, transactions, "Page returned: " + page));
+    }
+
+
+    //Get all transaction with pagination
     @GetMapping("/system")
-    public ResponseEntity<?> getTranscationForSystem() {
-        List<TransactionDTO> payments = transcationService.getAll();
-        if (payments.isEmpty()) {
-            System.out.println("No Transcation found.");
+    public ResponseEntity<?> getTransaction(
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "asc") String sortDir,
+            @RequestParam(defaultValue = "transactionDate") String sortBy
+    ) {
+        if (page < 0 || size <= 0) {
+            return ResponseEntity.status(400)
+                    .body(new ErrorResponse(400, null, List.of("Page and size must be positive values")));
         }
-        return ResponseEntity.ok(payments);
+        PaginatedResponseDTO<TransactionDTO> transactions = transcationService.getAll(
+                 page, size, sortDir, sortBy);
+        if (transactions.getContent().isEmpty()) {
+            return ResponseEntity.status(204).body(new ApiResponse<>(204, null, "No data available"));
+        }
+        return ResponseEntity.ok(new ApiResponse<>(200, transactions, "Page returned: " + page));
     }
 
-    //Get all transcations belong to Customer, via Bookings
-    //Input is customer id, then get all booking, then get all transcation in each bookings
-    //Might need to recreate customer response
-    @GetMapping("/customer/{id}")
-    public ResponseEntity<?> getTranscationForCustomer(@PathVariable String id) throws Exception {
-        List<TransactionDTO> transcations = transcationService.getAllForCustomer(id);
-        if (transcations.isEmpty()) {
-            System.out.println("No Transcation found.");
-        }
-        return ResponseEntity.ok(transcations);
-    }
 
 
-    //Not Yet Completed
-    //Tham vao la ID cua booking de lay Transaction va BookingDetail
+    //Get transaction Detail with transaction id
     @GetMapping("/detail/{id}")
     public ResponseEntity<?> getTransactionDetail(@PathVariable String id) {
         TransactionDetailResponse transactionDetail = transcationService.getTransactionDetail(id);
         if (transactionDetail == null) {
-            return ResponseEntity.badRequest().body("Failed to create detail response ");
+            return ResponseEntity.ok(new ErrorResponse(400, "Failed to get detail", null));
         }
-        return ResponseEntity.ok(transactionDetail);
+        return ResponseEntity.ok(new ApiResponse(200, transactionDetail, "Transaction detail returned"));
     }
 
 
@@ -104,21 +117,7 @@ public class TranscationController {
         return ResponseEntity.ok(response);
     }
 
-    /*@GetMapping("/callback")
-    public ResponseEntity<TransactionResponse> payCallbackHandler(HttpServletRequest request) {
-        String status = request.getParameter("vnp_ResponseCode");
-        if (status.equals("00")) {
-            return ResponseEntity.ok(TransactionResponse.builder()
-                    .code("00: Success")
-                    .message("Giao dich thanh cong")
-                    .build());
-        } else {
-            return ResponseEntity.badRequest().body(TransactionResponse.builder()
-                    .code("99: Fail")
-                    .message("Giao dich that bai")
-                    .build());
-        }
-    }*/
+
     @GetMapping("/callback")
     public ResponseEntity<?> payCallbackHandler(HttpServletRequest request, HttpServletResponse response) {
         try {
@@ -144,5 +143,19 @@ public class TranscationController {
         }
     }
 
+
+    /*
+    //Get all transcations belong to Customer, via Bookings
+    //Input is customer id, then get all booking, then get all transcation in each bookings
+    //Might need to recreate customer response
+    @GetMapping("/customer/{id}")
+    public ResponseEntity<?> getTranscationForCustomer(@PathVariable String id) throws Exception {
+        List<TransactionDTO> transcations = transcationService.getAllForCustomer(id);
+        if (transcations.isEmpty()) {
+            System.out.println("No Transcation found.");
+        }
+        return ResponseEntity.ok(transcations);
+    }
+    */
 }
 
