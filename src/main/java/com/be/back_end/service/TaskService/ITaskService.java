@@ -1,7 +1,9 @@
 package com.be.back_end.service.TaskService;
 
 import com.be.back_end.dto.request.TaskCreateRequest;
+import com.be.back_end.dto.request.TshirtSelectRequest;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
+import com.be.back_end.dto.response.TaskDetailResponseDTO;
 import com.be.back_end.dto.response.TaskListResponse;
 
 import java.time.LocalDate;
@@ -25,4 +27,7 @@ public interface ITaskService {
             int page,
             int size,
             String sortDir);
+
+    boolean assignTshirttoTask(TshirtSelectRequest tshirtSelectRequest);
+    TaskDetailResponseDTO getTaskDetailByTaskId(String taskId);
 }

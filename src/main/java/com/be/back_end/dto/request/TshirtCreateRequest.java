@@ -8,7 +8,6 @@ import java.util.List;
 
 @Data
 public class TshirtCreateRequest {
-    private String bookingDetailId;
     private String description;
     private String imgurl;
     private String tshirtname;

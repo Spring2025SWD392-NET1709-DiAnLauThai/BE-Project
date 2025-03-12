@@ -41,7 +41,7 @@ public class TshirtsService implements  ITshirtsService{
     }
     private TshirtsDTO mapToDTO(Tshirts tshirts) {
         TshirtsDTO dto = new TshirtsDTO();
-
+        dto.setTshirtId(tshirts.getId());
         dto.setDescription(tshirts.getDescription());
         dto.setName(tshirts.getName());
         dto.setCreatedAt(tshirts.getCreatedAt());
@@ -63,12 +63,7 @@ public class TshirtsService implements  ITshirtsService{
     }
    @Override
    public Tshirts saveTshirt(TshirtCreateRequest tshirtCreateRequest) {
-       Bookingdetails bookingdetails = bookingDetailsRepository
-               .findById(tshirtCreateRequest.getBookingDetailId())
-               .orElse(null);
-       if (bookingdetails == null) {
-           return null;
-       }
+
        Tshirts tshirt = new Tshirts();
        tshirt.setDescription(tshirtCreateRequest.getDescription());
        tshirt.setStatus(ActivationEnums.INACTIVE);
@@ -85,8 +80,7 @@ public class TshirtsService implements  ITshirtsService{
            tShirtColor.setColor(color);
            tshirtColorRepository.save(tShirtColor);
        }
-       bookingdetails.setTshirt(tshirt);
-       bookingDetailsRepository.save(bookingdetails);
+
        return savedTshirt;
    }
     @Transactional(readOnly = true)
