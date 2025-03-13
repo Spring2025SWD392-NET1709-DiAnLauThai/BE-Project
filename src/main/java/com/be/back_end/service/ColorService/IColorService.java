@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface IColorService {
     boolean addColor(ColorDTO colorDTO);
-    List<Color> getAllColors();
+    List<ColorDTO> getAllColors();
     Color getColorById(String id);
     Color updateColor(String id, ColorDTO colorDTO);
     boolean deleteColor(String id);

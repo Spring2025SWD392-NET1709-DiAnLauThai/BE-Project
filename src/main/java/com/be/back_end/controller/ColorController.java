@@ -29,7 +29,7 @@ public class ColorController {
 
     @GetMapping
     public ResponseEntity<?> getAllColors() {
-        List<Color>colors= colorService.getAllColors();
+        List<ColorDTO>colors= colorService.getAllColors();
         if(colors.isEmpty())
         {
             return ResponseEntity.status(204).body(new ApiResponse<>(204,null,"No color data"));

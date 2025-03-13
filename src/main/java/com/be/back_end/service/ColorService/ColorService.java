@@ -6,6 +6,7 @@ import com.be.back_end.model.Color;
 import com.be.back_end.repository.ColorRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -25,9 +26,18 @@ public class ColorService implements IColorService {
     }
 
     @Override
-    public List<Color> getAllColors() {
-
-        return colorRepository.findAll();
+    public List<ColorDTO> getAllColors() {
+        List<Color> colors= colorRepository.findAll();
+        List<ColorDTO> colorResponses= new ArrayList<>();
+        for(Color color:colors)
+        {
+            ColorDTO colorResponse= new ColorDTO();
+            colorResponse.setColorId(color.getId());
+            colorResponse.setColorName(color.getColorCode());
+            colorResponse.setColorCode(color.getColorName());
+            colorResponses.add(colorResponse);
+        }
+        return colorResponses;
 
     }
 
