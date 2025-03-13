@@ -21,7 +21,7 @@ public class Bookingdetails {
     private String id;
 
     @OneToMany(mappedBy = "bookingdetail", cascade = CascadeType.ALL)
-    private Set<ModificationRequest> modificationRequests;
+    private Set<ModificationForm> modificationForms;
 
     @ManyToOne
     @JoinColumn(name="tshirtid")

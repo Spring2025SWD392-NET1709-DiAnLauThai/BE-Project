@@ -10,11 +10,11 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name="Modificationrequest")
+@Table(name="Modificationform")
 @Getter
 @Setter
 @NoArgsConstructor
-public class ModificationRequest {
+public class ModificationForm {
     @Id
     @Column(name="modificationid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     private String id;
