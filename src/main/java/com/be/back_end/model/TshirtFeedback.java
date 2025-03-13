@@ -22,7 +22,7 @@ public class TshirtFeedback {
     private Tshirts tshirt;
 
     @ManyToOne
-    @JoinColumn(name = "feedbackid", nullable = false)
+    @JoinColumn(name = "feedbackid", nullable = false, unique = true)
     private Feedback feedback;
     @PrePersist
     protected void onCreate() {

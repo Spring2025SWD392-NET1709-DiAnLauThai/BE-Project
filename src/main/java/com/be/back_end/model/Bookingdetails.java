@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.util.Set;
 import java.util.UUID;
 
 @Entity
@@ -18,6 +19,9 @@ public class Bookingdetails {
     @Id
     @Column(name="bookingdetailsid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     private String id;
+
+    @OneToMany(mappedBy = "bookingdetail", cascade = CascadeType.ALL)
+    private Set<ModificationRequest> modificationRequests;
 
     @ManyToOne
     @JoinColumn(name="tshirtid")
