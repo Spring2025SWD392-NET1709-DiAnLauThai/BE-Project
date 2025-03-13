@@ -29,6 +29,9 @@ public class ModificationForm {
     @Column(name="modificationstatus")
     private RequestStatusEnum requeststatus = RequestStatusEnum.PENDING;
 
+    @Column(name="denialreason")
+    private String denialReason;
+
     @Column(name="requestedat", nullable = false, updatable = false)
     private LocalDateTime requestedat;
 

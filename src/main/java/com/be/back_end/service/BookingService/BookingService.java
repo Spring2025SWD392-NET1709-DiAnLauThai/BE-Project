@@ -6,6 +6,7 @@ import com.be.back_end.dto.response.BookingResponse;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.enums.BookingEnums;
 import com.be.back_end.enums.RoleEnums;
+import com.be.back_end.enums.TransactionStatusEnum;
 import com.be.back_end.model.Bookings;
 import com.be.back_end.repository.BookingDetailsRepository;
 import com.be.back_end.repository.BookingRepository;
@@ -13,6 +14,7 @@ import com.be.back_end.repository.TaskRepository;
 import com.be.back_end.service.BookingDetailService.IBookingdetailService;
 import com.be.back_end.service.CloudinaryService.ICloudinaryService;
 import com.be.back_end.service.DesignService.IDesignService;
+import com.be.back_end.service.TranscationService.ITranscationService;
 import com.be.back_end.service.TranscationService.IVNPayService;
 import com.be.back_end.utils.AccountUtils;
 import com.be.back_end.utils.VNPayUtils;
@@ -28,6 +30,7 @@ import java.math.BigDecimal;
 import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class BookingService implements IBookingService {
@@ -39,7 +42,8 @@ public class BookingService implements IBookingService {
     private final ICloudinaryService cloudinaryService;
     private final VNPayUtils  vnPayUtils;
     private final TaskRepository taskRepository;
-    public BookingService(BookingRepository bookingRepository, AccountUtils accountUtils, IDesignService designService, IBookingdetailService bookingdetailService, BookingDetailsRepository bookingDetailsRepository, ICloudinaryService cloudinaryService, IVNPayService ivnPayService, VNPayUtils vnPayUtils, TaskRepository taskRepository) {
+    private final ITranscationService transcationService;
+    public BookingService(BookingRepository bookingRepository, AccountUtils accountUtils, IDesignService designService, IBookingdetailService bookingdetailService, BookingDetailsRepository bookingDetailsRepository, ICloudinaryService cloudinaryService, IVNPayService ivnPayService, VNPayUtils vnPayUtils, TaskRepository taskRepository, ITranscationService transcationService) {
         this.bookingRepository = bookingRepository;
         this.accountUtils = accountUtils;
         this.designService = designService;
@@ -48,6 +52,7 @@ public class BookingService implements IBookingService {
         this.cloudinaryService = cloudinaryService;
         this.vnPayUtils = vnPayUtils;
         this.taskRepository = taskRepository;
+        this.transcationService = transcationService;
     }
 
     private String generateBookingCode(int length) {
@@ -96,6 +101,7 @@ public class BookingService implements IBookingService {
                     httpRequest,
                     booking.getCode()
             );
+
         } catch (UnsupportedEncodingException e) {
             paymentUrl = null;
         }

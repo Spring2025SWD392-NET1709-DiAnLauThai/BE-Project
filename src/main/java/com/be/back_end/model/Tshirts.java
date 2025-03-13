@@ -35,6 +35,9 @@ public class Tshirts {
     @Column(name="imageurl")
     private String image_url;
 
+    @Column(name="imagesfile")
+    private String imagesfile;
+
     @OneToMany(mappedBy = "tshirt", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TshirtDesign> tshirtDesigns;
 
