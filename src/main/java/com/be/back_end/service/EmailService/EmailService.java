@@ -66,6 +66,25 @@ public class EmailService implements IEmailService{
             throw new MessagingException("Error sending assignment email", e);
         }
     }
+    @Async
+    @Override
+    public void sendDesignerEmail(String to, String designerName) throws MessagingException {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+        Context context = new Context();
+        context.setVariable("designerName", designerName);
+        String htmlContent = templateEngine.process("task-assignment", context);
+        helper.setTo(to);
+        helper.setSubject("New Modification Request");
+        helper.setText(htmlContent, true);
+        try {
+            mailSender.send(message);
+            System.out.println("Designer announcement email sent successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new MessagingException("Error sending designer announcement email", e);
+        }
+    }
 
 
     @Override

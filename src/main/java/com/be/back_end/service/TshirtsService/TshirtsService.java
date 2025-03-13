@@ -69,6 +69,7 @@ public class TshirtsService implements  ITshirtsService{
        tshirt.setStatus(ActivationEnums.INACTIVE);
        tshirt.setName(tshirtCreateRequest.getTshirtname());
        tshirt.setImage_url(tshirtCreateRequest.getImgurl());
+       tshirt.setImagesfile(tshirtCreateRequest.getImagefile());
        Tshirts savedTshirt = tshirtsRepository.save(tshirt);
        List<Color> colors = colorRepository.findAllById(tshirtCreateRequest.getColorlist());
        if (colors.isEmpty()) {

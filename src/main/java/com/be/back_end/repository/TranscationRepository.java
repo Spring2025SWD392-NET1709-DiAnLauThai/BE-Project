@@ -11,6 +11,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface TranscationRepository extends JpaRepository<Transaction, String> {
@@ -27,4 +28,8 @@ public interface TranscationRepository extends JpaRepository<Transaction, String
             nativeQuery = true)
     Page<Transaction> findAllByAccountId(@Param("accountId") String accountId, Pageable pageable);
     Page<Transaction> findAll(Pageable pageable);
+
+
+    Optional<Transaction> findByBookings_Id(String bookingId);
+
 }

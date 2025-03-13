@@ -23,7 +23,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/bookings")
-@Tag(name = "Booking API", description = "Handles booking creation with file uploads")
 public class BookingController {
     private final IBookingService bookingService;
     private final IVNPayService ivnPayService;

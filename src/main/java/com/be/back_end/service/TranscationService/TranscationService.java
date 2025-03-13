@@ -8,9 +8,7 @@ import com.be.back_end.dto.response.BookingDetailResponseDTO;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.dto.response.TransactionDetailResponse;
 import com.be.back_end.dto.response.TransactionResponse;
-import com.be.back_end.enums.ActivationEnums;
-import com.be.back_end.enums.BookingEnums;
-import com.be.back_end.enums.RoleEnums;
+import com.be.back_end.enums.*;
 import com.be.back_end.model.*;
 
 
@@ -226,7 +224,7 @@ public class TranscationService implements ITranscationService, IVNPayService {
         String reason = request.getParameter("vnp_OrderInfo");
         String transactionMethod = request.getParameter("vnp_CardType");
 
-        String transactionStatus = responseCode.equals("00") ? "SUCCESS" : "FAILED";
+        String transactionStatus = responseCode.equals("00") ? TransactionStatusEnum.DEPOSITED.toString() :TransactionStatusEnum.UNPAID.toString();
         createTransaction(bookingcode, amount, bankCode, transactionStatus, reason, transactionMethod);
 
         if ("SUCCESS".equals(transactionStatus)) {
@@ -255,7 +253,7 @@ public class TranscationService implements ITranscationService, IVNPayService {
         transaction.setTransactionStatus(transactionStatus);
         transaction.setBankCode(bankCode);
         transaction.setReason(reason);
-        transaction.setTransactionType("DEPOSITED");
+        transaction.setTransactionType(TransactionTypeEnum.PAYMENT.toString());
         transaction.setTransactionDate(LocalDateTime.now());
         transcationRepository.save(transaction);
     }
