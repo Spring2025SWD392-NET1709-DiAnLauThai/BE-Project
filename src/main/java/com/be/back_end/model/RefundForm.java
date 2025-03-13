@@ -12,12 +12,12 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name="Refundrequests")
+@Table(name="Refundform")
 @Getter
 @Setter
 @NoArgsConstructor
 @Data
-public class RefundRequest {
+public class RefundForm {
     @Id
     @Column(name="refundid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     private String id;
