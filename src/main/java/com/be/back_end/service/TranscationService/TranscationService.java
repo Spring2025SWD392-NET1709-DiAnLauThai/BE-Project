@@ -221,7 +221,7 @@ public class TranscationService implements ITranscationService, IVNPayService {
         String bookingcode = request.getParameter("vnp_TxnRef");
         String bankCode = request.getParameter("vnp_BankCode");
         String amount = request.getParameter("vnp_Amount");
-        String reason = request.getParameter("vnp_OrderInfo");
+        String reason=null;
         String transactionMethod = request.getParameter("vnp_CardType");
 
         String vnpayStatus = responseCode.equals("00") ? "SUCCESS" :"FAILED";

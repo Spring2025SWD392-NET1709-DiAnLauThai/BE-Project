@@ -18,5 +18,6 @@ public interface ITranscationService {
     PaginatedResponseDTO<TransactionDTO> getAllByCustomer(int page, int size, String sortDir, String sortBy);
     TransactionDetailResponse getTransactionDetail(String id);
 
+
 }
 

@@ -33,8 +33,8 @@ public class ColorService implements IColorService {
         {
             ColorDTO colorResponse= new ColorDTO();
             colorResponse.setColorId(color.getId());
-            colorResponse.setColorName(color.getColorCode());
-            colorResponse.setColorCode(color.getColorName());
+            colorResponse.setColorName(color.getColorName());
+            colorResponse.setColorCode(color.getColorCode());
             colorResponses.add(colorResponse);
         }
         return colorResponses;
