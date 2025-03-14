@@ -67,7 +67,7 @@ public class TshirtsController {
         }
     }
 
-    @RequestMapping(
+   /* @RequestMapping(
             path = "/upload/zip",
             method = RequestMethod.POST,
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
@@ -88,7 +88,7 @@ public class TshirtsController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse(500, "Server error", List.of("Unexpected error occurred.")));
         }
-    }
+    }*/
 
     @GetMapping
     public ResponseEntity<?> getAllTshirt(@RequestParam(required = false) String keyword,

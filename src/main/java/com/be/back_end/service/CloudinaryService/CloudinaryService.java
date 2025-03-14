@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
+import java.util.Objects;
 
 @Service
 public class CloudinaryService implements ICloudinaryService{
@@ -29,24 +30,36 @@ public class CloudinaryService implements ICloudinaryService{
         }
     }
 
-    @Override
+    /*@Override
     public String uploadZipFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("Invalid file: File is empty or null.");
+        }
+
         try {
-            Map uploadResult = cloudinary.uploader().upload(
-                    file.getBytes(),
+            Map<String, Object> uploadResult = cloudinary.uploader().upload(
+                    file.getInputStream(),
                     ObjectUtils.asMap(
-                            "upload_preset", "unsigned_zip_upload",
-                            "resource_type", "raw"
+                            "resource_type", "raw",
+                            "type", "authenticated"
                     )
             );
-            String originalUrl = uploadResult.get("secure_url").toString();
-            return originalUrl + ".zip";
+
+            String publicId = Objects.toString(uploadResult.get("public_id"), "");
+
+            return cloudinary.signUrl(
+                    publicId,
+                    ObjectUtils.asMap(
+                            "resource_type", "raw",
+                            "type", "authenticated",
+                            "expire_at", System.currentTimeMillis() / 1000 + 3600 // 1-hour expiry
+                    )
+            );
+
         } catch (IOException e) {
             throw new RuntimeException("File upload failed due to I/O error: " + e.getMessage(), e);
-        } catch (Exception e) {
-            throw new RuntimeException("Unexpected error during file upload: " + e.getMessage(), e);
         }
-    }
+    }*/
 
 
 
