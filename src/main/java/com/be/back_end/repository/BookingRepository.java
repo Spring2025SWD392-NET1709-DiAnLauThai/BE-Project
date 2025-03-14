@@ -30,7 +30,7 @@ public interface BookingRepository extends JpaRepository<Bookings, String> {
     Optional<Bookings> findByCode(String code);
 
     List<Bookings> findAllByAccount(Account account);
-    Bookings findByTransactions(Transaction transaction);
+    Bookings findByTransaction(Transaction transaction);
     Page<Bookings> findAll(Pageable pageable);
     Page<Bookings> findAllByAccount(Account account,Pageable pageable);
 

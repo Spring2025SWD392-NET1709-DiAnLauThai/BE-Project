@@ -37,8 +37,8 @@ public class Bookings {
 
     @OneToMany(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<Bookingdetails> bookingDetails;
-    @OneToMany(mappedBy = "bookings",cascade = CascadeType.ALL)
-    private Set<Transaction> transactions;
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Transaction transaction;
 
     @Enumerated(EnumType.STRING)
     private BookingEnums status;
@@ -55,6 +55,7 @@ public class Bookings {
     @Column(name="enddate")
     private LocalDateTime enddate;
 
+    private String note;
 
 
     @Column(name = "code")

@@ -30,6 +30,6 @@ public interface TranscationRepository extends JpaRepository<Transaction, String
     Page<Transaction> findAll(Pageable pageable);
 
 
-    Optional<Transaction> findByBookings_Id(String bookingId);
+    Optional<Transaction> findByBooking_Id(String bookingId);
 
 }
