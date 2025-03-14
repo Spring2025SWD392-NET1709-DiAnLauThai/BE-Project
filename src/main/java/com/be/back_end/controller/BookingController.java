@@ -1,6 +1,7 @@
 package com.be.back_end.controller;
 
 import com.be.back_end.dto.request.BookingCreateRequest;
+import com.be.back_end.dto.request.CancelBookingRequest;
 import com.be.back_end.dto.response.*;
 import com.be.back_end.service.BookingService.IBookingService;
 import com.be.back_end.service.TranscationService.ITranscationService;
@@ -43,6 +44,40 @@ public class BookingController {
             );
         }
     }
+    @PutMapping("/{bookingId}/cancel")
+    public ResponseEntity<?> cancelBooking(@RequestBody CancelBookingRequest cancelBookingRequest) {
+        try {
+            boolean isCancelled = bookingService.cancelBooking(cancelBookingRequest);
+            if (isCancelled) {
+                return ResponseEntity.ok(new ApiResponse<>(200, true, "Booking cancelled successfully"));
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(new ErrorResponse(500, "Booking cancellation failed", List.of("Unexpected error during cancellation.")));
+            }
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(404, "Booking not found", List.of(e.getMessage())));
+        }
+    }
+    @PutMapping("/{bookingId}/payment")
+    public ResponseEntity<?> payRemainDeposit(@PathVariable String bookingId, HttpServletRequest request) {
+        try {
+            String paymentUrl = bookingService.generateFullyPaidUrl(bookingId, request);
+            if (paymentUrl == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(new ErrorResponse(500, "Failed to generate payment URL", List.of("VNPay URL generation returned null.")));
+            }
+
+            return ResponseEntity.ok(new ApiResponse<>(200, paymentUrl, "Payment URL generated successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(404, "Booking not found", List.of(e.getMessage())));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(500, "An unexpected error occurred", List.of(e.getMessage())));
+        }
+    }
+
     @GetMapping
     public ResponseEntity<?> getAllBookings(
             @RequestParam(defaultValue = "1") int page,

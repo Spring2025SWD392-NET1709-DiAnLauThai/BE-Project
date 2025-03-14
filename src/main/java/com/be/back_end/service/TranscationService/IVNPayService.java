@@ -8,5 +8,6 @@ public interface IVNPayService {
 
 
 
-     String processPaymentCallback(HttpServletRequest request);
+     String processDepositCallback(HttpServletRequest request);
+    String processPaymentCallback(HttpServletRequest request);
 }

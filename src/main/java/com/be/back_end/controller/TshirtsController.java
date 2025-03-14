@@ -44,9 +44,8 @@ public class TshirtsController {
         return ResponseEntity.ok(new ApiResponse<>(200, null, "Uploaded successfully"));
     }
 
-    @RequestMapping(
-            path = "/upload/image",
-            method = RequestMethod.POST,
+    @PostMapping(
+            value = "/upload/image",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
@@ -67,28 +66,29 @@ public class TshirtsController {
         }
     }
 
-   /* @RequestMapping(
-            path = "/upload/zip",
-            method = RequestMethod.POST,
+    @PostMapping(
+            value = "/upload/zip",
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> uploadZip(@RequestParam("file") MultipartFile file) {
         if (file.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(new ErrorResponse(400, "File is empty", List.of("Please upload a valid ZIP file.")));
+                    .body(new ErrorResponse(400, "File is empty", List.of("Please upload a valid file.")));
         }
 
         try {
-            String zipUrl = cloudinaryService.uploadZipFile(file);
-            if (zipUrl == null) {
+            String imageUrl = cloudinaryService.uploadZipFile(file);
+            if (imageUrl == null) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                        .body(new ErrorResponse(500, "Upload failed", List.of("Failed to upload ZIP file to Cloudinary")));
+                        .body(new ErrorResponse(500, "Upload failed", List.of("Failed to upload file to Cloudinary")));
             }
-            return ResponseEntity.ok(new ApiResponse<>(200, zipUrl, "ZIP uploaded successfully"));
-        } catch (Exception e) {
+            return ResponseEntity.ok(new ApiResponse<>(200, imageUrl, "Uploaded successfully"));
+        }  catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse(500, "Server error", List.of("Unexpected error occurred.")));
         }
-    }*/
+    }
+
+
 
     @GetMapping
     public ResponseEntity<?> getAllTshirt(@RequestParam(required = false) String keyword,

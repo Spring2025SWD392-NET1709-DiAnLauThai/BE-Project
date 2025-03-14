@@ -26,7 +26,8 @@ public class Bookings {
 
     @Column(name="totalprice")
     private BigDecimal total_price;
-
+    @Column(name="depositamount")
+    private BigDecimal depositAmount;
     @Column(name="totalquantity")
     private int total_quantity;
 

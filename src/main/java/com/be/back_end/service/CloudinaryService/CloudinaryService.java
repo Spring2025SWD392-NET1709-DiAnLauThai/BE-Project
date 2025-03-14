@@ -1,5 +1,6 @@
 package com.be.back_end.service.CloudinaryService;
 
+import com.cloudinary.ArchiveParams;
 import com.cloudinary.Cloudinary;
 import com.cloudinary.utils.ObjectUtils;
 import org.springframework.stereotype.Service;
@@ -8,8 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
-import java.util.Map;
-import java.util.Objects;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Service
 public class CloudinaryService implements ICloudinaryService{
@@ -30,43 +31,23 @@ public class CloudinaryService implements ICloudinaryService{
         }
     }
 
-    /*@Override
-    public String uploadZipFile(MultipartFile file) {
-        if (file == null || file.isEmpty()) {
-            throw new IllegalArgumentException("Invalid file: File is empty or null.");
-        }
 
+    @Override
+    public String uploadZipFile(MultipartFile file) {
         try {
             Map<String, Object> uploadResult = cloudinary.uploader().upload(
-                    file.getInputStream(),
+                    file.getBytes(),
                     ObjectUtils.asMap(
-                            "resource_type", "raw",
-                            "type", "authenticated"
+                            "folder", "zip_folder",   // Store in "zip_folder"
+                            "resource_type", "raw",   // Ensure ZIP file compatibility
+                            "format", "zip"           // Force ZIP extension in URL
                     )
             );
-
-            String publicId = Objects.toString(uploadResult.get("public_id"), "");
-
-            return cloudinary.signUrl(
-                    publicId,
-                    ObjectUtils.asMap(
-                            "resource_type", "raw",
-                            "type", "authenticated",
-                            "expire_at", System.currentTimeMillis() / 1000 + 3600 // 1-hour expiry
-                    )
-            );
-
+            return uploadResult.get("url").toString();
         } catch (IOException e) {
-            throw new RuntimeException("File upload failed due to I/O error: " + e.getMessage(), e);
+            throw new RuntimeException("Failed to upload ZIP file to Cloudinary", e);
         }
-    }*/
-
-
-
-
-
-
-
+    }
 
 
 
