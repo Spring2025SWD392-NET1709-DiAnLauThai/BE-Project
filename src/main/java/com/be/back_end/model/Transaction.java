@@ -19,9 +19,9 @@ public class Transaction {
     @Id
     @Column(name="transactionid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     private String id;
-    @ManyToOne
-    @JoinColumn(name = "bookingid", nullable = false)
-    private Bookings bookings;
+    @OneToOne
+    @JoinColumn(name = "bookingid", nullable = false, unique = true)
+    private Bookings booking;
 
     @Column(name="transactionname", nullable = false)
     private String transactionName;
@@ -41,11 +41,6 @@ public class Transaction {
     @Column(name="bankcode")
     private String bankCode;
 
-    @Column(name="reason")
-    private String reason;
-
-    @Column(name="transactiontype", nullable = false)
-    private String transactionType;
 
     @PrePersist
     protected void onCreate() {

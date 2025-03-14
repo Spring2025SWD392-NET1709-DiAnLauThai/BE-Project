@@ -158,7 +158,7 @@ public class TranscationService implements ITranscationService, IVNPayService {
             return null;
         }
 
-        Bookings booking= bookingRepository.findByTransactions(transaction);
+        Bookings booking= bookingRepository.findByTransaction(transaction);
 
         if(booking==null){
             System.out.println("Booking not found");
@@ -221,23 +221,22 @@ public class TranscationService implements ITranscationService, IVNPayService {
         String bookingcode = request.getParameter("vnp_TxnRef");
         String bankCode = request.getParameter("vnp_BankCode");
         String amount = request.getParameter("vnp_Amount");
-        String reason=null;
         String transactionMethod = request.getParameter("vnp_CardType");
 
         String vnpayStatus = responseCode.equals("00") ? "SUCCESS" :"FAILED";
-        TransactionStatusEnum transactionStatus=responseCode.equals("00") ? TransactionStatusEnum.DEPOSITED:TransactionStatusEnum.UNPAID;
+
         if ("SUCCESS".equals(vnpayStatus)) {
             updateBookingStatus(bookingcode);
-
+            createTransaction(bookingcode, amount, bankCode, TransactionStatusEnum.DEPOSITED.toString(), transactionMethod);
         }
-        createTransaction(bookingcode, amount, bankCode, transactionStatus.toString(), reason, transactionMethod);
+
 
         return vnpayStatus;
     }
 
 
     private Transaction createTransaction(String bookingCode, String amount, String bankCode,
-                                   String transactionStatus, String reason, String transactionMethod) {
+                                   String transactionStatus, String transactionMethod) {
         Bookings booking = bookingRepository.findByCode(bookingCode)
                 .orElseThrow(() -> new RuntimeException("Booking not found with code: " + bookingCode));
         BigDecimal transactionAmount;
@@ -247,14 +246,12 @@ public class TranscationService implements ITranscationService, IVNPayService {
             throw new RuntimeException("Invalid amount format: " + amount);
         }
         Transaction transaction = new Transaction();
-        transaction.setBookings(booking);
+        transaction.setBooking(booking);
         transaction.setTransactionName("VNPay Payment");
         transaction.setTransactionMethod(transactionMethod);
         transaction.setTransactionAmount(transactionAmount);
         transaction.setTransactionStatus(transactionStatus);
         transaction.setBankCode(bankCode);
-        transaction.setReason(reason);
-        transaction.setTransactionType(TransactionTypeEnum.PAYMENT.toString());
         transaction.setTransactionDate(LocalDateTime.now());
         transcationRepository.save(transaction);
         return transaction;
@@ -271,14 +268,12 @@ public class TranscationService implements ITranscationService, IVNPayService {
     public TransactionDTO mapToDTO(Transaction Transaction) {
         TransactionDTO dto = new TransactionDTO();
         dto.setId(Transaction.getId());
-        dto.setBookingId(Transaction.getBookings().getId());
+        dto.setBookingId(Transaction.getBooking().getId());
         dto.setTransactionName(Transaction.getTransactionName());
         dto.setTransactionMethod(Transaction.getTransactionMethod());
         dto.setTransactionDate(Transaction.getTransactionDate());
         dto.setTransactionStatus(Transaction.getTransactionStatus());
         dto.setTransactionAmount(Transaction.getTransactionAmount());
-        dto.setTransactionType(Transaction.getTransactionType());
-        dto.setReason(Transaction.getReason());
         dto.setBankCode(Transaction.getBankCode());
         return dto;
     }
@@ -288,14 +283,12 @@ public class TranscationService implements ITranscationService, IVNPayService {
         Transaction transaction = new Transaction();
         Bookings bookings= bookingRepository.findById(dto.getBookingId()).orElse(null);
         transaction.setId(dto.getId());
-        transaction.setBookings(bookings);
+        transaction.setBooking(bookings);
         transaction.setTransactionName(dto.getTransactionName());
         transaction.setTransactionMethod(dto.getTransactionMethod());
         transaction.setTransactionDate(dto.getTransactionDate());
         transaction.setTransactionStatus(dto.getTransactionStatus());
         transaction.setTransactionAmount(dto.getTransactionAmount());
-        transaction.setTransactionType(dto.getTransactionType());
-        transaction.setReason(dto.getReason());
         transaction.setBankCode(dto.getBankCode());
         return transaction;
     }
