@@ -118,10 +118,36 @@ public class TranscationController {
     }
 
 
-    @GetMapping("/callback")
-    public ResponseEntity<?> payCallbackHandler(HttpServletRequest request, HttpServletResponse response) {
+    @GetMapping("/callback/fully_paid")
+    public ResponseEntity<?> payCallbackHandlerPayment(HttpServletRequest request, HttpServletResponse response) {
         try {
             String transactionStatus = vnpayService.processPaymentCallback(request);
+            String redirectUrl = "http://localhost:3000/success-booking";
+            String redirectWithParams = redirectUrl + "?status=" + transactionStatus +
+                    "&message=" + (transactionStatus.equals("SUCCESS")
+                    ? "Payment successful"
+                    : "Payment failed");
+            response.sendRedirect(redirectWithParams);
+            return ResponseEntity.ok(
+                    new ApiResponse<>(200, transactionStatus,
+                            transactionStatus.equals("SUCCESS") ? "Payment successful" : "Payment failed")
+            );
+        } catch (Exception e) {
+            try {
+                response.sendRedirect("http://localhost:3000/success-booking?status=FAILED&message=Transaction%20processing%20failed");
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(500, "Transaction failed", List.of(e.getMessage())));
+        }
+    }
+
+
+    @GetMapping("/callback/deposited")
+    public ResponseEntity<?> payCallbackHandlerDeposit(HttpServletRequest request, HttpServletResponse response) {
+        try {
+            String transactionStatus = vnpayService.processDepositCallback(request);
             String redirectUrl = "http://localhost:3000/success-booking";
             String redirectWithParams = redirectUrl + "?status=" + transactionStatus +
                     "&message=" + (transactionStatus.equals("SUCCESS")

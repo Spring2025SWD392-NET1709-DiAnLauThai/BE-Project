@@ -199,7 +199,7 @@ public class TaskService implements ITaskService{
                 .existsByBookingIdAndTshirtIsNull(booking.getId());
         if (!hasIncompleteDetails) {
             task.setTaskStatus(TaskStatusEnum.READY_FOR_CUSTOMER.toString());
-            booking.setStatus(BookingEnums.COMPLETE);
+            booking.setStatus(BookingEnums.COMPLETED);
             taskRepository.save(task);
             bookingRepository.save(booking);
         }
@@ -228,6 +228,7 @@ public class TaskService implements ITaskService{
     }
     private TaskDetailResponseDTO buildTaskDetailResponseDTO(Task task, Bookings booking, List<Bookingdetails> bookingDetails) {
         TaskDetailResponseDTO taskDetailResponseDTO = new TaskDetailResponseDTO();
+
         taskDetailResponseDTO.setDesignerName(task.getAccount().getName());
         taskDetailResponseDTO.setCode(booking.getCode());
         taskDetailResponseDTO.setTitle(booking.getTitle());

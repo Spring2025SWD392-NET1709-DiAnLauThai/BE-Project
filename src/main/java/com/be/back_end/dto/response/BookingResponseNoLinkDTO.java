@@ -15,7 +15,7 @@ public class BookingResponseNoLinkDTO {
     private int totalQuantity;
     private BookingEnums bookingStatus;
     private LocalDateTime datecreated;
-
+    private BigDecimal depositAmount;
     private LocalDateTime updateddate;
     private LocalDateTime startdate;
     private LocalDateTime enddate;

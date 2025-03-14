@@ -48,14 +48,9 @@ public class BookingdetailService implements IBookingdetailService {
         }
 
         for (BookingCreateRequest.BookingDetailCreateRequest detailRequest : request.getBookingdetails()) {
-            // Create and save a new design
             Designs design = designService.createAndSaveDesign(detailRequest);
-
-            // Create booking detail
             Bookingdetails detail = createBookingDetail(detailRequest, booking, design);
             bookingDetailsRepository.save(detail);
-
-            // Now it's safe to add
             booking.getBookingDetails().add(detail);
 
             bookingDetailResponses.add(new BookingCreateResponse.BookingDetailResponse(
@@ -95,6 +90,7 @@ public class BookingdetailService implements IBookingdetailService {
        List<Bookingdetails> bookingdetails= bookingDetailsRepository.findByBookingId(bookingId);
        List<BookingResponseNoLinkDTO.BookingDetailResponse> detailResponses= new ArrayList<>();
        BookingResponseNoLinkDTO bookingResponseNoLinkDTO= new BookingResponseNoLinkDTO();
+       bookingResponseNoLinkDTO.setDepositAmount(booking.getDepositAmount());
        bookingResponseNoLinkDTO.setCode(booking.getCode());
        bookingResponseNoLinkDTO.setTitle(booking.getTitle());
        bookingResponseNoLinkDTO.setBookingStatus(booking.getStatus());

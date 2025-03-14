@@ -1,6 +1,7 @@
 package com.be.back_end.service.BookingService;
 
 import com.be.back_end.dto.request.BookingCreateRequest;
+import com.be.back_end.dto.request.CancelBookingRequest;
 import com.be.back_end.dto.response.BookingCreateResponse;
 import com.be.back_end.dto.response.BookingResponse;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
@@ -8,9 +9,11 @@ import com.be.back_end.enums.BookingEnums;
 import com.be.back_end.enums.RoleEnums;
 import com.be.back_end.enums.TransactionStatusEnum;
 import com.be.back_end.model.Bookings;
+import com.be.back_end.model.Transaction;
 import com.be.back_end.repository.BookingDetailsRepository;
 import com.be.back_end.repository.BookingRepository;
 import com.be.back_end.repository.TaskRepository;
+import com.be.back_end.repository.TranscationRepository;
 import com.be.back_end.service.BookingDetailService.IBookingdetailService;
 import com.be.back_end.service.CloudinaryService.ICloudinaryService;
 import com.be.back_end.service.DesignService.IDesignService;
@@ -43,7 +46,8 @@ public class BookingService implements IBookingService {
     private final VNPayUtils  vnPayUtils;
     private final TaskRepository taskRepository;
     private final ITranscationService transcationService;
-    public BookingService(BookingRepository bookingRepository, AccountUtils accountUtils, IDesignService designService, IBookingdetailService bookingdetailService, BookingDetailsRepository bookingDetailsRepository, ICloudinaryService cloudinaryService, IVNPayService ivnPayService, VNPayUtils vnPayUtils, TaskRepository taskRepository, ITranscationService transcationService) {
+    private final TranscationRepository transcationRepository;
+    public BookingService(BookingRepository bookingRepository, AccountUtils accountUtils, IDesignService designService, IBookingdetailService bookingdetailService, BookingDetailsRepository bookingDetailsRepository, ICloudinaryService cloudinaryService, IVNPayService ivnPayService, VNPayUtils vnPayUtils, TaskRepository taskRepository, ITranscationService transcationService, TranscationRepository transcationRepository) {
         this.bookingRepository = bookingRepository;
         this.accountUtils = accountUtils;
         this.designService = designService;
@@ -53,6 +57,7 @@ public class BookingService implements IBookingService {
         this.vnPayUtils = vnPayUtils;
         this.taskRepository = taskRepository;
         this.transcationService = transcationService;
+        this.transcationRepository = transcationRepository;
     }
 
     private String generateBookingCode(int length) {
@@ -78,6 +83,50 @@ public class BookingService implements IBookingService {
 
 
 
+    @Override
+    public String generateFullyPaidUrl(String bookingId, HttpServletRequest request) {
+        Bookings booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found with ID: " + bookingId));
+
+        BigDecimal remainingBalance = booking.getTotal_price().subtract(booking.getDepositAmount());
+        String paymentUrl;
+        try {
+            paymentUrl = vnPayUtils.generatePaymentUrlWithBookingId(
+                    remainingBalance.toString(),
+                    booking.getTitle(),
+                    TransactionStatusEnum.FULLY_PAID.toString(),
+                    request,
+                    booking.getCode(),
+                    TransactionStatusEnum.FULLY_PAID
+            );
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Error generating VNPay URL", e);
+        }
+        return paymentUrl;
+    }
+
+    @Override
+    public boolean cancelBooking(CancelBookingRequest cancelBookingRequest) {
+        Bookings bookings = bookingRepository.findById(cancelBookingRequest.getBookingId()).orElse(null);
+        if (bookings == null) {
+            return false;
+        }
+
+        bookings.setStatus(BookingEnums.CANCELLED);
+        bookings.setNote(cancelBookingRequest.getNote());
+
+        Transaction transaction = transcationRepository.findByBooking_Id(cancelBookingRequest.getBookingId()).orElse(null);
+        if (transaction == null) {
+            return false;
+        }
+        transaction.setTransactionStatus(TransactionStatusEnum.REFUND.toString());
+        bookingRepository.save(bookings);
+        transcationRepository.save(transaction);
+
+        return true;
+    }
+
+
 
     @Override
     public BookingCreateResponse createBooking(BookingCreateRequest request, HttpServletRequest httpRequest) {
@@ -87,19 +136,24 @@ public class BookingService implements IBookingService {
         if (request.getBookingdetails() != null) {
             bookingDetails = bookingdetailService.processBookingDetails(request, booking);
         }
+
         BigDecimal totalPrice = bookingRepository.getTotalPriceByBookingId(booking.getId());
         Integer totalQuantity = bookingRepository.getTotalQuantityByBookingId(booking.getId());
+        BigDecimal depositAmount = (totalPrice != null ? totalPrice : BigDecimal.ZERO)
+                .multiply(BigDecimal.valueOf(0.5));
         booking.setTotal_price(totalPrice != null ? totalPrice : BigDecimal.ZERO);
+        booking.setDepositAmount(depositAmount);
         booking.setTotal_quantity(totalQuantity != null ? totalQuantity : 0);
         bookingRepository.save(booking);
         String paymentUrl;
         try {
             paymentUrl = vnPayUtils.generatePaymentUrlWithBookingId(
-                    totalPrice.toString(),
+                    depositAmount.toString(),
                     booking.getTitle(),
                     booking.getStatus().toString(),
                     httpRequest,
-                    booking.getCode()
+                    booking.getCode(),
+                    TransactionStatusEnum.DEPOSITED
             );
 
         } catch (UnsupportedEncodingException e) {
@@ -119,6 +173,8 @@ public class BookingService implements IBookingService {
                 paymentUrl
         );
     }
+
+
 
 
 
@@ -171,6 +227,7 @@ public class BookingService implements IBookingService {
             response.setUpdateDate(booking.getUpdateddate());
             response.setCreatedDate(booking.getDatecreated());
             response.setTotalQuantity(booking.getTotal_quantity());
+            response.setDepositAmount(booking.getDepositAmount());
             response.setTotalPrice(booking.getTotal_price());
             response.setCode(booking.getCode());
             response.setAssignedDesigner(designerName);

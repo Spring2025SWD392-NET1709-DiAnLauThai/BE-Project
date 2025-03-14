@@ -214,11 +214,11 @@ public class TranscationService implements ITranscationService, IVNPayService {
         }
 
     }
+    @Override
+    public String processDepositCallback(HttpServletRequest request) {
 
-
-    public String processPaymentCallback(HttpServletRequest request) {
         String responseCode = request.getParameter("vnp_ResponseCode");
-        String bookingcode = request.getParameter("vnp_TxnRef");
+        String bookingcode = vnPayUtils.decodeBookingCode(request.getParameter("vnp_TxnRef"));
         String bankCode = request.getParameter("vnp_BankCode");
         String amount = request.getParameter("vnp_Amount");
         String transactionMethod = request.getParameter("vnp_CardType");
@@ -235,13 +235,36 @@ public class TranscationService implements ITranscationService, IVNPayService {
     }
 
 
+
+    @Override
+    public String processPaymentCallback(HttpServletRequest request) {
+
+        String responseCode = request.getParameter("vnp_ResponseCode");
+        String bookingCode = vnPayUtils.decodeBookingCode(request.getParameter("vnp_TxnRef"));
+
+
+        String vnpayStatus = responseCode.equals("00") ? "SUCCESS" :"FAILED";
+
+        if ("SUCCESS".equals(vnpayStatus)) {
+            Bookings booking = bookingRepository.findByCode(bookingCode)
+                    .orElseThrow(() -> new RuntimeException("Booking not found with code: " + bookingCode));
+            Transaction transaction=transcationRepository.findByBooking_Id(booking.getId())
+                    .orElseThrow(() -> new RuntimeException("Transaction not found"));
+            transaction.setTransactionStatus(TransactionStatusEnum.FULLY_PAID.toString());
+            transcationRepository.save(transaction);
+
+        }
+         return vnpayStatus;
+    }
+
+
     private Transaction createTransaction(String bookingCode, String amount, String bankCode,
                                    String transactionStatus, String transactionMethod) {
         Bookings booking = bookingRepository.findByCode(bookingCode)
                 .orElseThrow(() -> new RuntimeException("Booking not found with code: " + bookingCode));
         BigDecimal transactionAmount;
         try {
-            transactionAmount = new BigDecimal(amount).divide(BigDecimal.valueOf(100));
+            transactionAmount = booking.getDepositAmount();
         } catch (NumberFormatException e) {
             throw new RuntimeException("Invalid amount format: " + amount);
         }
@@ -260,7 +283,7 @@ public class TranscationService implements ITranscationService, IVNPayService {
     private void updateBookingStatus(String bookingCode) {
         Bookings booking = bookingRepository.findByCode(bookingCode)
                 .orElseThrow(() -> new RuntimeException("Booking not found with code: " + bookingCode));
-        booking.setStatus(BookingEnums.DEPOSIT_PAID);
+        booking.setStatus(BookingEnums.DEPOSITED);
         bookingRepository.save(booking);
     }
 

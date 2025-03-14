@@ -6,5 +6,5 @@ import java.io.IOException;
 
 public interface ICloudinaryService {
      String uploadFile(MultipartFile file);
-    /*String uploadZipFile(MultipartFile file);*/
+     String uploadZipFile(MultipartFile file);
 }

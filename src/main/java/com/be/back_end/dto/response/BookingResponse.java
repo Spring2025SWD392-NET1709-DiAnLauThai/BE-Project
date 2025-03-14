@@ -24,7 +24,7 @@ public class BookingResponse {
     private LocalDateTime createdDate;
     private String code;
     private String title;
-
+    private BigDecimal depositAmount;
     private String assignedDesigner;
 
 
