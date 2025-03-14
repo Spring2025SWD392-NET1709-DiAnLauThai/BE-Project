@@ -224,18 +224,19 @@ public class TranscationService implements ITranscationService, IVNPayService {
         String reason = request.getParameter("vnp_OrderInfo");
         String transactionMethod = request.getParameter("vnp_CardType");
 
-        String transactionStatus = responseCode.equals("00") ? TransactionStatusEnum.DEPOSITED.toString() :TransactionStatusEnum.UNPAID.toString();
-        createTransaction(bookingcode, amount, bankCode, transactionStatus, reason, transactionMethod);
-
-        if ("SUCCESS".equals(transactionStatus)) {
+        String vnpayStatus = responseCode.equals("00") ? "SUCCESS" :"FAILED";
+        TransactionStatusEnum transactionStatus=responseCode.equals("00") ? TransactionStatusEnum.DEPOSITED:TransactionStatusEnum.UNPAID;
+        if ("SUCCESS".equals(vnpayStatus)) {
             updateBookingStatus(bookingcode);
-        }
 
-        return transactionStatus;
+        }
+        createTransaction(bookingcode, amount, bankCode, transactionStatus.toString(), reason, transactionMethod);
+
+        return vnpayStatus;
     }
 
 
-    private void createTransaction(String bookingCode, String amount, String bankCode,
+    private Transaction createTransaction(String bookingCode, String amount, String bankCode,
                                    String transactionStatus, String reason, String transactionMethod) {
         Bookings booking = bookingRepository.findByCode(bookingCode)
                 .orElseThrow(() -> new RuntimeException("Booking not found with code: " + bookingCode));
@@ -256,6 +257,7 @@ public class TranscationService implements ITranscationService, IVNPayService {
         transaction.setTransactionType(TransactionTypeEnum.PAYMENT.toString());
         transaction.setTransactionDate(LocalDateTime.now());
         transcationRepository.save(transaction);
+        return transaction;
     }
 
     private void updateBookingStatus(String bookingCode) {

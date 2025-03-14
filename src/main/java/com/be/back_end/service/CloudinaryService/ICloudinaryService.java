@@ -2,6 +2,9 @@ package com.be.back_end.service.CloudinaryService;
 
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+
 public interface ICloudinaryService {
-    public String uploadFile(MultipartFile file);
+     String uploadFile(MultipartFile file);
+    String uploadZipFile(MultipartFile file) throws IOException;
 }

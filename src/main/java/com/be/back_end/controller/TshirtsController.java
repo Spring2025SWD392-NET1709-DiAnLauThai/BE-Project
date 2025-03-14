@@ -9,11 +9,13 @@ import com.be.back_end.model.Tshirts;
 import com.be.back_end.service.CloudinaryService.ICloudinaryService;
 import com.be.back_end.service.TshirtsService.ITshirtsService;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -41,20 +43,51 @@ public class TshirtsController {
         }
         return ResponseEntity.ok(new ApiResponse<>(200, null, "Uploaded successfully"));
     }
+
     @RequestMapping(
-            path = "/tshirt/upload",
+            path = "/upload/image",
             method = RequestMethod.POST,
             consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PostMapping("/tshirt/upload")
     public ResponseEntity<?> uploadImage(@RequestParam("file") MultipartFile file) {
-        String imageUrl = cloudinaryService.uploadFile(file);
-
-        if (imageUrl == null) {
-            return ResponseEntity.status(400)
-                    .body(new ErrorResponse(400, null, List.of("Page and size must be positive values")));
+        if (file.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse(400, "File is empty", List.of("Please upload a valid file.")));
         }
 
-        return ResponseEntity.ok(new ApiResponse<>(200, imageUrl, "Uploaded successfully"));
+        try {
+            String imageUrl = cloudinaryService.uploadFile(file);
+            if (imageUrl == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(new ErrorResponse(500, "Upload failed", List.of("Failed to upload file to Cloudinary")));
+            }
+            return ResponseEntity.ok(new ApiResponse<>(200, imageUrl, "Uploaded successfully"));
+        }  catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(500, "Server error", List.of("Unexpected error occurred.")));
+        }
+    }
+
+    @RequestMapping(
+            path = "/upload/zip",
+            method = RequestMethod.POST,
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> uploadZip(@RequestParam("file") MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ErrorResponse(400, "File is empty", List.of("Please upload a valid ZIP file.")));
+        }
+
+        try {
+            String zipUrl = cloudinaryService.uploadZipFile(file);
+            if (zipUrl == null) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(new ErrorResponse(500, "Upload failed", List.of("Failed to upload ZIP file to Cloudinary")));
+            }
+            return ResponseEntity.ok(new ApiResponse<>(200, zipUrl, "ZIP uploaded successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(500, "Server error", List.of("Unexpected error occurred.")));
+        }
     }
 
     @GetMapping
