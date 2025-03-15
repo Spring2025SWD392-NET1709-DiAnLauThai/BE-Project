@@ -186,7 +186,8 @@ public class TaskService implements ITaskService{
                 .orElse(null);
         Tshirts tshirt = tshirtsRepository.findById(tshirtSelectRequest.getTshirtId())
                 .orElse(null);
-        if (bookingdetails == null || tshirt == null) {
+
+        if (bookingdetails == null || tshirt == null|| bookingdetails.getTshirt().getId().equals(tshirtSelectRequest.getTshirtId())) {
             return false;
         }
         Bookings booking = bookingdetails.getBooking();
@@ -213,10 +214,6 @@ public class TaskService implements ITaskService{
         if (hasIncompleteDetails) {
             return false;
         }
-        task.setTaskStatus(TaskStatusEnum.COMPLETE.toString());
-        booking.setStatus(BookingEnums.COMPLETED);
-        taskRepository.save(task);
-        bookingRepository.save(booking);
         String customerEmail = booking.getAccount().getEmail();
         String customerName = booking.getAccount().getName();
         String bookingCode = booking.getCode();
@@ -224,6 +221,10 @@ public class TaskService implements ITaskService{
         if (!emailSent) {
             return false;
         }
+        task.setTaskStatus(TaskStatusEnum.COMPLETE.toString());
+        booking.setStatus(BookingEnums.COMPLETED);
+        taskRepository.save(task);
+        bookingRepository.save(booking);
         return true;
     }
     @Transactional(readOnly = true)

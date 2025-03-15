@@ -15,6 +15,7 @@ import jakarta.validation.Valid;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -36,7 +37,9 @@ public class AccountController {
         this.cloudinaryService = cloudinaryService;
     }
 
+
     @PostMapping
+    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> createAccount(@Valid @RequestBody CreateAccountRequest request) {
         try {
             AccountCreationResponse response = accountService.createAccount(request);
