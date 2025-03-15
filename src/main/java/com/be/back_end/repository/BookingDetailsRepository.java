@@ -1,5 +1,6 @@
 package com.be.back_end.repository;
 
+import com.be.back_end.enums.BookingEnums;
 import com.be.back_end.model.Bookingdetails;
 import com.be.back_end.model.Bookings;
 import org.springframework.data.domain.Page;
@@ -21,5 +22,7 @@ public interface BookingDetailsRepository extends JpaRepository<Bookingdetails,S
     List<Bookingdetails> findByBooking(Bookings bookings);
 
     boolean existsByBookingIdAndTshirtIsNull(String bookingId);
+    boolean existsByTshirtIdAndBooking_StatusNot(String tshirtId, BookingEnums status);
+
 }
 

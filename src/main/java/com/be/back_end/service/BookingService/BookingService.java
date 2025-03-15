@@ -7,8 +7,10 @@ import com.be.back_end.dto.response.BookingResponse;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.enums.BookingEnums;
 import com.be.back_end.enums.RoleEnums;
+import com.be.back_end.enums.TaskStatusEnum;
 import com.be.back_end.enums.TransactionStatusEnum;
 import com.be.back_end.model.Bookings;
+import com.be.back_end.model.Task;
 import com.be.back_end.model.Transaction;
 import com.be.back_end.repository.BookingDetailsRepository;
 import com.be.back_end.repository.BookingRepository;
@@ -17,20 +19,24 @@ import com.be.back_end.repository.TranscationRepository;
 import com.be.back_end.service.BookingDetailService.IBookingdetailService;
 import com.be.back_end.service.CloudinaryService.ICloudinaryService;
 import com.be.back_end.service.DesignService.IDesignService;
+import com.be.back_end.service.EmailService.IEmailService;
 import com.be.back_end.service.TranscationService.ITranscationService;
 import com.be.back_end.service.TranscationService.IVNPayService;
 import com.be.back_end.utils.AccountUtils;
 import com.be.back_end.utils.VNPayUtils;
+import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
 import java.security.SecureRandom;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +53,9 @@ public class BookingService implements IBookingService {
     private final TaskRepository taskRepository;
     private final ITranscationService transcationService;
     private final TranscationRepository transcationRepository;
-    public BookingService(BookingRepository bookingRepository, AccountUtils accountUtils, IDesignService designService, IBookingdetailService bookingdetailService, BookingDetailsRepository bookingDetailsRepository, ICloudinaryService cloudinaryService, IVNPayService ivnPayService, VNPayUtils vnPayUtils, TaskRepository taskRepository, ITranscationService transcationService, TranscationRepository transcationRepository) {
+    private final IEmailService emailService;
+
+    public BookingService(BookingRepository bookingRepository, AccountUtils accountUtils, IDesignService designService, IBookingdetailService bookingdetailService, BookingDetailsRepository bookingDetailsRepository, ICloudinaryService cloudinaryService, IVNPayService ivnPayService, VNPayUtils vnPayUtils, TaskRepository taskRepository, ITranscationService transcationService, TranscationRepository transcationRepository, IEmailService emailService) {
         this.bookingRepository = bookingRepository;
         this.accountUtils = accountUtils;
         this.designService = designService;
@@ -58,6 +66,7 @@ public class BookingService implements IBookingService {
         this.taskRepository = taskRepository;
         this.transcationService = transcationService;
         this.transcationRepository = transcationRepository;
+        this.emailService = emailService;
     }
 
     private String generateBookingCode(int length) {
@@ -139,8 +148,9 @@ public class BookingService implements IBookingService {
 
         BigDecimal totalPrice = bookingRepository.getTotalPriceByBookingId(booking.getId());
         Integer totalQuantity = bookingRepository.getTotalQuantityByBookingId(booking.getId());
-        BigDecimal depositAmount = (totalPrice != null ? totalPrice : BigDecimal.ZERO)
-                .multiply(BigDecimal.valueOf(0.5));
+        BigDecimal depositAmount = totalPrice != null
+                ? totalPrice.multiply(BigDecimal.valueOf(0.5))
+                : BigDecimal.ZERO;
         booking.setTotal_price(totalPrice != null ? totalPrice : BigDecimal.ZERO);
         booking.setDepositAmount(depositAmount);
         booking.setTotal_quantity(totalQuantity != null ? totalQuantity : 0);
@@ -252,6 +262,24 @@ public class BookingService implements IBookingService {
     }
 
 
+    @Transactional
+    @Scheduled(cron = "0 0 0 * * ?")
+    public void markCompletedBookings() {
+        List<Bookings> bookings = bookingRepository.findByStatusNotAndEnddateBefore(
+                BookingEnums.COMPLETED, LocalDateTime.now()
+        );
+        bookings.forEach(booking -> {
+            booking.setStatus(BookingEnums.COMPLETED);
+            Task task=taskRepository.findByBookingId(booking.getId()).orElse(null);
+            task.setTaskStatus(TaskStatusEnum.COMPLETE.toString());
+            bookingRepository.save(booking);
+            taskRepository.save(task);
+            String customerEmail = booking.getAccount().getEmail();
+            String customerName = booking.getAccount().getName();
+            String bookingCode = booking.getCode();
+            emailService.sendCustomerCompleteEmail(customerEmail, customerName, bookingCode);
+        });
+    }
 
     @Override
     public boolean deletebooking(String id) {

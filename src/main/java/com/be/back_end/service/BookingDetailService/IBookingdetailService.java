@@ -1,6 +1,7 @@
 package com.be.back_end.service.BookingDetailService;
 
 import com.be.back_end.dto.request.BookingCreateRequest;
+import com.be.back_end.dto.request.UpdateBookingDetailsRequest;
 import com.be.back_end.dto.response.BookingCreateResponse;
 import com.be.back_end.dto.response.BookingResponseNoLinkDTO;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
@@ -16,8 +17,8 @@ public interface IBookingdetailService {
 
 
     BookingResponseNoLinkDTO getAllBookingDetailsByBookingId(String bookingId);
-    /*Bookingdetails updatebookingdetail(String id, BookingdetailsDTO dto);*/
-    boolean deletebookingdetail(String id);
+    boolean updatebookingdetail(UpdateBookingDetailsRequest dto);
+
     List<BookingCreateResponse.BookingDetailResponse> processBookingDetails(BookingCreateRequest request, Bookings booking);
 
 }

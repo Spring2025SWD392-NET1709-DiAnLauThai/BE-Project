@@ -67,24 +67,47 @@ public class EmailService implements IEmailService{
         }
     }
     @Async
-    @Override
-    public void sendDesignerEmail(String to, String designerName) throws MessagingException {
+    public void sendDesignerEmail(String to, String designerName, String bookingCode, String oldDescription, String newDescription)
+            throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
         Context context = new Context();
         context.setVariable("designerName", designerName);
-        String htmlContent = templateEngine.process("task-assignment", context);
+        context.setVariable("bookingCode", bookingCode);
+        context.setVariable("oldDescription", oldDescription);
+        context.setVariable("newDescription", newDescription);
+        String htmlContent = templateEngine.process("task-modification-notice", context);
         helper.setTo(to);
-        helper.setSubject("New Modification Request");
+        helper.setSubject("Customer Modification Request");
         helper.setText(htmlContent, true);
         try {
             mailSender.send(message);
-            System.out.println("Designer announcement email sent successfully.");
         } catch (Exception e) {
             e.printStackTrace();
-            throw new MessagingException("Error sending designer announcement email", e);
+            throw new MessagingException("Error sending designer modification email", e);
         }
     }
+    @Async
+    @Override
+    public boolean sendCustomerCompleteEmail(String to, String customerName, String bookingCode) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+            Context context = new Context();
+            context.setVariable("customerName", customerName);
+            context.setVariable("bookingCode", bookingCode);
+            String htmlContent = templateEngine.process("booking-completion", context);
+            helper.setTo(to);
+            helper.setSubject("Your Booking is Ready for Payment");
+            helper.setText(htmlContent, true);
+            mailSender.send(message);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+
 
 
     @Override

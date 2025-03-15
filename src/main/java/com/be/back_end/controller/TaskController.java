@@ -33,7 +33,6 @@ public class TaskController {
                     .body(new ErrorResponse(400, null, List.of("Page and size must be positive values")));
         }
         String taskStatusStr = (taskStatus != null) ? taskStatus.toString() : null;
-
         PaginatedResponseDTO<TaskListResponse> tasks = taskService.getAllTask(
                 startDate, endDate, designerName, taskStatusStr , page, size, sortDir);
         if (tasks.getContent().isEmpty()) {
@@ -41,6 +40,25 @@ public class TaskController {
         }
         return ResponseEntity.ok(new ApiResponse<>(200, tasks, "Page returned: " + page));
     }
+    @PutMapping("/confirm/{bookingId}")
+    public ResponseEntity<?> confirmCompletion(@PathVariable String bookingId) {
+        try {
+            boolean isConfirmed = taskService.confirmCompletion(bookingId);
+            if (isConfirmed) {
+                return ResponseEntity.ok(new ApiResponse<>(200, null, "Booking and task marked as COMPLETE."));
+            } else {
+                return ResponseEntity.badRequest().body(
+                        new ErrorResponse(400, "Failed to confirm completion",
+                                List.of("Booking is incomplete, email failed, or booking/task not found."))
+                );
+            }
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(
+                    new ErrorResponse(500, "Unexpected error occurred", List.of(e.getMessage()))
+            );
+        }
+    }
+
     @GetMapping("/designer")
     public ResponseEntity<?> getAllTaskForDesigner( @RequestParam(required = false) LocalDate startDate,
                                          @RequestParam(required = false) LocalDate endDate,
@@ -68,7 +86,6 @@ public class TaskController {
     public ResponseEntity<?> assignTask(@RequestBody TaskCreateRequest taskCreateRequest) {
         try {
             boolean isAssigned = taskService.assignTask(taskCreateRequest);
-
             if (isAssigned) {
                 return ResponseEntity.ok(new ApiResponse<>(200, List.of("Task assigned successfully."), "Success"));
             } else {
@@ -77,7 +94,6 @@ public class TaskController {
                                 List.of("Invalid booking ID or designer ID."))
                 );
             }
-
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(
                     new ErrorResponse(500, "Unexpected error occurred",
@@ -106,7 +122,7 @@ public class TaskController {
         try {
             boolean isAssigned = taskService.assignTshirttoTask(tshirtSelectRequest);
             if (isAssigned) {
-                return ResponseEntity.ok(new ApiResponse<>(200, List.of("Tshirt added to booking detail."), "Success"));
+                return ResponseEntity.ok(new ApiResponse<>(200, null, "Tshirt added to booking detail."));
             } else {
                 return ResponseEntity.badRequest().body(
                         new ErrorResponse(400, "Failed to assign task",

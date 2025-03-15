@@ -5,6 +5,7 @@ import com.be.back_end.dto.response.TshirtsDTO;
 import com.be.back_end.dto.request.TshirtCreateRequest;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.enums.ActivationEnums;
+import com.be.back_end.enums.BookingEnums;
 import com.be.back_end.model.Bookingdetails;
 import com.be.back_end.model.Color;
 import com.be.back_end.model.TShirtColor;
@@ -129,9 +130,15 @@ public class TshirtsService implements  ITshirtsService{
         return mapToDTO(tshirt);
     }
     @Override
-    public boolean updateTshirt(String id,TshirtsDTO tshirt){
-        Tshirts updateTshirt= tshirtsRepository.findById(id).orElse(null);
+    public boolean updateTshirt(TshirtsDTO tshirt){
+        Tshirts updateTshirt= tshirtsRepository.findById(tshirt.getTshirtId()).orElse(null);
         if(updateTshirt==null){
+            return false;
+        }
+        boolean hasActiveBooking = bookingDetailsRepository.existsByTshirtIdAndBooking_StatusNot(
+                tshirt.getTshirtId(), BookingEnums.COMPLETED
+        );
+        if (!hasActiveBooking) {
             return false;
         }
         updateTshirt=mapToEntity(tshirt);

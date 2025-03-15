@@ -185,34 +185,49 @@ public class TaskService implements ITaskService{
                 .orElse(null);
         Tshirts tshirt = tshirtsRepository.findById(tshirtSelectRequest.getTshirtId())
                 .orElse(null);
-
         if (bookingdetails == null || tshirt == null) {
+            return false;
+        }
+        Bookings booking = bookingdetails.getBooking();
+        if (booking != null && booking.getStatus() == BookingEnums.COMPLETED) {
             return false;
         }
         bookingdetails.setTshirt(tshirt);
         bookingDetailsRepository.save(bookingdetails);
-
-        Bookings booking = bookingdetails.getBooking();
-        Task task= taskRepository.findByBookingId(booking.getId()).orElse(null);
-
-        boolean hasIncompleteDetails = bookingDetailsRepository
-                .existsByBookingIdAndTshirtIsNull(booking.getId());
-        if (!hasIncompleteDetails) {
-            task.setTaskStatus(TaskStatusEnum.READY_FOR_CUSTOMER.toString());
-            booking.setStatus(BookingEnums.COMPLETED);
-            taskRepository.save(task);
-            bookingRepository.save(booking);
-        }
         return true;
     }
 
+    @Override
+    public boolean confirmCompletion(String bookingId) {
+        Bookings booking = bookingRepository.findById(bookingId).orElse(null);
+        Task task = taskRepository.findByBookingId(bookingId).orElse(null);
+        if (booking == null || task == null) {
+            return false;
+        }
+        boolean hasIncompleteDetails = bookingDetailsRepository
+                .existsByBookingIdAndTshirtIsNull(bookingId);
+        if (hasIncompleteDetails) {
+            return false;
+        }
+        task.setTaskStatus(TaskStatusEnum.COMPLETE.toString());
+        booking.setStatus(BookingEnums.COMPLETED);
+        taskRepository.save(task);
+        bookingRepository.save(booking);
+        String customerEmail = booking.getAccount().getEmail();
+        String customerName = booking.getAccount().getName();
+        String bookingCode = booking.getCode();
+        Boolean emailSent = emailService.sendCustomerCompleteEmail(customerEmail, customerName, bookingCode);
+        if (!emailSent) {
+            return false;
+        }
+        return true;
+    }
     @Transactional(readOnly = true)
     @Override
     public TaskDetailResponseDTO getTaskDetailByTaskId(String taskId) {
         Task task = getTask(taskId);
         Bookings booking = getBooking(task);
         List<Bookingdetails> bookingDetails = getBookingDetails(task);
-
         return buildTaskDetailResponseDTO(task, booking, bookingDetails);
     }
     private Task getTask(String taskId) {
@@ -228,7 +243,6 @@ public class TaskService implements ITaskService{
     }
     private TaskDetailResponseDTO buildTaskDetailResponseDTO(Task task, Bookings booking, List<Bookingdetails> bookingDetails) {
         TaskDetailResponseDTO taskDetailResponseDTO = new TaskDetailResponseDTO();
-
         taskDetailResponseDTO.setDesignerName(task.getAccount().getName());
         taskDetailResponseDTO.setCode(booking.getCode());
         taskDetailResponseDTO.setTitle(booking.getTitle());
@@ -239,7 +253,6 @@ public class TaskService implements ITaskService{
         taskDetailResponseDTO.setStartdate(booking.getStartdate());
         taskDetailResponseDTO.setUpdateddate(booking.getUpdateddate());
         taskDetailResponseDTO.setDatecreated(booking.getDatecreated());
-
         List<TaskDetailResponseDTO.BookingDetailResponse> detailResponses = bookingDetails.stream()
                 .map(detail -> new TaskDetailResponseDTO.BookingDetailResponse(
                         detail.getId(),
@@ -260,7 +273,6 @@ public class TaskService implements ITaskService{
                         ) : null
                 ))
                 .toList();
-
         taskDetailResponseDTO.setBookingDetails(detailResponses);
         return taskDetailResponseDTO;
     }
