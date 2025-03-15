@@ -10,7 +10,7 @@ import java.util.List;
 @Getter
 @Setter
 public class BookingResponseNoLinkDTO {
-
+    private String designerName;
     private BigDecimal totalPrice;
     private int totalQuantity;
     private BookingEnums bookingStatus;

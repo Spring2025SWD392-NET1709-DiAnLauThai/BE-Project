@@ -96,9 +96,15 @@ public class BookingdetailService implements IBookingdetailService {
     @Override
     public BookingResponseNoLinkDTO getAllBookingDetailsByBookingId(String bookingId) {
        Bookings booking= bookingRepository.findById(bookingId).orElse(null);
+        Task task = taskRepository.findByBookingId(booking.getId()).orElse(null);
        List<Bookingdetails> bookingdetails= bookingDetailsRepository.findByBookingId(bookingId);
        List<BookingResponseNoLinkDTO.BookingDetailResponse> detailResponses= new ArrayList<>();
        BookingResponseNoLinkDTO bookingResponseNoLinkDTO= new BookingResponseNoLinkDTO();
+        if (task != null && task.getAccount() != null) {
+            bookingResponseNoLinkDTO.setDesignerName(task.getAccount().getName());
+        } else {
+            bookingResponseNoLinkDTO.setDesignerName(null);
+        }
        bookingResponseNoLinkDTO.setDepositAmount(booking.getDepositAmount());
        bookingResponseNoLinkDTO.setCode(booking.getCode());
        bookingResponseNoLinkDTO.setTitle(booking.getTitle());
