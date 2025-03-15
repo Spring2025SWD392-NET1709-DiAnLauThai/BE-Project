@@ -34,8 +34,9 @@ public class Designs {
     @OneToMany(mappedBy = "design", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TshirtDesign> tshirtDesigns;
 
-    @OneToMany(mappedBy = "design",cascade = CascadeType.ALL)
-    private Set<Bookingdetails> bookingdetails;
+    @OneToOne(mappedBy = "design", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Bookingdetails bookingdetails;
+
 
     @PrePersist
     protected void onCreate() {

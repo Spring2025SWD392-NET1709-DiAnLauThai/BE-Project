@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -189,10 +190,13 @@ public class TaskService implements ITaskService{
             return false;
         }
         Bookings booking = bookingdetails.getBooking();
+        booking.setUpdateddate(LocalDateTime.now());
         if (booking != null && booking.getStatus() == BookingEnums.COMPLETED) {
             return false;
         }
+
         bookingdetails.setTshirt(tshirt);
+        bookingRepository.save(booking);
         bookingDetailsRepository.save(bookingdetails);
         return true;
     }

@@ -254,14 +254,6 @@ public class BookingService implements IBookingService {
     }
 
 
-
-
-    @Override
-    public Bookings getbookingById(String id) {
-        return bookingRepository.findById(id).orElse(null);
-    }
-
-
     @Transactional
     @Scheduled(cron = "0 0 0 * * ?")
     public void markCompletedBookings() {

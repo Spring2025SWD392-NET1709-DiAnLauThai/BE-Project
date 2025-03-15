@@ -20,17 +20,18 @@ public class Bookingdetails {
     @Column(name="bookingdetailsid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     private String id;
 
-    @ManyToOne
-    @JoinColumn(name="tshirtid")
+    @OneToOne
+    @JoinColumn(name = "tshirtid", unique = true)
     private Tshirts tshirt;
 
     @ManyToOne
     @JoinColumn(name="bookingid", nullable = false)
     private Bookings booking;
 
-    @ManyToOne
-    @JoinColumn(name="designid",nullable = false)
+    @OneToOne
+    @JoinColumn(name = "designid", unique = true)
     private Designs design;
+
 
     private String description;
 

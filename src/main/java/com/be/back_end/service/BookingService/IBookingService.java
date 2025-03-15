@@ -13,7 +13,7 @@ public interface IBookingService {
     public PaginatedResponseDTO<BookingResponse> getAllBookings(
             int page,
             int size);
-    Bookings getbookingById(String id);
+
     BookingCreateResponse createBooking(BookingCreateRequest request, HttpServletRequest httpRequest);
     boolean deletebooking(String id);
     String generateFullyPaidUrl(String bookingId, HttpServletRequest request);
