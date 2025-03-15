@@ -52,8 +52,9 @@ public class Tshirts {
     @Column(name="createdat")
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "tshirt",cascade = CascadeType.ALL)
-    private Set<Bookingdetails> bookingdetails;
+    @OneToOne(mappedBy = "tshirt", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Bookingdetails bookingdetails;
+
 
 
     @PrePersist

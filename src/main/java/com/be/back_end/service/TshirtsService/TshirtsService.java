@@ -6,10 +6,7 @@ import com.be.back_end.dto.request.TshirtCreateRequest;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.enums.ActivationEnums;
 import com.be.back_end.enums.BookingEnums;
-import com.be.back_end.model.Bookingdetails;
-import com.be.back_end.model.Color;
-import com.be.back_end.model.TShirtColor;
-import com.be.back_end.model.Tshirts;
+import com.be.back_end.model.*;
 import com.be.back_end.repository.*;
 import com.be.back_end.utils.AccountUtils;
 import org.springframework.data.domain.Page;
@@ -27,13 +24,15 @@ import java.util.List;
 public class TshirtsService implements  ITshirtsService{
 
     private final AccountUtils accountUtils;
+    private final BookingRepository bookingRepository;
     private final TshirtsRepository tshirtsRepository;
     private final AccountRepository accountRepository;
     private final ColorRepository  colorRepository;
     private final TshirtColorRepository tshirtColorRepository;
     private final BookingDetailsRepository bookingDetailsRepository;
-    public TshirtsService(AccountUtils accountUtils, TshirtsRepository tshirtsRepository, AccountRepository accountRepository, ColorRepository colorRepository, TshirtColorRepository tshirtColorRepository, BookingDetailsRepository bookingDetailsRepository) {
+    public TshirtsService(AccountUtils accountUtils, BookingRepository bookingRepository, TshirtsRepository tshirtsRepository, AccountRepository accountRepository, ColorRepository colorRepository, TshirtColorRepository tshirtColorRepository, BookingDetailsRepository bookingDetailsRepository) {
         this.accountUtils = accountUtils;
+        this.bookingRepository = bookingRepository;
         this.tshirtsRepository = tshirtsRepository;
         this.accountRepository = accountRepository;
         this.colorRepository = colorRepository;
@@ -140,6 +139,12 @@ public class TshirtsService implements  ITshirtsService{
         );
         if (!hasActiveBooking) {
             return false;
+        }
+        Bookingdetails bookingDetails = bookingDetailsRepository.findByTshirtId(tshirt.getTshirtId());
+        if (bookingDetails != null) {
+            Bookings booking = bookingDetails.getBooking();
+            booking.setUpdateddate(LocalDateTime.now());
+            bookingRepository.save(booking);
         }
         updateTshirt=mapToEntity(tshirt);
         tshirtsRepository.save(updateTshirt);

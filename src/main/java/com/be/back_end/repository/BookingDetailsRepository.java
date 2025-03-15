@@ -24,5 +24,6 @@ public interface BookingDetailsRepository extends JpaRepository<Bookingdetails,S
     boolean existsByBookingIdAndTshirtIsNull(String bookingId);
     boolean existsByTshirtIdAndBooking_StatusNot(String tshirtId, BookingEnums status);
 
+    Bookingdetails findByTshirtId(String tshirtId);
 }
 
