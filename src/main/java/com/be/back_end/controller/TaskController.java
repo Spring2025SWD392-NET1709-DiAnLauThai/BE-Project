@@ -91,7 +91,7 @@ public class TaskController {
             } else {
                 return ResponseEntity.badRequest().body(
                         new ErrorResponse(400, "Failed to assign task",
-                                List.of("Invalid booking ID or designer ID."))
+                                List.of("Invalid booking ID or designer ID or Same Tshirt"))
                 );
             }
         } catch (Exception e) {

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -25,6 +26,7 @@ import com.be.back_end.service.AccountService.AccountDetailsServiceImpl;
 
 
 @Configuration
+@EnableMethodSecurity
 public class WebSecurityConfig {
 
     @Autowired
@@ -49,17 +51,22 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain1(HttpSecurity http) throws Exception {
         http
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())  // Tắt CSRF protection
                 .authorizeHttpRequests(auth -> auth
-                                .anyRequest().permitAll()  // Cho phép tất cả requests mà không cần xác thực
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/v3/api-docs/**",
+                                "/swagger-resources/**"
+                        ).permitAll()
+                        .requestMatchers("/api/accounts/**").hasAuthority("ADMIN")
+                        .anyRequest().permitAll()
                 )
-                .formLogin(form -> form.disable())  // Tắt form login mặc định
-                .httpBasic(basic -> basic.disable())  // Tắt basic authentication
-                .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
-                http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
+                .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
+                .sessionManagement(management -> management.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
 
