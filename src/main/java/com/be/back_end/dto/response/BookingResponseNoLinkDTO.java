@@ -22,6 +22,7 @@ public class BookingResponseNoLinkDTO {
     private String code;
     private String title;
     private List<BookingDetailResponse> bookingDetails;
+
     @Getter
     @Setter
     @NoArgsConstructor
@@ -30,8 +31,22 @@ public class BookingResponseNoLinkDTO {
         private String bookingDetailId;
         private String designFile;
         private String description;
-
+        private String tshirtName;
+        private String tshirtDescription;
+        private String imageUrl;
+        private String imageFile;
+        private List<ColorResponse> colors;
         private BigDecimal unitPrice;
     }
 
+    // New class to represent Color details
+    @Getter
+    @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class ColorResponse {
+        private String colorId;
+        private String colorName;
+        private String colorCode;
+    }
 }
