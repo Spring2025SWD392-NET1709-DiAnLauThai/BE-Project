@@ -261,15 +261,24 @@ public class BookingService implements IBookingService {
                 BookingEnums.COMPLETED, LocalDateTime.now()
         );
         bookings.forEach(booking -> {
-            booking.setStatus(BookingEnums.COMPLETED);
             Task task=taskRepository.findByBookingId(booking.getId()).orElse(null);
-            task.setTaskStatus(TaskStatusEnum.COMPLETE.toString());
-            bookingRepository.save(booking);
-            taskRepository.save(task);
-            String customerEmail = booking.getAccount().getEmail();
-            String customerName = booking.getAccount().getName();
-            String bookingCode = booking.getCode();
-            emailService.sendCustomerCompleteEmail(customerEmail, customerName, bookingCode);
+            if (task != null) {
+                booking.setStatus(BookingEnums.COMPLETED);
+                task.setTaskStatus(TaskStatusEnum.COMPLETE.toString());
+                bookingRepository.save(booking);
+                taskRepository.save(task);
+                String customerEmail = booking.getAccount().getEmail();
+                String customerName = booking.getAccount().getName();
+                String bookingCode = booking.getCode();
+                try {
+                    emailService.sendCustomerCompleteEmail(customerEmail, customerName, bookingCode);
+                } catch (RuntimeException e) {
+                    System.out.println("Failed to send email for booking ID: "
+                            + booking.getId() + " - " + e.getMessage());
+                }
+            } else {
+                System.out.println("Task not found for booking ID: " + booking.getId());
+            }
         });
     }
 

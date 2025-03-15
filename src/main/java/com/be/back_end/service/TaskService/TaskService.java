@@ -221,8 +221,9 @@ public class TaskService implements ITaskService{
         String customerEmail = booking.getAccount().getEmail();
         String customerName = booking.getAccount().getName();
         String bookingCode = booking.getCode();
-        Boolean emailSent = emailService.sendCustomerCompleteEmail(customerEmail, customerName, bookingCode);
-        if (!emailSent) {
+        try {
+            emailService.sendCustomerCompleteEmail(customerEmail, customerName, bookingCode);
+        } catch (RuntimeException e) {
             return false;
         }
         task.setTaskStatus(TaskStatusEnum.COMPLETE.toString());

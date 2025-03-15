@@ -89,7 +89,7 @@ public class EmailService implements IEmailService{
     }
     @Async
     @Override
-    public boolean sendCustomerCompleteEmail(String to, String customerName, String bookingCode) {
+    public void sendCustomerCompleteEmail(String to, String customerName, String bookingCode) {
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -101,9 +101,8 @@ public class EmailService implements IEmailService{
             helper.setSubject("Your Booking is Ready for Payment");
             helper.setText(htmlContent, true);
             mailSender.send(message);
-            return true;
         } catch (Exception e) {
-            return false;
+            throw new RuntimeException("Failed to send email to: " + to);
         }
     }
 
