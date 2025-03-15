@@ -102,12 +102,12 @@ public class TshirtsService implements  ITshirtsService{
         Page<Tshirts> tshirts;
         if(dateFrom!=null&&dateTo!=null)
         {
-           tshirts= tshirtsRepository.findByCreatedAtBetween(dateFrom,dateTo,pageable);
+           tshirts= tshirtsRepository.findByCreatedAtBetweenAndBookingdetailsIsNull(dateFrom,dateTo,pageable);
         }else if(keyword!=null)
         {
-            tshirts=tshirtsRepository.findByNameContainingIgnoreCase(keyword,pageable);
+            tshirts=tshirtsRepository.findByNameContainingIgnoreCaseAndBookingdetailsIsNull(keyword,pageable);
         }else{
-        tshirts=tshirtsRepository.findAll(pageable);}
+        tshirts=tshirtsRepository.findByBookingdetailsIsNull(pageable);}
         List<TshirtsDTO> tshirtsDTOList= new ArrayList<>();
         for(Tshirts tshirt:tshirts.getContent())
         {
