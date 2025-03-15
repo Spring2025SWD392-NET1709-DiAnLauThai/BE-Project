@@ -186,8 +186,12 @@ public class TaskService implements ITaskService{
                 .orElse(null);
         Tshirts tshirt = tshirtsRepository.findById(tshirtSelectRequest.getTshirtId())
                 .orElse(null);
+        if (bookingdetails.getTshirt() != null && bookingdetails.getTshirt().getId().equals(tshirtSelectRequest.getTshirtId())) {
+            return false;
+        }
 
-        if (bookingdetails == null || tshirt == null|| bookingdetails.getTshirt().getId().equals(tshirtSelectRequest.getTshirtId())) {
+
+        if (bookingdetails == null || tshirt == null) {
             return false;
         }
         Bookings booking = bookingdetails.getBooking();

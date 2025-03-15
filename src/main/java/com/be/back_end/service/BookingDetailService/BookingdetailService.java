@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class BookingdetailService implements IBookingdetailService {
@@ -121,7 +122,22 @@ public class BookingdetailService implements IBookingdetailService {
            detailResponse.setDesignFile(detail.getDesign().getDesignFile());
            detailResponse.setUnitPrice(detail.getUnit_price());
            detailResponse.setDescription(detail.getDescription());
+           Tshirts tshirt = detail.getTshirt();
+           if (tshirt != null){
+               detailResponse.setImageFile(detail.getTshirt().getImagesfile());
+           detailResponse.setImageUrl(detail.getTshirt().getImage_url());
+           detailResponse.setTshirtDescription(detail.getTshirt().getDescription());
+           detailResponse.setTshirtName(detail.getTshirt().getName());
+               List<BookingResponseNoLinkDTO.ColorResponse> colors = tshirt.getTShirtColors().stream()
+                       .map(tShirtColor -> {
+                           Color color = tShirtColor.getColor();
+                           return new BookingResponseNoLinkDTO.ColorResponse(color.getId(), color.getColorName(), color.getColorCode());
+                       })
+                       .collect(Collectors.toList());
+               detailResponse.setColors(colors);
+            }
            detailResponses.add(detailResponse);
+
        }
         bookingResponseNoLinkDTO.setBookingDetails(detailResponses);
        return bookingResponseNoLinkDTO;

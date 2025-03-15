@@ -39,7 +39,6 @@ public class AccountController {
 
 
     @PostMapping
-    @PreAuthorize("hasAuthority('ADMIN')")
     public ResponseEntity<?> createAccount(@Valid @RequestBody CreateAccountRequest request) {
         try {
             AccountCreationResponse response = accountService.createAccount(request);
