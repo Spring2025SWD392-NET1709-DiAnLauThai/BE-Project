@@ -1,5 +1,6 @@
 package com.be.back_end.controller;
 
+import com.be.back_end.dto.request.UpdateBookingDetailsRequest;
 import com.be.back_end.dto.response.ApiResponse;
 import com.be.back_end.dto.response.BookingResponseNoLinkDTO;
 import com.be.back_end.dto.response.ErrorResponse;
@@ -23,9 +24,7 @@ public class BookingDetailsController {
     @GetMapping("/bookings/{bookingId}/details")
     public ResponseEntity<?> getBookingDetailsByBookingId(
             @PathVariable String bookingId) {
-
         BookingResponseNoLinkDTO bookingDetails = bookingdetailService.getAllBookingDetailsByBookingId(bookingId);
-
         ApiResponse<BookingResponseNoLinkDTO> apiResponse = new ApiResponse<>(
                 200,
                 bookingDetails,
@@ -33,4 +32,16 @@ public class BookingDetailsController {
         );
         return ResponseEntity.ok(apiResponse);
     }
+    @PutMapping()
+    public ResponseEntity<?> updateBookingDetail(@RequestBody UpdateBookingDetailsRequest dto) {
+        boolean isUpdated = bookingdetailService.updatebookingdetail(dto);
+        if (!isUpdated) {
+            return ResponseEntity.badRequest().body(
+                    new ErrorResponse(400, "Failed to update booking detail",
+                            List.of("Email delivery failed or invalid booking detail."))
+            );
+        }
+        return ResponseEntity.ok(new ApiResponse<>(200, null, "Booking detail updated successfully."));
+    }
+
 }

@@ -1,5 +1,5 @@
 package com.be.back_end.enums;
 
 public enum TaskStatusEnum {
-    ASSIGNED, COMPLETE,DENIED,READY_FOR_CUSTOMER
+    ASSIGNED, COMPLETE,CANCEL
 }

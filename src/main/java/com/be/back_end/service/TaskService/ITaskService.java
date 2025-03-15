@@ -30,4 +30,5 @@ public interface ITaskService {
 
     boolean assignTshirttoTask(TshirtSelectRequest tshirtSelectRequest);
     TaskDetailResponseDTO getTaskDetailByTaskId(String taskId);
+    boolean confirmCompletion(String bookingId);
 }

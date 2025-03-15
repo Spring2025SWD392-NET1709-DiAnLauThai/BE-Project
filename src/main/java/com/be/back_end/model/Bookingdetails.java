@@ -20,9 +20,6 @@ public class Bookingdetails {
     @Column(name="bookingdetailsid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     private String id;
 
-    @OneToMany(mappedBy = "bookingdetail", cascade = CascadeType.ALL)
-    private Set<ModificationForm> modificationForms;
-
     @ManyToOne
     @JoinColumn(name="tshirtid")
     private Tshirts tshirt;

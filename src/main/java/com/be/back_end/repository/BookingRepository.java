@@ -1,6 +1,7 @@
 package com.be.back_end.repository;
 
 
+import com.be.back_end.enums.BookingEnums;
 import com.be.back_end.model.Account;
 import com.be.back_end.model.Bookings;
 
@@ -13,6 +14,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,4 +36,5 @@ public interface BookingRepository extends JpaRepository<Bookings, String> {
     Page<Bookings> findAll(Pageable pageable);
     Page<Bookings> findAllByAccount(Account account,Pageable pageable);
 
+    List<Bookings> findByStatusNotAndEnddateBefore(BookingEnums status, LocalDateTime currentDate);
 }

@@ -1,16 +1,17 @@
 package com.be.back_end.service.BookingDetailService;
 
 import com.be.back_end.dto.request.BookingCreateRequest;
+import com.be.back_end.dto.request.UpdateBookingDetailsRequest;
 import com.be.back_end.dto.response.BookingCreateResponse;
 import com.be.back_end.dto.response.BookingResponseNoLinkDTO;
 import com.be.back_end.model.*;
-import com.be.back_end.repository.BookingDetailsRepository;
-import com.be.back_end.repository.BookingRepository;
-import com.be.back_end.repository.DesignRepository;
-import com.be.back_end.repository.TshirtDesignRepository;
+import com.be.back_end.repository.*;
 import com.be.back_end.service.CloudinaryService.ICloudinaryService;
 import com.be.back_end.service.DesignService.IDesignService;
+import com.be.back_end.service.EmailService.IEmailService;
 import com.be.back_end.utils.AccountUtils;
+import jakarta.mail.MessagingException;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,7 +28,9 @@ public class BookingdetailService implements IBookingdetailService {
     private final AccountUtils accountUtils;
     private final TshirtDesignRepository tshirtDesignRepository;
     private final IDesignService designService;
-    public BookingdetailService(BookingDetailsRepository bookingDetailsRepository, DesignRepository designRepository, BookingRepository bookingRepository, ICloudinaryService cloudinaryService, AccountUtils accountUtils, TshirtDesignRepository tshirtDesignRepository, IDesignService designService) {
+    private final IEmailService emailService;
+    private final TaskRepository taskRepository;
+    public BookingdetailService(BookingDetailsRepository bookingDetailsRepository, DesignRepository designRepository, BookingRepository bookingRepository, ICloudinaryService cloudinaryService, AccountUtils accountUtils, TshirtDesignRepository tshirtDesignRepository, IDesignService designService, IEmailService emailService, TaskRepository taskRepository) {
         this.bookingDetailsRepository = bookingDetailsRepository;
         this.designRepository = designRepository;
         this.bookingRepository = bookingRepository;
@@ -35,24 +38,28 @@ public class BookingdetailService implements IBookingdetailService {
         this.accountUtils = accountUtils;
         this.tshirtDesignRepository = tshirtDesignRepository;
         this.designService = designService;
+        this.emailService = emailService;
+        this.taskRepository = taskRepository;
     }
 
 
-    @Override
-    public List<BookingCreateResponse.BookingDetailResponse> processBookingDetails(BookingCreateRequest request, Bookings booking) {
-        List<BookingCreateResponse.BookingDetailResponse> bookingDetailResponses = new ArrayList<>();
 
-        // Initialize bookingDetails if it's null
+    @Override
+    @Transactional
+    public List<BookingCreateResponse.BookingDetailResponse> processBookingDetails(
+            BookingCreateRequest request, Bookings booking) {
+        List<BookingCreateResponse.BookingDetailResponse> bookingDetailResponses = new ArrayList<>();
         if (booking.getBookingDetails() == null) {
             booking.setBookingDetails(new HashSet<>());
         }
-
+        List<Bookingdetails> bookingDetails = new ArrayList<>();
+        List<Designs> designs = new ArrayList<>();
         for (BookingCreateRequest.BookingDetailCreateRequest detailRequest : request.getBookingdetails()) {
             Designs design = designService.createAndSaveDesign(detailRequest);
             Bookingdetails detail = createBookingDetail(detailRequest, booking, design);
-            bookingDetailsRepository.save(detail);
+            bookingDetails.add(detail);   // Collect booking details for batch insert
+            designs.add(design);         // Collect designs for reference
             booking.getBookingDetails().add(detail);
-
             bookingDetailResponses.add(new BookingCreateResponse.BookingDetailResponse(
                     detail.getId(),
                     design.getId(),
@@ -61,9 +68,11 @@ public class BookingdetailService implements IBookingdetailService {
                     detail.getUnit_price()
             ));
         }
+        bookingDetailsRepository.saveAll(bookingDetails);
 
         return bookingDetailResponses;
     }
+
 
 
 
@@ -100,7 +109,6 @@ public class BookingdetailService implements IBookingdetailService {
        bookingResponseNoLinkDTO.setStartdate(booking.getStartdate());
        bookingResponseNoLinkDTO.setUpdateddate(booking.getUpdateddate());
        bookingResponseNoLinkDTO.setDatecreated(booking.getDatecreated());
-
        for(Bookingdetails detail: bookingdetails) {
            BookingResponseNoLinkDTO.BookingDetailResponse detailResponse = new BookingResponseNoLinkDTO.BookingDetailResponse();
            detailResponse.setBookingDetailId(detail.getId());
@@ -114,23 +122,33 @@ public class BookingdetailService implements IBookingdetailService {
     }
 
 
-/*    @Override
-    public Bookingdetails updatebookingdetail(String id, BookingdetailsDTO dto) {
-        Bookingdetails bookingdetail = bookingDetailsRepository.findById(id).orElse(null);
-        if (bookingdetail != null) {
-            bookingdetail.setQuantity(dto.getQuantity());
-            bookingdetail.setUnit_price(dto.getUnit_price());
-            return bookingDetailsRepository.save(bookingdetail);
-        }
-        return null;
-    }*/
-
     @Override
-    public boolean deletebookingdetail(String id) {
-        if (bookingDetailsRepository.existsById(id)) {
-            bookingDetailsRepository.deleteById(id);
-            return true;
+    public boolean updatebookingdetail(UpdateBookingDetailsRequest dto) {
+        Bookingdetails bookingdetail = bookingDetailsRepository.findById(dto.getId()).orElse(null);
+        if (bookingdetail == null) {
+            return false;
         }
-        return false;
+        String oldDescription = bookingdetail.getDescription();
+        String newDescription = dto.getDescription();
+        Task task = taskRepository.findByBookingId(bookingdetail.getBooking().getId()).orElse(null);
+        if (task != null && task.getAccount() != null) {
+            String designerEmail = task.getAccount().getEmail();
+            String designerName = task.getAccount().getName();
+            String bookingCode = bookingdetail.getBooking().getCode();
+            try {
+                emailService.sendDesignerEmail(
+                        designerEmail, designerName, bookingCode, oldDescription, newDescription
+                );
+            } catch (MessagingException e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
+        bookingdetail.setDescription(newDescription);
+        bookingDetailsRepository.save(bookingdetail);
+        return true;
     }
+
+
+
 }

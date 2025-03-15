@@ -32,6 +32,17 @@ public class TshirtsController {
     }
 
 
+    @PostMapping("/update")
+    public ResponseEntity<?> updateTshirt(@RequestBody TshirtsDTO tshirtDto) {
+        boolean isUpdated = tshirtsService.updateTshirt(tshirtDto);
+
+        if (!isUpdated) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(404, "Update Failed", List.of("T-shirt not found or invalid data.")));
+        }
+
+        return ResponseEntity.ok(new ApiResponse<>(200, null, "T-shirt updated successfully"));
+    }
 
 
     @PostMapping("/create")
@@ -52,7 +63,6 @@ public class TshirtsController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse(400, "File is empty", List.of("Please upload a valid file.")));
         }
-
         try {
             String imageUrl = cloudinaryService.uploadFile(file);
             if (imageUrl == null) {

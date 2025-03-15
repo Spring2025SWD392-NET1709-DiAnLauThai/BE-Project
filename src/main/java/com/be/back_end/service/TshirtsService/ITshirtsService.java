@@ -17,6 +17,6 @@ public interface ITshirtsService {
                                                    String sortDir,
                                                    String sortBy);
     TshirtsDTO getTshirtById(String id);
-    boolean updateTshirt(String id,TshirtsDTO tshirt);
+    boolean  updateTshirt(TshirtsDTO tshirt);
 
 }

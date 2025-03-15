@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Confirmation</title>
+</head>
+<body>
+<h2>Dear <span th:text="${customerName}"></span>,</h2>
+
+<p>We are pleased to inform you that your booking is now completed and ready for payment.</p>
+
+<p><strong>Booking Code:</strong> <span th:text="${bookingCode}"></span></p>
+
+<p>Please log in to your account to complete the payment process.</p>
+
+<p>Thank you for choosing our service!</p>
+
+<p>Best regards,</p>
+<p>Your Company Name</p>
+</body>
+</html>
