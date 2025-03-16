@@ -158,8 +158,9 @@ public class BookingdetailService implements IBookingdetailService {
         if(transaction.getTransactionStatus().equalsIgnoreCase(TransactionStatusEnum.FULLY_PAID.toString()))
         {
             bookingResponseInDetail.setFullyPaid(true);
+        }else {
+            bookingResponseInDetail.setFullyPaid(false);
         }
-        bookingResponseInDetail.setFullyPaid(false);
         if (task != null && task.getAccount() != null) {
             bookingResponseInDetail.setDesignerName(task.getAccount().getName());
         } else {
