@@ -55,6 +55,8 @@ public class Account {
     @OneToMany(mappedBy = "account",cascade = CascadeType.ALL)
     private Set<Designs> designs;
     @OneToMany(mappedBy = "account",cascade = CascadeType.ALL)
+    private Set<Tshirts> tshirts;
+    @OneToMany(mappedBy = "account",cascade = CascadeType.ALL)
     private Set<Task> tasks;
 
     private String image_url;

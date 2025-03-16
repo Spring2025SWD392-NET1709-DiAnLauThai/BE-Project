@@ -1,6 +1,7 @@
 package com.be.back_end.service.ColorService;
 
 
+import com.be.back_end.dto.request.ColorCreateRequest;
 import com.be.back_end.dto.request.ColorDTO;
 import com.be.back_end.model.Color;
 import com.be.back_end.repository.ColorRepository;
@@ -18,7 +19,7 @@ public class ColorService implements IColorService {
     }
 
     @Override
-    public boolean addColor(ColorDTO colorDTO) {
+    public boolean addColor(ColorCreateRequest colorDTO) {
         Color color = new Color();
         color.setColorName(colorDTO.getColorName());
         color.setColorCode(colorDTO.getColorCode());

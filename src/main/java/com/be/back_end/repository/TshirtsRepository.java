@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @Repository
 public interface TshirtsRepository extends JpaRepository<Tshirts,String> {
-    Page<Tshirts> findByNameContainingIgnoreCaseAndBookingdetailsIsNull( String name, Pageable pageable);
-    Page<Tshirts> findByCreatedAtBetweenAndBookingdetailsIsNull(LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
-    Page<Tshirts> findByBookingdetailsIsNull(Pageable pageable);
+    Page<Tshirts> findByNameContainingIgnoreCaseAndBookingdetailsIsNullAndAccount_Id( String name,String accountId, Pageable pageable);
+    Page<Tshirts> findByCreatedAtBetweenAndBookingdetailsIsNullAndAccount_Id(LocalDateTime dateFrom, LocalDateTime dateTo,String accountId, Pageable pageable);
+    Page<Tshirts> findByBookingdetailsIsNullAndAccount_Id(String accountId,Pageable pageable);
 }

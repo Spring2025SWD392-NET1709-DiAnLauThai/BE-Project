@@ -41,7 +41,9 @@ public class Tshirts {
     @OneToMany(mappedBy = "tshirt", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TshirtDesign> tshirtDesigns;
 
-
+    @ManyToOne
+    @JoinColumn(name = "accountid", nullable = false)
+    private Account account;
 
     @OneToMany(mappedBy = "tshirt", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TShirtColor> tShirtColors;
