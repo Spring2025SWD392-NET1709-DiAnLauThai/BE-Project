@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class BookingResponseNoLinkDTO {
+public class BookingResponseInDetail {
     private String designerName;
     private BigDecimal totalPrice;
     private int totalQuantity;
@@ -22,7 +22,6 @@ public class BookingResponseNoLinkDTO {
     private String code;
     private String title;
     private List<BookingDetailResponse> bookingDetails;
-
     @Getter
     @Setter
     @NoArgsConstructor

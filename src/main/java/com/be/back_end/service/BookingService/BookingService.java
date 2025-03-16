@@ -91,9 +91,10 @@ public class BookingService implements IBookingService {
 
 
 
-
+    @Transactional
     @Override
     public String generateFullyPaidUrl(String bookingId, HttpServletRequest request) {
+
         Bookings booking = bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found with ID: " + bookingId));
 
@@ -114,13 +115,15 @@ public class BookingService implements IBookingService {
         return paymentUrl;
     }
 
+    @Transactional
     @Override
     public boolean cancelBooking(CancelBookingRequest cancelBookingRequest) {
         Bookings bookings = bookingRepository.findById(cancelBookingRequest.getBookingId()).orElse(null);
-        if (bookings == null) {
+        Task task= taskRepository.findByBookingId(cancelBookingRequest.getBookingId()).orElse(null);
+        if (bookings==null||task==null) {
             return false;
         }
-
+        task.setTaskStatus(TaskStatusEnum.CANCEL.toString());
         bookings.setStatus(BookingEnums.CANCELLED);
         bookings.setNote(cancelBookingRequest.getNote());
 
@@ -131,7 +134,7 @@ public class BookingService implements IBookingService {
         transaction.setTransactionStatus(TransactionStatusEnum.REFUND.toString());
         bookingRepository.save(bookings);
         transcationRepository.save(transaction);
-
+        taskRepository.save(task);
         return true;
     }
 
