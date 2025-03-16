@@ -2,7 +2,6 @@ package com.be.back_end.service.TaskService;
 
 import com.be.back_end.dto.request.TaskCreateRequest;
 import com.be.back_end.dto.request.TshirtSelectRequest;
-import com.be.back_end.dto.response.BookingResponseNoLinkDTO;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.dto.response.TaskDetailResponseDTO;
 import com.be.back_end.dto.response.TaskListResponse;
@@ -206,6 +205,7 @@ public class TaskService implements ITaskService{
         return true;
     }
 
+    @Transactional
     @Override
     public boolean confirmCompletion(String bookingId) {
         Bookings booking = bookingRepository.findById(bookingId).orElse(null);

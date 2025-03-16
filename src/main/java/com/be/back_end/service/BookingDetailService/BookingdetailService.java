@@ -3,7 +3,9 @@ package com.be.back_end.service.BookingDetailService;
 import com.be.back_end.dto.request.BookingCreateRequest;
 import com.be.back_end.dto.request.UpdateBookingDetailsRequest;
 import com.be.back_end.dto.response.BookingCreateResponse;
-import com.be.back_end.dto.response.BookingResponseNoLinkDTO;
+import com.be.back_end.dto.response.BookingResponseInDetail;
+import com.be.back_end.dto.response.BookingResponseInDetailCus;
+import com.be.back_end.enums.TransactionStatusEnum;
 import com.be.back_end.model.*;
 import com.be.back_end.repository.*;
 import com.be.back_end.service.CloudinaryService.ICloudinaryService;
@@ -11,7 +13,6 @@ import com.be.back_end.service.DesignService.IDesignService;
 import com.be.back_end.service.EmailService.IEmailService;
 import com.be.back_end.utils.AccountUtils;
 import jakarta.mail.MessagingException;
-import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,7 +32,8 @@ public class BookingdetailService implements IBookingdetailService {
     private final IDesignService designService;
     private final IEmailService emailService;
     private final TaskRepository taskRepository;
-    public BookingdetailService(BookingDetailsRepository bookingDetailsRepository, DesignRepository designRepository, BookingRepository bookingRepository, ICloudinaryService cloudinaryService, AccountUtils accountUtils, TshirtDesignRepository tshirtDesignRepository, IDesignService designService, IEmailService emailService, TaskRepository taskRepository) {
+    private final TranscationRepository transcationRepository;
+    public BookingdetailService(BookingDetailsRepository bookingDetailsRepository, DesignRepository designRepository, BookingRepository bookingRepository, ICloudinaryService cloudinaryService, AccountUtils accountUtils, TshirtDesignRepository tshirtDesignRepository, IDesignService designService, IEmailService emailService, TaskRepository taskRepository, TranscationRepository transcationRepository) {
         this.bookingDetailsRepository = bookingDetailsRepository;
         this.designRepository = designRepository;
         this.bookingRepository = bookingRepository;
@@ -41,6 +43,7 @@ public class BookingdetailService implements IBookingdetailService {
         this.designService = designService;
         this.emailService = emailService;
         this.taskRepository = taskRepository;
+        this.transcationRepository = transcationRepository;
     }
 
 
@@ -95,29 +98,29 @@ public class BookingdetailService implements IBookingdetailService {
 
     @Transactional(readOnly = true)
     @Override
-    public BookingResponseNoLinkDTO getAllBookingDetailsByBookingId(String bookingId) {
+    public BookingResponseInDetail getAllBookingDetailsByBookingId(String bookingId) {
        Bookings booking= bookingRepository.findById(bookingId).orElse(null);
-        Task task = taskRepository.findByBookingId(booking.getId()).orElse(null);
+        Task task = taskRepository.findByBookingId(bookingId).orElse(null);
        List<Bookingdetails> bookingdetails= bookingDetailsRepository.findByBookingId(bookingId);
-       List<BookingResponseNoLinkDTO.BookingDetailResponse> detailResponses= new ArrayList<>();
-       BookingResponseNoLinkDTO bookingResponseNoLinkDTO= new BookingResponseNoLinkDTO();
+       List<BookingResponseInDetail.BookingDetailResponse> detailResponses= new ArrayList<>();
+       BookingResponseInDetail bookingResponseInDetail = new BookingResponseInDetail();
         if (task != null && task.getAccount() != null) {
-            bookingResponseNoLinkDTO.setDesignerName(task.getAccount().getName());
+            bookingResponseInDetail.setDesignerName(task.getAccount().getName());
         } else {
-            bookingResponseNoLinkDTO.setDesignerName(null);
+            bookingResponseInDetail.setDesignerName(null);
         }
-       bookingResponseNoLinkDTO.setDepositAmount(booking.getDepositAmount());
-       bookingResponseNoLinkDTO.setCode(booking.getCode());
-       bookingResponseNoLinkDTO.setTitle(booking.getTitle());
-       bookingResponseNoLinkDTO.setBookingStatus(booking.getStatus());
-       bookingResponseNoLinkDTO.setEnddate(booking.getEnddate());
-       bookingResponseNoLinkDTO.setTotalQuantity(booking.getTotal_quantity());
-       bookingResponseNoLinkDTO.setTotalPrice(booking.getTotal_price());
-       bookingResponseNoLinkDTO.setStartdate(booking.getStartdate());
-       bookingResponseNoLinkDTO.setUpdateddate(booking.getUpdateddate());
-       bookingResponseNoLinkDTO.setDatecreated(booking.getDatecreated());
+       bookingResponseInDetail.setDepositAmount(booking.getDepositAmount());
+       bookingResponseInDetail.setCode(booking.getCode());
+       bookingResponseInDetail.setTitle(booking.getTitle());
+       bookingResponseInDetail.setBookingStatus(booking.getStatus());
+       bookingResponseInDetail.setEnddate(booking.getEnddate());
+       bookingResponseInDetail.setTotalQuantity(booking.getTotal_quantity());
+       bookingResponseInDetail.setTotalPrice(booking.getTotal_price());
+       bookingResponseInDetail.setStartdate(booking.getStartdate());
+       bookingResponseInDetail.setUpdateddate(booking.getUpdateddate());
+       bookingResponseInDetail.setDatecreated(booking.getDatecreated());
        for(Bookingdetails detail: bookingdetails) {
-           BookingResponseNoLinkDTO.BookingDetailResponse detailResponse = new BookingResponseNoLinkDTO.BookingDetailResponse();
+           BookingResponseInDetail.BookingDetailResponse detailResponse = new BookingResponseInDetail.BookingDetailResponse();
            detailResponse.setBookingDetailId(detail.getId());
            detailResponse.setDesignFile(detail.getDesign().getDesignFile());
            detailResponse.setUnitPrice(detail.getUnit_price());
@@ -128,10 +131,10 @@ public class BookingdetailService implements IBookingdetailService {
            detailResponse.setImageUrl(detail.getTshirt().getImage_url());
            detailResponse.setTshirtDescription(detail.getTshirt().getDescription());
            detailResponse.setTshirtName(detail.getTshirt().getName());
-               List<BookingResponseNoLinkDTO.ColorResponse> colors = tshirt.getTShirtColors().stream()
+               List<BookingResponseInDetail.ColorResponse> colors = tshirt.getTShirtColors().stream()
                        .map(tShirtColor -> {
                            Color color = tShirtColor.getColor();
-                           return new BookingResponseNoLinkDTO.ColorResponse(color.getId(), color.getColorName(), color.getColorCode());
+                           return new BookingResponseInDetail.ColorResponse(color.getId(), color.getColorName(), color.getColorCode());
                        })
                        .collect(Collectors.toList());
                detailResponse.setColors(colors);
@@ -139,8 +142,67 @@ public class BookingdetailService implements IBookingdetailService {
            detailResponses.add(detailResponse);
 
        }
-        bookingResponseNoLinkDTO.setBookingDetails(detailResponses);
-       return bookingResponseNoLinkDTO;
+        bookingResponseInDetail.setBookingDetails(detailResponses);
+       return bookingResponseInDetail;
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public BookingResponseInDetailCus getAllBookingDetailsByBookingIdForCustomer(String bookingId) {
+        Bookings booking= bookingRepository.findById(bookingId).orElse(null);
+        Task task = taskRepository.findByBookingId(bookingId).orElse(null);
+        Transaction transaction=transcationRepository.findByBooking_Id(bookingId).orElse(null);
+        List<Bookingdetails> bookingdetails= bookingDetailsRepository.findByBookingId(bookingId);
+        List<BookingResponseInDetailCus.BookingDetailResponse> detailResponses= new ArrayList<>();
+        BookingResponseInDetailCus bookingResponseInDetail = new BookingResponseInDetailCus();
+        if(transaction.getTransactionStatus().equalsIgnoreCase(TransactionStatusEnum.FULLY_PAID.toString()))
+        {
+            bookingResponseInDetail.setFullyPaid(true);
+        }
+        bookingResponseInDetail.setFullyPaid(false);
+        if (task != null && task.getAccount() != null) {
+            bookingResponseInDetail.setDesignerName(task.getAccount().getName());
+        } else {
+            bookingResponseInDetail.setDesignerName(null);
+        }
+        bookingResponseInDetail.setDepositAmount(booking.getDepositAmount());
+        bookingResponseInDetail.setCode(booking.getCode());
+        bookingResponseInDetail.setTitle(booking.getTitle());
+        bookingResponseInDetail.setBookingStatus(booking.getStatus());
+        bookingResponseInDetail.setEnddate(booking.getEnddate());
+        bookingResponseInDetail.setTotalQuantity(booking.getTotal_quantity());
+        bookingResponseInDetail.setTotalPrice(booking.getTotal_price());
+        bookingResponseInDetail.setStartdate(booking.getStartdate());
+        bookingResponseInDetail.setUpdateddate(booking.getUpdateddate());
+        bookingResponseInDetail.setDatecreated(booking.getDatecreated());
+        for(Bookingdetails detail: bookingdetails) {
+            BookingResponseInDetailCus.BookingDetailResponse detailResponse = new BookingResponseInDetailCus.BookingDetailResponse();
+            detailResponse.setBookingDetailId(detail.getId());
+            detailResponse.setDesignFile(detail.getDesign().getDesignFile());
+            detailResponse.setUnitPrice(detail.getUnit_price());
+            detailResponse.setDescription(detail.getDescription());
+            Tshirts tshirt = detail.getTshirt();
+            if (tshirt != null){
+                if(bookingResponseInDetail.isFullyPaid()){
+                detailResponse.setImageFile(detail.getTshirt().getImagesfile());
+                }
+                detailResponse.setImageFile(null);
+                detailResponse.setImageUrl(detail.getTshirt().getImage_url());
+                detailResponse.setTshirtDescription(detail.getTshirt().getDescription());
+                detailResponse.setTshirtName(detail.getTshirt().getName());
+                List<BookingResponseInDetail.ColorResponse> colors = tshirt.getTShirtColors().stream()
+                        .map(tShirtColor -> {
+                            Color color = tShirtColor.getColor();
+                            return new BookingResponseInDetail.ColorResponse(color.getId(), color.getColorName(), color.getColorCode());
+                        })
+                        .collect(Collectors.toList());
+                detailResponse.setColors(colors);
+            }
+            detailResponses.add(detailResponse);
+
+        }
+        bookingResponseInDetail.setBookingDetails(detailResponses);
+        return bookingResponseInDetail;
     }
 
 
