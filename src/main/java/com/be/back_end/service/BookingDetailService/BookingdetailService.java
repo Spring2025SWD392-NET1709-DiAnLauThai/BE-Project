@@ -186,8 +186,8 @@ public class BookingdetailService implements IBookingdetailService {
             if (tshirt != null){
                 if(bookingResponseInDetail.isFullyPaid()){
                 detailResponse.setImageFile(detail.getTshirt().getImagesfile());
-                }
-                detailResponse.setImageFile(null);
+                }else{
+                detailResponse.setImageFile(null);}
                 detailResponse.setImageUrl(detail.getTshirt().getImage_url());
                 detailResponse.setTshirtDescription(detail.getTshirt().getDescription());
                 detailResponse.setTshirtName(detail.getTshirt().getName());

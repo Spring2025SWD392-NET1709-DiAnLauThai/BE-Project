@@ -257,32 +257,38 @@ public class BookingService implements IBookingService {
     }
 
 
-    @Transactional
-    @Scheduled(cron = "0 0 0 * * ?")
+    @Scheduled(cron = "*/10 * * * * ?")
     public void markCompletedBookings() {
         List<Bookings> bookings = bookingRepository.findByStatusNotAndEnddateBefore(
                 BookingEnums.COMPLETED, LocalDateTime.now()
         );
-        bookings.forEach(booking -> {
-            Task task=taskRepository.findByBookingId(booking.getId()).orElse(null);
-            if (task != null) {
-                booking.setStatus(BookingEnums.COMPLETED);
-                task.setTaskStatus(TaskStatusEnum.COMPLETE.toString());
-                bookingRepository.save(booking);
-                taskRepository.save(task);
-                String customerEmail = booking.getAccount().getEmail();
-                String customerName = booking.getAccount().getName();
-                String bookingCode = booking.getCode();
-                try {
-                    emailService.sendCustomerCompleteEmail(customerEmail, customerName, bookingCode);
-                } catch (RuntimeException e) {
-                    System.out.println("Failed to send email for booking ID: "
-                            + booking.getId() + " - " + e.getMessage());
-                }
-            } else {
-                System.out.println("Task not found for booking ID: " + booking.getId());
+        for(Bookings booking:bookings){
+            processBooking(booking);
+        }
+
+    }
+    @Transactional
+    public void processBooking(Bookings booking)
+    {
+        Task task=taskRepository.findByBookingId(booking.getId()).orElse(null);
+        if (task != null) {
+            booking.setStatus(BookingEnums.COMPLETED);
+            task.setTaskStatus(TaskStatusEnum.COMPLETE.toString());
+            bookingRepository.save(booking);
+            taskRepository.save(task);
+            String customerEmail = booking.getAccount().getEmail();
+            String customerName = booking.getAccount().getName();
+            String bookingCode = booking.getCode();
+            try {
+                emailService.sendCustomerCompleteEmail(customerEmail, customerName, bookingCode);
+            }catch (RuntimeException e){
+                System.out.println("Failed to send email for booking ID: "
+                        + booking.getId() + " - " + e.getMessage());
             }
-        });
+
+        } else {
+            System.out.println("Task not found for booking ID: " + booking.getId());
+        }
     }
 
     @Override

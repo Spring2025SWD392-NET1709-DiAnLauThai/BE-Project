@@ -46,7 +46,7 @@ public class TshirtsService implements  ITshirtsService{
         dto.setName(tshirts.getName());
         dto.setCreatedAt(tshirts.getCreatedAt());
         dto.setImageUrl(tshirts.getImage_url());
-
+        dto.setImageFile(tshirts.getImagesfile());
         return dto;
     }
 
@@ -63,9 +63,10 @@ public class TshirtsService implements  ITshirtsService{
     }
    @Override
    public Tshirts saveTshirt(TshirtCreateRequest tshirtCreateRequest) {
-
+        Account account= accountUtils.getCurrentAccount();
        Tshirts tshirt = new Tshirts();
        tshirt.setDescription(tshirtCreateRequest.getDescription());
+       tshirt.setAccount(account);
        tshirt.setStatus(ActivationEnums.INACTIVE);
        tshirt.setName(tshirtCreateRequest.getTshirtname());
        tshirt.setImage_url(tshirtCreateRequest.getImgurl());
@@ -93,6 +94,7 @@ public class TshirtsService implements  ITshirtsService{
                                                           LocalDateTime dateTo,
                                                           String sortDir,
                                                           String sortBy) {
+        String id=accountUtils.getCurrentAccount().getId();
         Sort.Direction sort;
         if(sortDir.equals("asc")){
             sort=Sort.Direction.ASC;
@@ -102,12 +104,12 @@ public class TshirtsService implements  ITshirtsService{
         Page<Tshirts> tshirts;
         if(dateFrom!=null&&dateTo!=null)
         {
-           tshirts= tshirtsRepository.findByCreatedAtBetweenAndBookingdetailsIsNull(dateFrom,dateTo,pageable);
+           tshirts= tshirtsRepository.findByCreatedAtBetweenAndBookingdetailsIsNullAndAccount_Id(dateFrom,dateTo,id,pageable);
         }else if(keyword!=null)
         {
-            tshirts=tshirtsRepository.findByNameContainingIgnoreCaseAndBookingdetailsIsNull(keyword,pageable);
+            tshirts=tshirtsRepository.findByNameContainingIgnoreCaseAndBookingdetailsIsNullAndAccount_Id(keyword,id,pageable);
         }else{
-        tshirts=tshirtsRepository.findByBookingdetailsIsNull(pageable);}
+        tshirts=tshirtsRepository.findByBookingdetailsIsNullAndAccount_Id(id,pageable);}
         List<TshirtsDTO> tshirtsDTOList= new ArrayList<>();
         for(Tshirts tshirt:tshirts.getContent())
         {

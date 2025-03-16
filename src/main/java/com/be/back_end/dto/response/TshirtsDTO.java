@@ -12,7 +12,7 @@ public class TshirtsDTO {
     private String tshirtId;
     private String name;
     private String description;
-
+    private String imageFile;
     private String imageUrl;
     private LocalDateTime createdAt;
 }

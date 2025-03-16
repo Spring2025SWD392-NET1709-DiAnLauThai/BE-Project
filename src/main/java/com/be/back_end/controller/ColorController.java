@@ -1,5 +1,6 @@
 package com.be.back_end.controller;
 
+import com.be.back_end.dto.request.ColorCreateRequest;
 import com.be.back_end.dto.request.ColorDTO;
 import com.be.back_end.dto.response.ApiResponse;
 import com.be.back_end.dto.response.ErrorResponse;
@@ -20,7 +21,7 @@ public class ColorController {
     }
 
     @PostMapping
-    public ResponseEntity<?> addColor(@RequestBody ColorDTO colorDTO) {
+    public ResponseEntity<?> addColor(@RequestBody ColorCreateRequest colorDTO) {
         if (colorService.addColor(colorDTO)) {
             return ResponseEntity.status(200).body(new ApiResponse<>(200,null,"Color added"));
         }

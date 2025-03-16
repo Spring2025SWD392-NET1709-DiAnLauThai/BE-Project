@@ -32,7 +32,7 @@ public class TshirtsController {
     }
 
 
-    @PostMapping("/update")
+    @PutMapping("/update")
     public ResponseEntity<?> updateTshirt(@RequestBody TshirtsDTO tshirtDto) {
         boolean isUpdated = tshirtsService.updateTshirt(tshirtDto);
 
