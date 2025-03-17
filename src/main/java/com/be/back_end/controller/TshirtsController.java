@@ -1,10 +1,7 @@
 package com.be.back_end.controller;
 
-import com.be.back_end.dto.response.TshirtsDTO;
+import com.be.back_end.dto.response.*;
 import com.be.back_end.dto.request.TshirtCreateRequest;
-import com.be.back_end.dto.response.ApiResponse;
-import com.be.back_end.dto.response.ErrorResponse;
-import com.be.back_end.dto.response.PaginatedResponseDTO;
 import com.be.back_end.model.Tshirts;
 import com.be.back_end.service.CloudinaryService.ICloudinaryService;
 import com.be.back_end.service.TshirtsService.ITshirtsService;
@@ -15,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -33,7 +29,7 @@ public class TshirtsController {
 
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateTshirt(@RequestBody TshirtsDTO tshirtDto) {
+    public ResponseEntity<?> updateTshirt(@RequestBody TshirtsListDesignerResponse tshirtDto) {
         boolean isUpdated = tshirtsService.updateTshirt(tshirtDto);
 
         if (!isUpdated) {
@@ -97,6 +93,22 @@ public class TshirtsController {
                     .body(new ErrorResponse(500, "Server error", List.of("Unexpected error occurred.")));
         }
     }
+    @GetMapping("/available")
+    public ResponseEntity<?> getAllAvailableTshirt() {
+        try {
+            List<TshirtsListAvailableResponse> availableTshirts = tshirtsService.getAllTshirtsAvailable();
+
+            if (availableTshirts.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.NO_CONTENT)
+                        .body(new ApiResponse<>(204, null, "No available T-shirts found"));
+            }
+
+            return ResponseEntity.ok(new ApiResponse<>(200, availableTshirts, "Available T-shirts retrieved successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(500, "Server error", List.of("Unexpected error occurred.")));
+        }
+    }
 
 
 
@@ -112,7 +124,7 @@ public class TshirtsController {
             return ResponseEntity.status(400)
                     .body(new ErrorResponse(400, null, List.of("Page and size must be positive values")));
         }
-        PaginatedResponseDTO<TshirtsDTO> accounts = tshirtsService.getAllTshirts(
+        PaginatedResponseDTO<TshirtsListDesignerResponse> accounts = tshirtsService.getAllTshirtsDesigner(
                 keyword, page, size, dateFrom, dateTo, sortDir, sortBy
         );
         if (accounts.getContent().isEmpty()) {

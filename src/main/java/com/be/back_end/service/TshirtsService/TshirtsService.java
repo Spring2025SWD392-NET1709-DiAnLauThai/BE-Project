@@ -1,6 +1,7 @@
 package com.be.back_end.service.TshirtsService;
 
-import com.be.back_end.dto.response.TshirtsDTO;
+import com.be.back_end.dto.response.TshirtsListAvailableResponse;
+import com.be.back_end.dto.response.TshirtsListDesignerResponse;
 
 import com.be.back_end.dto.request.TshirtCreateRequest;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
@@ -39,8 +40,8 @@ public class TshirtsService implements  ITshirtsService{
         this.tshirtColorRepository = tshirtColorRepository;
         this.bookingDetailsRepository = bookingDetailsRepository;
     }
-    private TshirtsDTO mapToDTO(Tshirts tshirts) {
-        TshirtsDTO dto = new TshirtsDTO();
+    private TshirtsListDesignerResponse mapToDTO(Tshirts tshirts) {
+        TshirtsListDesignerResponse dto = new TshirtsListDesignerResponse();
         dto.setTshirtId(tshirts.getId());
         dto.setDescription(tshirts.getDescription());
         dto.setName(tshirts.getName());
@@ -50,7 +51,7 @@ public class TshirtsService implements  ITshirtsService{
         return dto;
     }
 
-    private Tshirts mapToEntity(TshirtsDTO dto) {
+    private Tshirts mapToEntity(TshirtsListDesignerResponse dto) {
         Tshirts tshirt = new Tshirts();
 
         tshirt.setName(dto.getName());
@@ -87,13 +88,33 @@ public class TshirtsService implements  ITshirtsService{
    }
     @Transactional(readOnly = true)
     @Override
-    public PaginatedResponseDTO<TshirtsDTO> getAllTshirts(String keyword,
-                                                          int page,
-                                                          int size,
-                                                          LocalDateTime dateFrom,
-                                                          LocalDateTime dateTo,
-                                                          String sortDir,
-                                                          String sortBy) {
+    public List<TshirtsListAvailableResponse> getAllTshirtsAvailable() {
+        String id=accountUtils.getCurrentAccount().getId();
+        List<Tshirts>tshirtsList=tshirtsRepository.findByBookingdetailsIsNullAndAccount_Id(id);
+        List<TshirtsListAvailableResponse> listAvailableResponses= new ArrayList<>();
+        for(Tshirts tshirt:tshirtsList)
+        {
+            TshirtsListAvailableResponse response= new TshirtsListAvailableResponse();
+            response.setTshirtId(tshirt.getId());
+            response.setName(tshirt.getName());
+            response.setImageUrl(tshirt.getImage_url());
+            response.setDescription(tshirt.getDescription());
+            listAvailableResponses.add(response);
+        }
+        return  listAvailableResponses;
+
+
+    }
+
+    @Transactional(readOnly = true)
+    @Override
+    public PaginatedResponseDTO<TshirtsListDesignerResponse> getAllTshirtsDesigner(String keyword,
+                                                                           int page,
+                                                                           int size,
+                                                                           LocalDateTime dateFrom,
+                                                                           LocalDateTime dateTo,
+                                                                           String sortDir,
+                                                                           String sortBy) {
         String id=accountUtils.getCurrentAccount().getId();
         Sort.Direction sort;
         if(sortDir.equals("asc")){
@@ -104,19 +125,19 @@ public class TshirtsService implements  ITshirtsService{
         Page<Tshirts> tshirts;
         if(dateFrom!=null&&dateTo!=null)
         {
-           tshirts= tshirtsRepository.findByCreatedAtBetweenAndBookingdetailsIsNullAndAccount_Id(dateFrom,dateTo,id,pageable);
+           tshirts= tshirtsRepository.findByCreatedAtBetweenAndAccount_Id(dateFrom,dateTo,id,pageable);
         }else if(keyword!=null)
         {
-            tshirts=tshirtsRepository.findByNameContainingIgnoreCaseAndBookingdetailsIsNullAndAccount_Id(keyword,id,pageable);
+            tshirts=tshirtsRepository.findByNameContainingIgnoreCaseAndAccount_Id(keyword,id,pageable);
         }else{
-        tshirts=tshirtsRepository.findByBookingdetailsIsNullAndAccount_Id(id,pageable);}
-        List<TshirtsDTO> tshirtsDTOList= new ArrayList<>();
+        tshirts=tshirtsRepository.findByAccount_Id(id,pageable);}
+        List<TshirtsListDesignerResponse> tshirtsListDesignerResponseList = new ArrayList<>();
         for(Tshirts tshirt:tshirts.getContent())
         {
-            tshirtsDTOList.add(mapToDTO(tshirt));
+            tshirtsListDesignerResponseList.add(mapToDTO(tshirt));
         }
-        PaginatedResponseDTO<TshirtsDTO>response =new PaginatedResponseDTO<>();
-        response.setContent(tshirtsDTOList);
+        PaginatedResponseDTO<TshirtsListDesignerResponse>response =new PaginatedResponseDTO<>();
+        response.setContent(tshirtsListDesignerResponseList);
         response.setPageSize(tshirts.getSize());
         response.setPageNumber(tshirts.getNumber());
         response.setTotalPages(tshirts.getTotalPages());
@@ -126,12 +147,12 @@ public class TshirtsService implements  ITshirtsService{
 
     }
     @Override
-    public TshirtsDTO getTshirtById(String id) {
+    public TshirtsListDesignerResponse getTshirtById(String id) {
         Tshirts tshirt= tshirtsRepository.findById(id).orElse(null);
         return mapToDTO(tshirt);
     }
     @Override
-    public boolean updateTshirt(TshirtsDTO tshirt){
+    public boolean updateTshirt(TshirtsListDesignerResponse tshirt){
         Tshirts updateTshirt= tshirtsRepository.findById(tshirt.getTshirtId()).orElse(null);
         if(updateTshirt==null){
             return false;

@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Setter
-public class TshirtsDTO {
+public class TshirtsListDesignerResponse {
     private String tshirtId;
     private String name;
     private String description;

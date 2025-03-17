@@ -16,7 +16,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @NoArgsConstructor
-
 public class Tshirts {
 
     @Id
@@ -56,16 +55,16 @@ public class Tshirts {
 
     @OneToOne(mappedBy = "tshirt", cascade = CascadeType.ALL, orphanRemoval = true)
     private Bookingdetails bookingdetails;
-
-
-
     @PrePersist
-    protected  void OnCreate(){
+    protected  void onCreate(){
         if (id == null) {
             id = UUID.randomUUID().toString();
         }
         createdAt=LocalDateTime.now();
     }
+
+
+
 
 
 

@@ -1,10 +1,6 @@
 package com.be.back_end.service.AccountService;
 
-import com.be.back_end.dto.request.AccountDTO;
-import com.be.back_end.dto.request.CreateAccountRequest;
-import com.be.back_end.dto.request.RegisterRequest;
-import com.be.back_end.dto.request.UpdateAccountRequest;
-import com.be.back_end.dto.request.UpdateProfileRequest;
+import com.be.back_end.dto.request.*;
 import com.be.back_end.dto.response.AccountCreationResponse;
 import com.be.back_end.dto.response.JwtResponse;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
@@ -31,7 +27,7 @@ public interface IAccountService {
     boolean validateToken();
     String getUsernameFromToken(String token);
     boolean registerUser(RegisterRequest registerRequest);
-    JwtResponse refreshAccessToken(String refreshToken);
+    JwtResponse refreshAccessToken(RefreshTokenRequest refreshToken);
     AccountCreationResponse createAccount(CreateAccountRequest request);
     JwtResponse handleGoogleLogin(String authCode);
 }
