@@ -20,6 +20,7 @@ public class Feedback {
     @Id
     @Column(name = "feedbackid", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
     private String id;
+    @Enumerated(EnumType.STRING)
     @Column(name="type")
     private FeedbackTypeEnums type;
     @Column(name="rating")
