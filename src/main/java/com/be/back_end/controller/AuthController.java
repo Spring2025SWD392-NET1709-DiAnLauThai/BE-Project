@@ -1,5 +1,6 @@
 package com.be.back_end.controller;
 
+import com.be.back_end.dto.request.RefreshTokenRequest;
 import com.be.back_end.dto.request.RegisterRequest;
 import com.be.back_end.dto.response.ApiResponse;
 import com.be.back_end.dto.response.ErrorResponse;
@@ -72,7 +73,7 @@ public class AuthController {
     }
 
     @PostMapping("/refresh-token")
-    public ResponseEntity<?> refreshToken(@RequestBody String refreshToken) {
+    public ResponseEntity<?> refreshToken(@RequestBody RefreshTokenRequest refreshToken) {
         JwtResponse jwtResponse = accountService.refreshAccessToken(refreshToken);
 
         if (jwtResponse == null || jwtResponse.getAccessToken() == null) {

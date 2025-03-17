@@ -24,7 +24,7 @@ public class FeedbackService implements IFeedbackService {
         Feedback feedback = new Feedback();
 
 
-        feedback.setType(FeedbackTypeEnums.ORDER);
+        feedback.setType(FeedbackTypeEnums.T_SHIRT);
         feedback.setRating(feedbackCreateRequest.getRating());
         feedback.setDetail(feedbackCreateRequest.getDetail());
         feedbackRepository.save(feedback);

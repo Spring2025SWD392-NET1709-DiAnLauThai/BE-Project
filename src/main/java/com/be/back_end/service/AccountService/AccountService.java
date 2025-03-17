@@ -1,11 +1,7 @@
 package com.be.back_end.service.AccountService;
 
 
-import com.be.back_end.dto.request.AccountDTO;
-import com.be.back_end.dto.request.CreateAccountRequest;
-import com.be.back_end.dto.request.RegisterRequest;
-import com.be.back_end.dto.request.UpdateAccountRequest;
-import com.be.back_end.dto.request.UpdateProfileRequest;
+import com.be.back_end.dto.request.*;
 import com.be.back_end.dto.response.AccountCreationResponse;
 import com.be.back_end.dto.response.JwtResponse;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
@@ -85,12 +81,12 @@ public class AccountService implements IAccountService{
     }
 
     @Override
-    public JwtResponse refreshAccessToken(String refreshToken) {
+    public JwtResponse refreshAccessToken(RefreshTokenRequest refreshToken) {
         try {
-            if (!jwtUtils.isRefreshToken(refreshToken)) { // Check "type" claim
+            if (!jwtUtils.isRefreshToken(refreshToken.getRefreshToken())) {
                 return null;
             }
-            String userId = jwtUtils.getUserIdFromJwtToken(refreshToken); // Extract userId
+            String userId = jwtUtils.getUserIdFromJwtToken(refreshToken.getRefreshToken()); // Extract userId
             String newAccessToken = jwtUtils.generateTokenFromUserID(userId);
             String newRefreshToken= jwtUtils.generateRefreshToken(userId);
             return new JwtResponse(newAccessToken,newRefreshToken);
