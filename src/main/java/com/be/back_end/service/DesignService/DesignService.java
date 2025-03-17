@@ -6,7 +6,6 @@ import com.be.back_end.model.*;
 import com.be.back_end.repository.*;
 import com.be.back_end.service.CloudinaryService.ICloudinaryService;
 import com.be.back_end.service.TshirtColorService.ITshirtColorService;
-import com.be.back_end.service.TshirtDesignService.ITshirtDesignService;
 import com.be.back_end.service.TshirtsService.ITshirtsService;
 import com.be.back_end.utils.AccountUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,16 +17,14 @@ public class DesignService implements IDesignService {
     private final AccountUtils accountUtils;
     private final DesignRepository designsRepository;
     private final ITshirtsService tshirtsService;
-    private final ITshirtDesignService tshirtDesignService;
     private final ITshirtColorService tshirtColorService;
     @Autowired
-    public DesignService(ICloudinaryService cloudinaryService, AccountUtils accountUtils, DesignRepository designsRepository, ITshirtsService tshirtsService, ITshirtDesignService tshirtDesignService, ITshirtColorService tshirtColorService) {
+    public DesignService(ICloudinaryService cloudinaryService, AccountUtils accountUtils, DesignRepository designsRepository, ITshirtsService tshirtsService, ITshirtColorService tshirtColorService) {
         this.cloudinaryService = cloudinaryService;
         this.accountUtils = accountUtils;
         this.designsRepository = designsRepository;
 
         this.tshirtsService = tshirtsService;
-        this.tshirtDesignService = tshirtDesignService;
         this.tshirtColorService = tshirtColorService;
     }
 

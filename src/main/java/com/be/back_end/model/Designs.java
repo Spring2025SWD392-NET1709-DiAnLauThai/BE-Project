@@ -31,8 +31,6 @@ public class Designs {
     @Column(name="designfile")
     private String designFile;
 
-    @OneToMany(mappedBy = "design", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<TshirtDesign> tshirtDesigns;
 
     @OneToOne(mappedBy = "design", cascade = CascadeType.ALL, orphanRemoval = true)
     private Bookingdetails bookingdetails;

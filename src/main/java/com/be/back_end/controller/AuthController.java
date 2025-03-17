@@ -51,14 +51,26 @@ public class AuthController {
                 .body(new ApiResponse<>(401, null, "Token is invalid or expired"));
     }
     @GetMapping("/google/login")
-    public ResponseEntity<ApiResponse<String>> getGoogleAuthUrl() {
-        return ResponseEntity.ok(new ApiResponse<>(200, googleService.generateGoogleAuthUrl(), "Google Auth URL generated successfully"));
+    public ResponseEntity<?> getGoogleAuthUrl() {
+        try {
+            String authUrl = googleService.generateGoogleAuthUrl();
+            return ResponseEntity.ok(new ApiResponse<>(200, authUrl, "Google Auth URL generated successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(500, "Failed to generate Google Auth URL", List.of(e.getMessage())));
+        }
     }
 
     @GetMapping("/google/callback")
-    public ResponseEntity<ApiResponse<JwtResponse>> googleCallback(@RequestParam("code") String code) {
-        JwtResponse jwtResponse = accountService.handleGoogleLogin(code);
-        return ResponseEntity.ok(new ApiResponse<>(200, jwtResponse, "Login successful"));
+    public ResponseEntity<?> googleCallback(@RequestParam("code") String code) {
+        try {
+            JwtResponse jwtResponse = accountService.handleGoogleLogin(code);
+            return ResponseEntity.ok(new ApiResponse<>(200, jwtResponse, "Login successful"));
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(500, "An error occurred during login", List.of(e.getMessage())));
+        }
     }
 
 
