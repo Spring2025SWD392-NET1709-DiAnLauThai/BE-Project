@@ -50,6 +50,8 @@ public class Bookings {
     @Column(name="updateddate")
     private LocalDateTime updateddate;
 
+    @Column(name="ispublic")
+    private boolean ispublic;
     @Column(name="startdate")
     private LocalDateTime startdate;
 
@@ -73,6 +75,7 @@ public class Bookings {
         }
         datecreated = LocalDateTime.now();
         updateddate = datecreated;
+        ispublic=false;
     }
     @PreUpdate
     protected void onUpdate() {

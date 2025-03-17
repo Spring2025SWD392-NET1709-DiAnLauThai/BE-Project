@@ -11,8 +11,7 @@ import java.time.LocalDateTime;
 public class TshirtsListsResponse {
     private String id;
     private String name;
-    private String description;
     private String accountName;
     private String imageUrl;
-    private LocalDateTime createdAt;
+    private String rating;
 }

@@ -5,6 +5,7 @@ import com.be.back_end.dto.response.TshirtsListDesignerResponse;
 
 import com.be.back_end.dto.request.TshirtCreateRequest;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
+import com.be.back_end.dto.response.TshirtsListsResponse;
 import com.be.back_end.enums.ActivationEnums;
 import com.be.back_end.enums.BookingEnums;
 import com.be.back_end.model.*;
@@ -143,9 +144,65 @@ public class TshirtsService implements  ITshirtsService{
         response.setTotalPages(tshirts.getTotalPages());
         response.setTotalElements(tshirts.getTotalElements());
         return  response;
-
-
     }
+    @Transactional(readOnly = true)
+    @Override
+    public PaginatedResponseDTO<TshirtsListsResponse> getAllTshirtCatalog(String keyword,
+                                                                          int page,
+                                                                          int size,
+                                                                          LocalDateTime dateFrom,
+                                                                          LocalDateTime dateTo,
+                                                                          String sortDir,
+                                                                          String sortBy) {
+        Sort.Direction sort;
+        if(sortDir.equals("asc")){
+            sort=Sort.Direction.ASC;
+        }else{
+            sort= Sort.Direction.DESC;}
+        Pageable pageable= PageRequest.of(page-1,size,sort,sortBy);
+        Page<Tshirts> tshirts;
+        if(keyword!=null&&dateFrom!=null&&dateTo!=null)
+        {
+            tshirts=tshirtsRepository.findByBookingdetails_Booking_IspublicTrueAndNameContainingIgnoreCaseAndCreatedAtBetween(keyword,dateFrom,dateTo,pageable);
+        }
+        else if(dateFrom!=null&&dateTo!=null)
+        {
+            tshirts= tshirtsRepository.findByBookingdetails_Booking_IspublicTrueAndCreatedAtBetween(dateFrom,dateTo,pageable);
+        }
+
+        else if(keyword!=null)
+        {
+            tshirts=tshirtsRepository.findByBookingdetails_Booking_IspublicTrueAndNameContainingIgnoreCase(keyword,pageable);
+        }
+        else{
+            tshirts=tshirtsRepository.findByBookingdetails_Booking_IspublicTrue(pageable);}
+        List<TshirtsListsResponse> tshirtsListsResponses = new ArrayList<>();
+        for(Tshirts tshirt:tshirts.getContent())
+        {
+            tshirtsListsResponses.add(mapToDTOCatalog(tshirt));
+        }
+        PaginatedResponseDTO<TshirtsListsResponse>response =new PaginatedResponseDTO<>();
+        response.setContent(tshirtsListsResponses);
+        response.setPageSize(tshirts.getSize());
+        response.setPageNumber(tshirts.getNumber());
+        response.setTotalPages(tshirts.getTotalPages());
+        response.setTotalElements(tshirts.getTotalElements());
+        return  response;
+    }
+    private TshirtsListsResponse mapToDTOCatalog(Tshirts tshirt) {
+        TshirtsListsResponse response = new TshirtsListsResponse();
+        response.setId(tshirt.getId());
+        response.setName(tshirt.getName());
+        response.setAccountName(tshirt.getAccount().getName());
+        response.setImageUrl(tshirt.getImage_url());
+        double rating = tshirt.getTshirtFeedbacks().stream()
+                .mapToInt(tfb -> tfb.getFeedback().getRating())
+                .average()
+                .orElse(0.0);
+        response.setRating(String.valueOf(rating));
+        return response;
+    }
+
     @Override
     public TshirtsListDesignerResponse getTshirtById(String id) {
         Tshirts tshirt= tshirtsRepository.findById(id).orElse(null);

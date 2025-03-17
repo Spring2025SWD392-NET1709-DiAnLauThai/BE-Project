@@ -2,6 +2,7 @@ package com.be.back_end.controller;
 
 import com.be.back_end.dto.request.BookingCreateRequest;
 import com.be.back_end.dto.request.CancelBookingRequest;
+import com.be.back_end.dto.request.PublicTshirtRequest;
 import com.be.back_end.dto.response.*;
 import com.be.back_end.service.BookingService.IBookingService;
 import com.be.back_end.service.TranscationService.ITranscationService;
@@ -102,7 +103,20 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
 
-
+    @PutMapping("/{bookingId}/public")
+    public ResponseEntity<?> publicTshirt(@RequestBody @Valid PublicTshirtRequest request) {
+        try {
+            boolean isPublic = bookingService.publicTshirt(request);
+            if (isPublic) {
+                return ResponseEntity.ok(new ApiResponse<>(200, true, "Booking made public successfully"));
+            }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(500, "Failed to make booking public", List.of("Unexpected error occurred.")));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(404, "Booking not found", List.of(e.getMessage())));
+        }
+    }
 
 
 

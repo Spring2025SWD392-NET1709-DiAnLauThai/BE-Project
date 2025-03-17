@@ -2,6 +2,7 @@ package com.be.back_end.service.BookingService;
 
 import com.be.back_end.dto.request.BookingCreateRequest;
 import com.be.back_end.dto.request.CancelBookingRequest;
+import com.be.back_end.dto.request.PublicTshirtRequest;
 import com.be.back_end.dto.response.BookingCreateResponse;
 import com.be.back_end.dto.response.BookingResponse;
 import com.be.back_end.dto.response.PaginatedResponseDTO;
@@ -291,12 +292,15 @@ public class BookingService implements IBookingService {
         }
     }
 
+    @Transactional
     @Override
-    public boolean deletebooking(String id) {
-        if (bookingRepository.existsById(id)) {
-            bookingRepository.deleteById(id);
-            return true;
+    public boolean publicTshirt(PublicTshirtRequest tshirtRequest) {
+      Bookings bookings=bookingRepository.findById(tshirtRequest.getBookingId()).orElse(null);
+        if (bookings == null) {
+            throw new IllegalArgumentException("Booking not found with ID: " + tshirtRequest.getBookingId());
         }
-        return false;
+      bookings.setIspublic(true);
+      bookingRepository.save(bookings);
+      return true;
     }
 }
