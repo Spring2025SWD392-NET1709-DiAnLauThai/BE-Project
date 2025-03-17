@@ -112,6 +112,7 @@ public class TshirtsController {
 
 
 
+
     @GetMapping
     public ResponseEntity<?> getAllTshirt(@RequestParam(required = false) String keyword,
                                           @RequestParam(defaultValue = "1") int page,
@@ -125,6 +126,26 @@ public class TshirtsController {
                     .body(new ErrorResponse(400, null, List.of("Page and size must be positive values")));
         }
         PaginatedResponseDTO<TshirtsListDesignerResponse> accounts = tshirtsService.getAllTshirtsDesigner(
+                keyword, page, size, dateFrom, dateTo, sortDir, sortBy
+        );
+        if (accounts.getContent().isEmpty()) {
+            return ResponseEntity.status(204).body(new ApiResponse<>(204, null, "No data available"));
+        }
+        return ResponseEntity.ok(new ApiResponse<>(200, accounts, "Page returned: " + page));
+    }
+    @GetMapping("/public")
+    public ResponseEntity<?> getAllTshirtPublic(@RequestParam(required = false) String keyword,
+                                          @RequestParam(defaultValue = "1") int page,
+                                          @RequestParam(defaultValue = "10") int size,
+                                          @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime dateFrom,
+                                          @RequestParam(required = false) @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss") LocalDateTime dateTo,
+                                          @RequestParam(defaultValue = "asc") String sortDir,
+                                          @RequestParam(defaultValue = "createdAt") String sortBy) {
+        if (page < 0 || size <= 0) {
+            return ResponseEntity.status(400)
+                    .body(new ErrorResponse(400, null, List.of("Page and size must be positive values")));
+        }
+        PaginatedResponseDTO<TshirtsListsResponse> accounts = tshirtsService.getAllTshirtCatalog(
                 keyword, page, size, dateFrom, dateTo, sortDir, sortBy
         );
         if (accounts.getContent().isEmpty()) {

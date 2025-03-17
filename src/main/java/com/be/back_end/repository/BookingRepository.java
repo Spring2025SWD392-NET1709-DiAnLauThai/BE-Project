@@ -23,7 +23,6 @@ public interface BookingRepository extends JpaRepository<Bookings, String> {
     @Query("SELECT COALESCE(SUM(b.unit_price), 0) FROM Bookingdetails b WHERE b.booking.id = :bookingId")
     BigDecimal getTotalPriceByBookingId(@Param("bookingId") String bookingId);
 
-    // Count total quantity (number of booking details) for a given booking ID
     @Query("SELECT COUNT(b) FROM Bookingdetails b WHERE b.booking.id = :bookingId")
     Integer getTotalQuantityByBookingId(@Param("bookingId") String bookingId);
 

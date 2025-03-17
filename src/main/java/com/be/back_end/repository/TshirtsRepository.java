@@ -17,4 +17,14 @@ public interface TshirtsRepository extends JpaRepository<Tshirts,String> {
     Page<Tshirts> findByCreatedAtBetweenAndAccount_Id(LocalDateTime dateFrom, LocalDateTime dateTo,String accountId, Pageable pageable);
     Page<Tshirts> findByAccount_Id(String accountId,Pageable pageable);
     List<Tshirts> findByBookingdetailsIsNullAndAccount_Id(String accountId);
+    Page<Tshirts> findByNameContainingIgnoreCase( String name,Pageable pageable);
+    Page<Tshirts> findByCreatedAtBetween(LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
+
+    Page<Tshirts> findByBookingdetails_Booking_IspublicTrue(Pageable pageable);
+    Page<Tshirts> findByBookingdetails_Booking_IspublicTrueAndNameContainingIgnoreCase(
+            String keyword, Pageable pageable);
+    Page<Tshirts> findByBookingdetails_Booking_IspublicTrueAndCreatedAtBetween(
+            LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
+    Page<Tshirts> findByBookingdetails_Booking_IspublicTrueAndNameContainingIgnoreCaseAndCreatedAtBetween(
+            String keyword, LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
 }
