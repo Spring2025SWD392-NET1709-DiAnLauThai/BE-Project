@@ -28,18 +28,16 @@ public class BookingdetailService implements IBookingdetailService {
     private final BookingRepository bookingRepository;
     private final ICloudinaryService cloudinaryService;
     private final AccountUtils accountUtils;
-    private final TshirtDesignRepository tshirtDesignRepository;
     private final IDesignService designService;
     private final IEmailService emailService;
     private final TaskRepository taskRepository;
     private final TranscationRepository transcationRepository;
-    public BookingdetailService(BookingDetailsRepository bookingDetailsRepository, DesignRepository designRepository, BookingRepository bookingRepository, ICloudinaryService cloudinaryService, AccountUtils accountUtils, TshirtDesignRepository tshirtDesignRepository, IDesignService designService, IEmailService emailService, TaskRepository taskRepository, TranscationRepository transcationRepository) {
+    public BookingdetailService(BookingDetailsRepository bookingDetailsRepository, DesignRepository designRepository, BookingRepository bookingRepository, ICloudinaryService cloudinaryService, AccountUtils accountUtils, IDesignService designService, IEmailService emailService, TaskRepository taskRepository, TranscationRepository transcationRepository) {
         this.bookingDetailsRepository = bookingDetailsRepository;
         this.designRepository = designRepository;
         this.bookingRepository = bookingRepository;
         this.cloudinaryService = cloudinaryService;
         this.accountUtils = accountUtils;
-        this.tshirtDesignRepository = tshirtDesignRepository;
         this.designService = designService;
         this.emailService = emailService;
         this.taskRepository = taskRepository;

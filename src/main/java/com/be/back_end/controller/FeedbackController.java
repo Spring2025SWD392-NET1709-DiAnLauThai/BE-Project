@@ -18,15 +18,15 @@ public class FeedbackController {
         this.feedbackService = feedbackService;
     }
 
-    /*@PostMapping
+    @PostMapping("/tshirt")
     public ResponseEntity<?> addFeedback(@RequestBody FeedbackCreateRequest feedbackCreateRequest) {
-
-            feedbackService.createFeedback(feedbackCreateRequest);
-            return ResponseEntity.ok(new ApiResponse<>(200,null,"Feedback Created for this booking"));
-
+        if(feedbackService.createFeedback(feedbackCreateRequest)){
+            return ResponseEntity.status(200).body(new ApiResponse<>(200,null,"Feedback added"));
+        }
+        return ResponseEntity.status(400).body(new ApiResponse<>(200,null,"Feedback added"));
     }
 
-    @GetMapping
+    /*@GetMapping
     public List<Feedback> getAllFeedbacks() {
         return feedbackService.getAllFeedbacks();
     }
