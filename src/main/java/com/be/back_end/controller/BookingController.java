@@ -5,21 +5,12 @@ import com.be.back_end.dto.request.CancelBookingRequest;
 import com.be.back_end.dto.request.PublicTshirtRequest;
 import com.be.back_end.dto.response.*;
 import com.be.back_end.service.BookingService.IBookingService;
-import com.be.back_end.service.TranscationService.ITranscationService;
 import com.be.back_end.service.TranscationService.IVNPayService;
-import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
-import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 

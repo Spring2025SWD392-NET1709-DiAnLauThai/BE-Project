@@ -1,5 +1,6 @@
 package com.be.back_end.exception;
 
+import java.time.format.DateTimeParseException;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import com.be.back_end.dto.response.ApiResponse;
 import com.be.back_end.dto.response.ErrorResponse;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -83,5 +85,19 @@ public class GlobalExceptionHandler {
                 "",
                 Collections.singletonList(ex.getMessage()));
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
+    }
+
+    // Handle date time validation errors
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ResponseEntity<Object> handleDateFormatException(MethodArgumentTypeMismatchException ex) {
+        Map<String, Object> body = new HashMap<>();
+
+        if (ex.getCause() instanceof DateTimeParseException) {
+            body.put("message", "Invalid date format. Please use ISO format (YYYY-MM-DD)");
+        } else {
+            body.put("message", "Invalid argument type: " + ex.getMessage());
+        }
+
+        return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 }

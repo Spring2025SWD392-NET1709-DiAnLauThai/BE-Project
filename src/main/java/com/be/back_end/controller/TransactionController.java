@@ -4,9 +4,7 @@ package com.be.back_end.controller;
 
 import com.be.back_end.dto.request.TransactionRequest;
 import com.be.back_end.dto.response.*;
-import com.be.back_end.enums.ActivationEnums;
-import com.be.back_end.enums.RoleEnums;
-import com.be.back_end.service.TranscationService.ITranscationService;
+import com.be.back_end.service.TranscationService.ITransactionService;
 
 import com.be.back_end.service.TranscationService.IVNPayService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -17,19 +15,21 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.Month;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/transcations")
-public class TranscationController {
+@RequestMapping("/api/transactions")
+public class TransactionController {
 
-    private final ITranscationService transcationService;
+    private final ITransactionService transactionService;
     private final IVNPayService vnpayService;
 
 
-    public TranscationController(ITranscationService transcationService, IVNPayService vnpayService) {
-        this.transcationService = transcationService;
+    public TransactionController(ITransactionService transactionService, IVNPayService vnpayService) {
+        this.transactionService = transactionService;
         this.vnpayService = vnpayService;
     }
 
@@ -37,7 +37,7 @@ public class TranscationController {
 
     @PostMapping
     public ResponseEntity<TransactionDTO> createTranscation(@RequestBody TransactionDTO TransactionDTO) {
-        TransactionDTO createdDesign = transcationService.create(TransactionDTO);
+        TransactionDTO createdDesign = transactionService.create(TransactionDTO);
         System.out.println("Transcation created successfully.");
         return ResponseEntity.ok(createdDesign);
     }
@@ -45,7 +45,7 @@ public class TranscationController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getTranscationById(@PathVariable String id) {
-        TransactionDTO design = transcationService.getById(id);
+        TransactionDTO design = transactionService.getById(id);
         if (design == null) {
             return ResponseEntity.badRequest().body("Transcation not found with ID: " + id);
         }
@@ -67,7 +67,7 @@ public class TranscationController {
             return ResponseEntity.status(400)
                     .body(new ErrorResponse(400, null, List.of("Page and size must be positive values")));
         }
-        PaginatedResponseDTO<TransactionDTO> transactions = transcationService.getAllByCustomer(page,size,sortDir,sortBy);
+        PaginatedResponseDTO<TransactionDTO> transactions = transactionService.getAllByCustomer(page,size,sortDir,sortBy);
         if (transactions.getContent().isEmpty()) {
             return ResponseEntity.status(204).body(new ApiResponse<>(204, null, "No data available"));
         }
@@ -87,7 +87,7 @@ public class TranscationController {
             return ResponseEntity.status(400)
                     .body(new ErrorResponse(400, null, List.of("Page and size must be positive values")));
         }
-        PaginatedResponseDTO<TransactionDTO> transactions = transcationService.getAll(
+        PaginatedResponseDTO<TransactionDTO> transactions = transactionService.getAll(
                  page, size, sortDir, sortBy);
         if (transactions.getContent().isEmpty()) {
             return ResponseEntity.status(204).body(new ApiResponse<>(204, null, "No data available"));
@@ -100,7 +100,7 @@ public class TranscationController {
     //Get transaction Detail with transaction id
     @GetMapping("/detail/{id}")
     public ResponseEntity<?> getTransactionDetail(@PathVariable String id) {
-        TransactionDetailResponse transactionDetail = transcationService.getTransactionDetail(id);
+        TransactionDetailResponse transactionDetail = transactionService.getTransactionDetail(id);
         if (transactionDetail == null) {
             return ResponseEntity.ok(new ErrorResponse(400, "Failed to get detail", null));
         }
@@ -169,19 +169,41 @@ public class TranscationController {
         }
     }
 
+    @GetMapping("/daily-income")
+    public ResponseEntity<DailyIncomeResponse> getDailyIncome(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 
-    /*
-    //Get all transcations belong to Customer, via Bookings
-    //Input is customer id, then get all booking, then get all transcation in each bookings
-    //Might need to recreate customer response
-    @GetMapping("/customer/{id}")
-    public ResponseEntity<?> getTranscationForCustomer(@PathVariable String id) throws Exception {
-        List<TransactionDTO> transcations = transcationService.getAllForCustomer(id);
-        if (transcations.isEmpty()) {
-            System.out.println("No Transcation found.");
-        }
-        return ResponseEntity.ok(transcations);
+        BigDecimal totalIncome = transactionService.calculateTotalIncomeByDate(date);
+        DailyIncomeResponse response = new DailyIncomeResponse(date, totalIncome);
+
+        return ResponseEntity.ok(response);
     }
-    */
+
+    @GetMapping("/monthly-income")
+    public ResponseEntity<MonthlyIncomeResponse> getMonthlyIncome(
+            @RequestParam int year,
+            @RequestParam int month) {
+
+        // Validate month input (1-12)
+        if (month < 1 || month > 12) {
+            throw new IllegalArgumentException("Month must be between 1 and 12");
+        }
+
+        Month monthEnum = Month.of(month);
+        MonthlyIncomeResponse response = transactionService.calculateMonthlyIncome(year, monthEnum);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/yearly-income")
+    public ResponseEntity<YearlyIncomeResponse> getYearlyIncome(
+            @RequestParam int year) {
+
+        YearlyIncomeResponse response = transactionService.calculateYearlyIncome(year);
+
+        return ResponseEntity.ok(response);
+    }
+
+
 }
 

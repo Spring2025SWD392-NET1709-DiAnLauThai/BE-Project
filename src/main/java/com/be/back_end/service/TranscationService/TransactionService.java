@@ -1,13 +1,9 @@
 
 package com.be.back_end.service.TranscationService;
 
-import com.be.back_end.dto.response.TransactionDTO;
+import com.be.back_end.dto.response.*;
 
 
-import com.be.back_end.dto.response.BookingDetailResponseDTO;
-import com.be.back_end.dto.response.PaginatedResponseDTO;
-import com.be.back_end.dto.response.TransactionDetailResponse;
-import com.be.back_end.dto.response.TransactionResponse;
 import com.be.back_end.enums.*;
 import com.be.back_end.model.*;
 
@@ -15,7 +11,7 @@ import com.be.back_end.model.*;
 import com.be.back_end.repository.AccountRepository;
 import com.be.back_end.repository.BookingDetailsRepository;
 import com.be.back_end.repository.BookingRepository;
-import com.be.back_end.repository.TranscationRepository;
+import com.be.back_end.repository.TransactionRepository;
 import com.be.back_end.utils.AccountUtils;
 import com.be.back_end.utils.VNPayUtils;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,19 +22,19 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Book;
 import java.io.UnsupportedEncodingException;
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.*;
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
-public class TranscationService implements ITranscationService, IVNPayService {
+public class TransactionService implements ITransactionService, IVNPayService {
 
-    private final TranscationRepository transcationRepository;
+    private final TransactionRepository transactionRepository;
     private final VNPayUtils vnPayUtils;
     private final AccountRepository accountRepository;
     private final BookingRepository bookingRepository;
@@ -46,9 +42,9 @@ public class TranscationService implements ITranscationService, IVNPayService {
 
     private final AccountUtils accountUtils;
     @Autowired
-    public TranscationService(TranscationRepository transcationRepository, VNPayUtils vnPayUtils, AccountRepository accountRepository, BookingRepository bookingRepository, BookingDetailsRepository bookingDetailsRepository, 
-            AccountUtils accountUtils) {
-        this.transcationRepository = transcationRepository;
+    public TransactionService(TransactionRepository transactionRepository, VNPayUtils vnPayUtils, AccountRepository accountRepository, BookingRepository bookingRepository, BookingDetailsRepository bookingDetailsRepository,
+                              AccountUtils accountUtils) {
+        this.transactionRepository = transactionRepository;
         this.vnPayUtils=vnPayUtils;
         this.accountRepository = accountRepository;
         this.bookingRepository = bookingRepository;
@@ -59,7 +55,7 @@ public class TranscationService implements ITranscationService, IVNPayService {
     @Override
     public TransactionDTO create(TransactionDTO dto) {
         Transaction newTransaction = mapToEntity(dto);
-        transcationRepository.save(newTransaction);
+        transactionRepository.save(newTransaction);
         return dto;
     }
 
@@ -70,7 +66,7 @@ public class TranscationService implements ITranscationService, IVNPayService {
         Pageable pageable = PageRequest.of(page-1, size,sort,sortBy);
         Page<Transaction> transactions;
 
-        transactions = transcationRepository.findAll(pageable);
+        transactions = transactionRepository.findAll(pageable);
 
         List<TransactionDTO> transactionDTO = new ArrayList<>();
         for (Transaction transaction : transactions.getContent()) {
@@ -90,7 +86,7 @@ public class TranscationService implements ITranscationService, IVNPayService {
 
     @Override
     public TransactionDTO getById(String id) {
-        Transaction transaction = transcationRepository.findById(id).orElse(null);
+        Transaction transaction = transactionRepository.findById(id).orElse(null);
         return mapToDTO(transaction);
     }
 
@@ -106,7 +102,7 @@ public class TranscationService implements ITranscationService, IVNPayService {
         if (account != null) {
 
             //Get Transaction for every booking available from the Booking List
-            Page<Transaction> transactionPage = transcationRepository.findAllByAccountId(account.getId(),pageable);
+            Page<Transaction> transactionPage = transactionRepository.findAllByAccountId(account.getId(),pageable);
 
             if (transactionPage.isEmpty()) {
                 System.out.println("Transaction page is empty");
@@ -152,7 +148,7 @@ public class TranscationService implements ITranscationService, IVNPayService {
 
     @Override
     public TransactionDetailResponse getTransactionDetail(String id) {
-        Transaction transaction= transcationRepository.findById(id).orElse(null);
+        Transaction transaction= transactionRepository.findById(id).orElse(null);
         if(transaction==null){
             System.out.println("Transaction not found");
             return null;
@@ -184,6 +180,8 @@ public class TranscationService implements ITranscationService, IVNPayService {
 
 
     }
+
+
 
     private BookingDetailResponseDTO BookingDetailMapToDTO(Bookingdetails bookingdetails) {
         Designs design = bookingdetails.getDesign();
@@ -248,10 +246,10 @@ public class TranscationService implements ITranscationService, IVNPayService {
         if ("SUCCESS".equals(vnpayStatus)) {
             Bookings booking = bookingRepository.findByCode(bookingCode)
                     .orElseThrow(() -> new RuntimeException("Booking not found with code: " + bookingCode));
-            Transaction transaction=transcationRepository.findByBooking_Id(booking.getId())
+            Transaction transaction= transactionRepository.findByBooking_Id(booking.getId())
                     .orElseThrow(() -> new RuntimeException("Transaction not found"));
             transaction.setTransactionStatus(TransactionStatusEnum.FULLY_PAID.toString());
-            transcationRepository.save(transaction);
+            transactionRepository.save(transaction);
 
         }
          return vnpayStatus;
@@ -276,7 +274,7 @@ public class TranscationService implements ITranscationService, IVNPayService {
         transaction.setTransactionStatus(transactionStatus);
         transaction.setBankCode(bankCode);
         transaction.setTransactionDate(LocalDateTime.now());
-        transcationRepository.save(transaction);
+        transactionRepository.save(transaction);
         return transaction;
     }
 
@@ -316,17 +314,105 @@ public class TranscationService implements ITranscationService, IVNPayService {
         return transaction;
     }
 
-    /*
+
+    //Calculate total income of all transaction given date
+    //Date format is 2025-03-18 (YYYY-MM-DD) ISO format
     @Override
-    public List<TransactionDTO> getAll() {
-        List<Transaction> transactions = transcationRepository.findAll();
-        List<TransactionDTO> list = new ArrayList<>();
-        for (Transaction transaction : transactions) {
-            list.add(mapToDTO(transaction));
-            System.out.println(transaction.getId());
-        }
-        return list;
+    public BigDecimal calculateTotalIncomeByDate(LocalDate date) {
+
+        LocalDateTime startOfDay = date.atStartOfDay();
+        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
+
+
+        List<Transaction> fullyPaidTransactions = transactionRepository.findFullyPaidTransactionsByDateRange(startOfDay, endOfDay);
+
+
+        return fullyPaidTransactions.stream()
+                .map(Transaction::getTransactionAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
-   */
+
+    @Override
+    public MonthlyIncomeResponse calculateMonthlyIncome(int year, Month month) {
+        // Get the first and last day of the month
+        YearMonth yearMonth = YearMonth.of(year, month);
+        LocalDate firstDayOfMonth = yearMonth.atDay(1);
+        LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
+
+        // Convert to LocalDateTime for database query
+        LocalDateTime startDateTime = firstDayOfMonth.atStartOfDay();
+        LocalDateTime endDateTime = lastDayOfMonth.plusDays(1).atStartOfDay();
+
+        // Get all fully paid transactions within the month
+        List<Transaction> fullyPaidTransactions = transactionRepository
+                .findFullyPaidTransactionsByDateRange(startDateTime, endDateTime);
+
+        // Calculate total income for the month
+        BigDecimal totalIncome = fullyPaidTransactions.stream()
+                .map(Transaction::getTransactionAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Group transactions by date and calculate daily totals
+        Map<LocalDate, BigDecimal> dailyTotalsMap = fullyPaidTransactions.stream()
+                .collect(Collectors.groupingBy(
+                        transaction -> transaction.getTransactionDate().toLocalDate(),
+                        Collectors.mapping(
+                                Transaction::getTransactionAmount,
+                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add)
+                        )
+                ));
+
+        // Create a list with all days of the month (including those with zero income)
+        List<DailyIncomeResponse> dailyTransactions = new ArrayList<>();
+
+        // Initialize all days with zero
+        for (int day = 1; day <= lastDayOfMonth.getDayOfMonth(); day++) {
+            LocalDate currentDate = LocalDate.of(year, month, day);
+            BigDecimal dailyAmount = dailyTotalsMap.getOrDefault(currentDate, BigDecimal.ZERO);
+            dailyTransactions.add(new DailyIncomeResponse (currentDate, dailyAmount));
+        }
+
+        // Create and return the response
+        return new MonthlyIncomeResponse(month, year, totalIncome, dailyTransactions);
+    }
+
+    @Override
+    public YearlyIncomeResponse calculateYearlyIncome(int year) {
+        // Calculate start and end of the year
+        LocalDateTime startOfYear = LocalDate.of(year, 1, 1).atStartOfDay();
+        LocalDateTime endOfYear = LocalDate.of(year, 12, 31).plusDays(1).atStartOfDay();
+
+        // Get all fully paid transactions within the year
+        List<Transaction> fullyPaidTransactions = transactionRepository
+                .findFullyPaidTransactionsByDateRange(startOfYear, endOfYear);
+
+        // Calculate total income for the year
+        BigDecimal totalYearlyIncome = fullyPaidTransactions.stream()
+                .map(Transaction::getTransactionAmount)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Group transactions by month and calculate monthly totals
+        Map<Month, BigDecimal> monthlyTotals = fullyPaidTransactions.stream()
+                .collect(Collectors.groupingBy(
+                        transaction -> transaction.getTransactionDate().getMonth(),
+                        Collectors.mapping(
+                                Transaction::getTransactionAmount,
+                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add)
+                        )
+                ));
+
+        // Create a list of monthly income summaries for all months (including those with zero income)
+        List<MonthlyIncomeSummary> monthlyIncomes = new ArrayList<>();
+        for (Month month : Month.values()) {
+            BigDecimal monthlyIncome = monthlyTotals.getOrDefault(month, BigDecimal.ZERO);
+            monthlyIncomes.add(new MonthlyIncomeSummary(month, monthlyIncome));
+        }
+
+        // Sort by month
+        monthlyIncomes.sort(Comparator.comparing(MonthlyIncomeSummary::getMonth));
+
+        // Create and return the response
+        return new YearlyIncomeResponse(year, totalYearlyIncome, monthlyIncomes);
+    }
 }
 

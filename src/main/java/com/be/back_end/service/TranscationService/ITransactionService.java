@@ -4,20 +4,21 @@ package com.be.back_end.service.TranscationService;
 
 
 
-import com.be.back_end.dto.response.TransactionDTO;
-import com.be.back_end.dto.response.PaginatedResponseDTO;
+import com.be.back_end.dto.response.*;
 
-import com.be.back_end.dto.response.TransactionDetailResponse;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.Month;
 
-import java.util.List;
-
-public interface ITranscationService {
+public interface ITransactionService {
     TransactionDTO create(TransactionDTO user);
     PaginatedResponseDTO<TransactionDTO> getAll(int page, int size, String sortDir, String sortBy);
     TransactionDTO getById(String id);
     PaginatedResponseDTO<TransactionDTO> getAllByCustomer(int page, int size, String sortDir, String sortBy);
     TransactionDetailResponse getTransactionDetail(String id);
-
+    BigDecimal calculateTotalIncomeByDate(LocalDate date);
+    MonthlyIncomeResponse calculateMonthlyIncome(int year, Month month);
+    YearlyIncomeResponse calculateYearlyIncome(int year);
 
 }
 
