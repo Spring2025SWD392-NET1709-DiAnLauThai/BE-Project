@@ -1,11 +1,8 @@
 package com.be.back_end.service.TshirtsService;
 
-import com.be.back_end.dto.response.TshirtsListAvailableResponse;
-import com.be.back_end.dto.response.TshirtsListDesignerResponse;
+import com.be.back_end.dto.response.*;
 
 import com.be.back_end.dto.request.TshirtCreateRequest;
-import com.be.back_end.dto.response.PaginatedResponseDTO;
-import com.be.back_end.dto.response.TshirtsListsResponse;
 import com.be.back_end.enums.ActivationEnums;
 import com.be.back_end.enums.BookingEnums;
 import com.be.back_end.model.*;
@@ -195,18 +192,40 @@ public class TshirtsService implements  ITshirtsService{
         response.setName(tshirt.getName());
         response.setAccountName(tshirt.getAccount().getName());
         response.setImageUrl(tshirt.getImage_url());
-        double rating = tshirt.getTshirtFeedbacks().stream()
-                .mapToInt(tfb -> tfb.getFeedback().getRating())
-                .average()
-                .orElse(0.0);
-        response.setRating(String.valueOf(rating));
+        double totalRating = 0.0;
+        int feedbackCount = 0;
+
+        for (var tfb : tshirt.getTshirtFeedbacks()) {
+            totalRating += tfb.getFeedback().getRating();
+            feedbackCount++;
+        }
+
+        double averageRating = feedbackCount > 0 ? totalRating / feedbackCount : 0.0;
+        response.setRating(String.valueOf(averageRating));
         return response;
     }
 
+    @Transactional(readOnly = true)
     @Override
-    public TshirtsListDesignerResponse getTshirtById(String id) {
+    public TshirtDetailResponse getTshirtById(String id) {
         Tshirts tshirt= tshirtsRepository.findById(id).orElse(null);
-        return mapToDTO(tshirt);
+        if (tshirt == null) {
+            throw new IllegalArgumentException("T-shirt not found with ID: " + id);
+        }
+        TshirtDetailResponse tshirtDetailResponse= new TshirtDetailResponse();
+        tshirtDetailResponse.setTshirtName(tshirt.getName());
+        tshirtDetailResponse.setCreatedAt(tshirt.getCreatedAt());
+        tshirtDetailResponse.setImage_url(tshirt.getName());
+        List<TshirtDetailResponse.ColorResponse> colorResponses= new ArrayList<>();
+        for(TShirtColor tShirtColor: tshirt.getTShirtColors()){
+            TshirtDetailResponse.ColorResponse colorRes= new TshirtDetailResponse.ColorResponse();
+            colorRes.setColorId(tShirtColor.getColor().getId());
+            colorRes.setColorCode(tShirtColor.getColor().getColorCode());
+            colorRes.setColorName(tShirtColor.getColor().getColorName());
+            colorResponses.add(colorRes);
+        }
+        tshirtDetailResponse.setColors(colorResponses);
+        return tshirtDetailResponse;
     }
     @Override
     public boolean updateTshirt(TshirtsListDesignerResponse tshirt){

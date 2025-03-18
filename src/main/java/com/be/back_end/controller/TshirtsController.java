@@ -153,5 +153,20 @@ public class TshirtsController {
         }
         return ResponseEntity.ok(new ApiResponse<>(200, accounts, "Page returned: " + page));
     }
+    @GetMapping("/tshirt/{tshirtId}")
+    public ResponseEntity<?> getTshirtById(@PathVariable String tshirtId) {
+        try {
+            TshirtDetailResponse tshirtDetailResponse = tshirtsService.getTshirtById(tshirtId);
+            if (tshirtDetailResponse == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ErrorResponse(404, "T-shirt not found", List.of("No T-shirt found with ID: " + tshirtId)));
+            }
+            return ResponseEntity.ok(new ApiResponse<>(200, tshirtDetailResponse, "T-shirt details retrieved successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(500, "Server error", List.of("Unexpected error occurred.")));
+        }
+    }
+
 
 }
