@@ -31,8 +31,8 @@ public class BookingdetailService implements IBookingdetailService {
     private final IDesignService designService;
     private final IEmailService emailService;
     private final TaskRepository taskRepository;
-    private final TranscationRepository transcationRepository;
-    public BookingdetailService(BookingDetailsRepository bookingDetailsRepository, DesignRepository designRepository, BookingRepository bookingRepository, ICloudinaryService cloudinaryService, AccountUtils accountUtils, IDesignService designService, IEmailService emailService, TaskRepository taskRepository, TranscationRepository transcationRepository) {
+    private final TransactionRepository transactionRepository;
+    public BookingdetailService(BookingDetailsRepository bookingDetailsRepository, DesignRepository designRepository, BookingRepository bookingRepository, ICloudinaryService cloudinaryService, AccountUtils accountUtils, IDesignService designService, IEmailService emailService, TaskRepository taskRepository, TransactionRepository transactionRepository) {
         this.bookingDetailsRepository = bookingDetailsRepository;
         this.designRepository = designRepository;
         this.bookingRepository = bookingRepository;
@@ -41,7 +41,7 @@ public class BookingdetailService implements IBookingdetailService {
         this.designService = designService;
         this.emailService = emailService;
         this.taskRepository = taskRepository;
-        this.transcationRepository = transcationRepository;
+        this.transactionRepository = transactionRepository;
     }
 
 
@@ -149,7 +149,7 @@ public class BookingdetailService implements IBookingdetailService {
     public BookingResponseInDetailCus getAllBookingDetailsByBookingIdForCustomer(String bookingId) {
         Bookings booking= bookingRepository.findById(bookingId).orElse(null);
         Task task = taskRepository.findByBookingId(bookingId).orElse(null);
-        Transaction transaction=transcationRepository.findByBooking_Id(bookingId).orElse(null);
+        Transaction transaction= transactionRepository.findByBooking_Id(bookingId).orElse(null);
         List<Bookingdetails> bookingdetails= bookingDetailsRepository.findByBookingId(bookingId);
         List<BookingResponseInDetailCus.BookingDetailResponse> detailResponses= new ArrayList<>();
         BookingResponseInDetailCus bookingResponseInDetail = new BookingResponseInDetailCus();

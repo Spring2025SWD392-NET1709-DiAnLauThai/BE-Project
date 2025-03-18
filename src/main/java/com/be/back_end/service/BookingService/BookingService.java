@@ -16,16 +16,15 @@ import com.be.back_end.model.Transaction;
 import com.be.back_end.repository.BookingDetailsRepository;
 import com.be.back_end.repository.BookingRepository;
 import com.be.back_end.repository.TaskRepository;
-import com.be.back_end.repository.TranscationRepository;
+import com.be.back_end.repository.TransactionRepository;
 import com.be.back_end.service.BookingDetailService.IBookingdetailService;
 import com.be.back_end.service.CloudinaryService.ICloudinaryService;
 import com.be.back_end.service.DesignService.IDesignService;
 import com.be.back_end.service.EmailService.IEmailService;
-import com.be.back_end.service.TranscationService.ITranscationService;
+import com.be.back_end.service.TranscationService.ITransactionService;
 import com.be.back_end.service.TranscationService.IVNPayService;
 import com.be.back_end.utils.AccountUtils;
 import com.be.back_end.utils.VNPayUtils;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -40,7 +39,6 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 @Service
 public class BookingService implements IBookingService {
@@ -52,11 +50,11 @@ public class BookingService implements IBookingService {
     private final ICloudinaryService cloudinaryService;
     private final VNPayUtils  vnPayUtils;
     private final TaskRepository taskRepository;
-    private final ITranscationService transcationService;
-    private final TranscationRepository transcationRepository;
+    private final ITransactionService transcationService;
+    private final TransactionRepository transactionRepository;
     private final IEmailService emailService;
 
-    public BookingService(BookingRepository bookingRepository, AccountUtils accountUtils, IDesignService designService, IBookingdetailService bookingdetailService, BookingDetailsRepository bookingDetailsRepository, ICloudinaryService cloudinaryService, IVNPayService ivnPayService, VNPayUtils vnPayUtils, TaskRepository taskRepository, ITranscationService transcationService, TranscationRepository transcationRepository, IEmailService emailService) {
+    public BookingService(BookingRepository bookingRepository, AccountUtils accountUtils, IDesignService designService, IBookingdetailService bookingdetailService, BookingDetailsRepository bookingDetailsRepository, ICloudinaryService cloudinaryService, IVNPayService ivnPayService, VNPayUtils vnPayUtils, TaskRepository taskRepository, ITransactionService transcationService, TransactionRepository transactionRepository, IEmailService emailService) {
         this.bookingRepository = bookingRepository;
         this.accountUtils = accountUtils;
         this.designService = designService;
@@ -66,7 +64,7 @@ public class BookingService implements IBookingService {
         this.vnPayUtils = vnPayUtils;
         this.taskRepository = taskRepository;
         this.transcationService = transcationService;
-        this.transcationRepository = transcationRepository;
+        this.transactionRepository = transactionRepository;
         this.emailService = emailService;
     }
 
@@ -128,13 +126,13 @@ public class BookingService implements IBookingService {
         bookings.setStatus(BookingEnums.CANCELLED);
         bookings.setNote(cancelBookingRequest.getNote());
 
-        Transaction transaction = transcationRepository.findByBooking_Id(cancelBookingRequest.getBookingId()).orElse(null);
+        Transaction transaction = transactionRepository.findByBooking_Id(cancelBookingRequest.getBookingId()).orElse(null);
         if (transaction == null) {
             return false;
         }
         transaction.setTransactionStatus(TransactionStatusEnum.REFUND.toString());
         bookingRepository.save(bookings);
-        transcationRepository.save(transaction);
+        transactionRepository.save(transaction);
         taskRepository.save(task);
         return true;
     }
