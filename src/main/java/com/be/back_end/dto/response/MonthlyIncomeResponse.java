@@ -11,12 +11,12 @@ public class MonthlyIncomeResponse {
     private Month month;
     private int year;
     private BigDecimal totalIncome;
-    private List<DailyIncomeResponse> dailyTransactions;
+    private List<DailyIncomeResponse> dailyIncome;
 
-    public MonthlyIncomeResponse(Month month, int year, BigDecimal totalIncome, List<DailyIncomeResponse> dailyTransactions) {
+    public MonthlyIncomeResponse(Month month, int year, BigDecimal totalIncome, List<DailyIncomeResponse> dailyIncome) {
         this.month = month;
         this.year = year;
         this.totalIncome = totalIncome;
-        this.dailyTransactions = dailyTransactions;
+        this.dailyIncome = dailyIncome;
     }
 }

@@ -174,53 +174,5 @@ public class TransactionController {
         }
     }
 
-    @GetMapping("/daily-income")
-    public ResponseEntity<?> getDailyIncome(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-
-        BigDecimal totalIncome = transactionService.calculateTotalIncomeByDate(date);
-        DailyIncomeResponse response = new DailyIncomeResponse(date, totalIncome);
-
-        if(response==null){
-            return ResponseEntity.status(400).body(new ErrorResponse(400, "Failed to get data", List.of("Daily income not found")));
-        }
-
-        return ResponseEntity.ok(new ApiResponse<>(200, response, "Daily income retrieved successfully"));
-    }
-
-    @GetMapping("/monthly-income")
-    public ResponseEntity<?> getMonthlyIncome(
-            @RequestParam int year,
-            @RequestParam int month) {
-
-        // Validate month input (1-12)
-        if (month < 1 || month > 12) {
-            return ResponseEntity.status(400).body(new ErrorResponse(400, "Invalid month data", List.of("Month must be between 1 and 12")));
-        }
-
-        Month monthEnum = Month.of(month);
-        MonthlyIncomeResponse response = transactionService.calculateMonthlyIncome(year, monthEnum);
-
-        if(response==null){
-            return ResponseEntity.status(400).body(new ErrorResponse(400, "Failed to get data", List.of("Monthly income not found")));
-        }
-
-        return ResponseEntity.ok(new ApiResponse<>(200,response, "Monthly income retrieved successfully"));
-    }
-
-    @GetMapping("/yearly-income")
-    public ResponseEntity<?> getYearlyIncome(
-            @RequestParam int year) {
-
-        YearlyIncomeResponse response = transactionService.calculateYearlyIncome(year);
-
-        if(response==null){
-            return ResponseEntity.status(400).body(new ErrorResponse(400, "Failed to get data", List.of("Yearly income not found")));
-        }
-
-        return ResponseEntity.ok(new ApiResponse<>(200, response, "Yearly income retrieved successfully"));
-    }
-
-
 }
 

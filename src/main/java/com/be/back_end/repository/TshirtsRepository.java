@@ -5,6 +5,8 @@ import com.be.back_end.model.Tshirts;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -19,7 +21,6 @@ public interface TshirtsRepository extends JpaRepository<Tshirts,String> {
     List<Tshirts> findByBookingdetailsIsNullAndAccount_Id(String accountId);
     Page<Tshirts> findByNameContainingIgnoreCase( String name,Pageable pageable);
     Page<Tshirts> findByCreatedAtBetween(LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
-
     Page<Tshirts> findByBookingdetails_Booking_IspublicTrue(Pageable pageable);
     Page<Tshirts> findByBookingdetails_Booking_IspublicTrueAndNameContainingIgnoreCase(
             String keyword, Pageable pageable);
@@ -27,4 +28,8 @@ public interface TshirtsRepository extends JpaRepository<Tshirts,String> {
             LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
     Page<Tshirts> findByBookingdetails_Booking_IspublicTrueAndNameContainingIgnoreCaseAndCreatedAtBetween(
             String keyword, LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
+
+    @Query("SELECT COUNT(t) FROM Tshirts t WHERE t.enddate >= :startDate AND t.enddate < :endDate")
+    List<Tshirts> findTshirtsCreatedBetween(@Param("startDate") LocalDateTime startDate,
+                                    @Param("endDate") LocalDateTime endDate);
 }
