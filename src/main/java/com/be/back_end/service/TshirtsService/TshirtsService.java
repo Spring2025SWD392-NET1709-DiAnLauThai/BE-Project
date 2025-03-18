@@ -59,7 +59,7 @@ public class TshirtsService implements  ITshirtsService{
         tshirt.setDescription(dto.getDescription());
         tshirt.setCreatedAt(LocalDateTime.now());
         tshirt.setImage_url(dto.getImageUrl());
-        tshirt.setStatus(ActivationEnums.ACTIVE);
+
 
         return tshirt;
     }
@@ -69,7 +69,7 @@ public class TshirtsService implements  ITshirtsService{
        Tshirts tshirt = new Tshirts();
        tshirt.setDescription(tshirtCreateRequest.getDescription());
        tshirt.setAccount(account);
-       tshirt.setStatus(ActivationEnums.INACTIVE);
+
        tshirt.setName(tshirtCreateRequest.getTshirtname());
        tshirt.setImage_url(tshirtCreateRequest.getImgurl());
        tshirt.setImagesfile(tshirtCreateRequest.getImagefile());
