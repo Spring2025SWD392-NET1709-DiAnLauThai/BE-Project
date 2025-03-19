@@ -59,7 +59,7 @@ public class TaskService implements ITaskService{
         Account currentAccount = accountUtils.getCurrentAccount();
         String designerId = currentAccount.getId();
         Sort.Direction sort = sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sort, "booking.startdate"));
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sort, "booking.startDate"));
         Page<Task> tasks;
         if (startDate != null && endDate != null && designerName != null && taskStatus != null) {
             tasks = taskRepository.findByBooking_startDateBetweenAndAccount_IdAndAccount_NameContainingIgnoreCaseAndTaskStatus(
@@ -110,7 +110,7 @@ public class TaskService implements ITaskService{
             String sortDir) {
 
         Sort.Direction sort = sortDir.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sort, "booking.startdate"));
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sort, "booking.startDate"));
         Page<Task> tasks;
         if (startDate != null && endDate != null && designerName != null && taskStatus != null) {
             tasks = taskRepository.findByBooking_startDateBetweenAndAccount_NameContainingIgnoreCaseAndTaskStatus(
