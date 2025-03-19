@@ -65,10 +65,10 @@ public class FeedbackController {
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
-    @GetMapping("/tshirts")
-    public ResponseEntity<?> getAllTshirtFeedback(@RequestBody FeedbacksRequest feedbacksRequest) {
+    @GetMapping("/tshirt/{tshirtId}")
+    public ResponseEntity<?> getAllTshirtFeedback(@RequestParam String tshirtId) {
         try {
-            List<TshirtFeedbackResponse> feedbackResponses = feedbackService.getAllTshirtsFeedbacksById(feedbacksRequest);
+            List<TshirtFeedbackResponse> feedbackResponses = feedbackService.getAllTshirtsFeedbacksById(tshirtId);
             if (feedbackResponses.isEmpty()) {
                 return ResponseEntity.noContent().build();
             }

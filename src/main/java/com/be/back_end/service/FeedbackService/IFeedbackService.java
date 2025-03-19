@@ -14,5 +14,5 @@ public interface IFeedbackService {
     Feedback updateFeedback(String id, FeedbackCreateRequest feedbackCreateRequest);
     boolean deleteFeedback(String id);
     boolean createSystemFeedback(FeedbackCreateRequest feedbackCreateRequest);
-    List<TshirtFeedbackResponse> getAllTshirtsFeedbacksById(FeedbacksRequest feedbacksRequest);
+    List<TshirtFeedbackResponse> getAllTshirtsFeedbacksById(String  tshirtId);
 }
