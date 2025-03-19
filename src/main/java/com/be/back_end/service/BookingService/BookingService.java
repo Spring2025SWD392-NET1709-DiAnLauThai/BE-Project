@@ -119,14 +119,16 @@ public class BookingService implements IBookingService {
     @Override
     public boolean cancelBooking(CancelBookingRequest cancelBookingRequest) {
         Bookings bookings = bookingRepository.findById(cancelBookingRequest.getBookingId()).orElse(null);
-        Task task= taskRepository.findByBookingId(cancelBookingRequest.getBookingId()).orElse(null);
-        if (bookings==null||task==null) {
+        if (bookings == null) {
             return false;
         }
-        task.setTaskStatus(TaskStatusEnum.CANCEL.toString());
+        Task task = taskRepository.findByBookingId(cancelBookingRequest.getBookingId()).orElse(null);
+        if (task != null) {
+            task.setTaskStatus(TaskStatusEnum.CANCEL.toString());
+            taskRepository.save(task);
+        }
         bookings.setStatus(BookingEnums.CANCELLED);
         bookings.setNote(cancelBookingRequest.getNote());
-
         Transaction transaction = transactionRepository.findByBooking_Id(cancelBookingRequest.getBookingId()).orElse(null);
         if (transaction == null) {
             return false;
@@ -134,9 +136,9 @@ public class BookingService implements IBookingService {
         transaction.setTransactionStatus(TransactionStatusEnum.REFUND.toString());
         bookingRepository.save(bookings);
         transactionRepository.save(transaction);
-        taskRepository.save(task);
         return true;
     }
+
 
 
 
