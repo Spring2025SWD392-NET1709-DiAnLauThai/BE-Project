@@ -50,14 +50,6 @@ public class TshirtsService implements  ITshirtsService{
         return dto;
     }
 
-    private Tshirts mapToEntity(TshirtsUpdateRequest dto) {
-        Tshirts tshirt = new Tshirts();
-        tshirt.setName(dto.getName());
-        tshirt.setDescription(dto.getDescription());
-        tshirt.setImage_url(dto.getImageUrl());
-        tshirt.setImagesfile(dto.getImageFile());
-        return tshirt;
-    }
    @Override
    public Tshirts saveTshirt(TshirtCreateRequest tshirtCreateRequest) {
         Account account= accountUtils.getCurrentAccount();
@@ -241,7 +233,10 @@ public class TshirtsService implements  ITshirtsService{
             return false;
         }
         tshirtColorRepository.deleteByTshirtId(tshirt.getTshirtId());
-        mapToEntity(tshirt);
+        updateTshirt.setName(tshirt.getName());
+        updateTshirt.setDescription(tshirt.getDescription());
+        updateTshirt.setImage_url(tshirt.getImageUrl());
+        updateTshirt.setImagesfile(tshirt.getImageFile());
         List<TShirtColor> newColors = new ArrayList<>();
         if (tshirt.getColors() != null) {
             for (TshirtsUpdateRequest.TshirtColorUpdateRequest colorRequest : tshirt.getColors()) {
