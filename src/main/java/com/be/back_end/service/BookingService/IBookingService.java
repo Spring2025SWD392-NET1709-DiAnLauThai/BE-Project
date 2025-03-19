@@ -16,7 +16,7 @@ public interface IBookingService {
             int size);
 
     BookingCreateResponse createBooking(BookingCreateRequest request, HttpServletRequest httpRequest);
-    boolean publicTshirt(PublicTshirtRequest tshirtRequest);
+    boolean publicTshirt(String bookingId);
     String generateFullyPaidUrl(String bookingId, HttpServletRequest request);
     boolean cancelBooking(CancelBookingRequest cancelBookingRequest);
 }
