@@ -29,8 +29,8 @@ public interface TshirtsRepository extends JpaRepository<Tshirts,String> {
     Page<Tshirts> findByBookingdetails_Booking_IsPublicTrueAndNameContainingIgnoreCaseAndCreatedAtBetween(
             String keyword, LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
 
-    //Find amount of T-Shirt based on the date created in range
-    @Query("SELECT COUNT(t) FROM Tshirts t WHERE t.createdAt >= :startDate AND t.createdAt < :endDate")
+    //Find all T-Shirt based on the date created in range
+    @Query("SELECT t FROM Tshirts t WHERE t.createdAt >= :startDate AND t.createdAt < :endDate")
     List<Tshirts> findTshirtsCreatedBetween(@Param("startDate") LocalDateTime startDate,
                                     @Param("endDate") LocalDateTime endDate);
 }

@@ -38,8 +38,8 @@ public interface BookingRepository extends JpaRepository<Bookings, String> {
     List<Bookings> findByStatusNotAndEndDateBefore(BookingEnums status, LocalDateTime currentDate);
 
     @Query("SELECT b FROM Bookings b WHERE b.dateCreated >= :startDate AND b.dateCreated < :endDate")
-    List<Bookings> findBookingsCreatedBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
+    List<Bookings> findBookingsCreatedBetween(LocalDateTime startDate, LocalDateTime endDate);
 
     @Query("SELECT b FROM Bookings b WHERE b.dateCreated >= :startDate AND b.dateCreated < :endDate AND b.status = 'COMPLETED'")
-    List<Bookings> findBookingsCompletedBetween(LocalDateTime startDateTime, LocalDateTime endDateTime);
+    List<Bookings> findBookingsCompletedBetween(LocalDateTime startDate, LocalDateTime endDate);
 }

@@ -47,11 +47,10 @@ public class StatisticService implements IStatisticService {
         List<Tshirts> tshirtList = tshirtsRepository.findTshirtsCreatedBetween(startDateTime, endDateTime);
         List<MonthyAmountResponse> tShirtCreatedAmount = calculateMonthlyAmountForTshirts(tshirtList);
 
-
         //Get the total amount of bookings created in range, group by Month
+        //
         List<Bookings> bookingList = bookingRepository.findBookingsCreatedBetween(startDateTime, endDateTime);
         List<MonthyAmountResponse> bookingCreatedAmount = calculateMonthlyAmountForBookings(bookingList);
-
 
         //Get the total amount of bookings completed in range, group by Month
         List<Bookings> completedBookings = bookingRepository.findBookingsCompletedBetween(startDateTime, endDateTime);
