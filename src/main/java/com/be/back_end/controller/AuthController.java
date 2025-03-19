@@ -100,20 +100,14 @@ public class AuthController {
 
     @PostMapping("/signin")
     public ResponseEntity<?> authenticateUser(@RequestBody SigninRequest loginRequest) {
-
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getEmail(), loginRequest.getPassword()));
-
         SecurityContextHolder.getContext().setAuthentication(authentication);
-
         AccountDetailsImpl accountDetails = (AccountDetailsImpl) authentication.getPrincipal();
-
         ResponseCookie jwtCookie = jwtUtils.generateJwtCookie(accountDetails);
         String refreshToken = jwtUtils.generateRefreshToken(accountDetails.getId());
-        
         ApiResponse apiResponse = new ApiResponse(200, new JwtResponse(jwtCookie.getValue(), refreshToken),
                 "Login successful");
-
         return ResponseEntity.ok()
                 .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                 .body(apiResponse);

@@ -1,5 +1,6 @@
 package com.be.back_end.controller;
 
+import com.be.back_end.dto.request.TshirtsUpdateRequest;
 import com.be.back_end.dto.response.*;
 import com.be.back_end.dto.request.TshirtCreateRequest;
 import com.be.back_end.model.Tshirts;
@@ -29,16 +30,28 @@ public class TshirtsController {
 
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateTshirt(@RequestBody TshirtsListDesignerResponse tshirtDto) {
-        boolean isUpdated = tshirtsService.updateTshirt(tshirtDto);
-
-        if (!isUpdated) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(new ErrorResponse(404, "Update Failed", List.of("T-shirt not found or invalid data.")));
+    public ResponseEntity<?> updateTshirt(@RequestBody TshirtsUpdateRequest tshirtDto) {
+        try {
+            boolean isUpdated = tshirtsService.updateTshirt(tshirtDto);
+            if (!isUpdated) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(new ErrorResponse(
+                                404,
+                                "Update Failed",
+                                List.of("T-shirt not found or invalid data.")
+                        ));
+            }
+            return ResponseEntity.ok(new ApiResponse<>(200, null, "T-shirt updated successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(
+                            500,
+                            "Server Error",
+                            List.of("An unexpected error occurred. Please try again later.")
+                    ));
         }
-
-        return ResponseEntity.ok(new ApiResponse<>(200, null, "T-shirt updated successfully"));
     }
+
 
 
     @PostMapping("/create")
@@ -80,7 +93,6 @@ public class TshirtsController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
                     .body(new ErrorResponse(400, "File is empty", List.of("Please upload a valid file.")));
         }
-
         try {
             String imageUrl = cloudinaryService.uploadZipFile(file);
             if (imageUrl == null) {
@@ -162,7 +174,15 @@ public class TshirtsController {
                         .body(new ErrorResponse(404, "T-shirt not found", List.of("No T-shirt found with ID: " + tshirtId)));
             }
             return ResponseEntity.ok(new ApiResponse<>(200, tshirtDetailResponse, "T-shirt details retrieved successfully"));
-        } catch (Exception e) {
+        }catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(
+                            404,
+                            "T-shirt not found",
+                            List.of(e.getMessage())
+                    ));
+        }
+        catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .body(new ErrorResponse(500, "Server error", List.of("Unexpected error occurred.")));
         }

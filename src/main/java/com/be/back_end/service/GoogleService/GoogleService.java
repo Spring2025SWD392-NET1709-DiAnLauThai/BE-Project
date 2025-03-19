@@ -30,10 +30,8 @@ public class GoogleService implements  IGoogleService{
         HttpHeaders headers = new HttpHeaders();
         headers.setBearerAuth(accessToken);
         HttpEntity<String> userEntity = new HttpEntity<>(headers);
-
         ResponseEntity<Map> response = restTemplate.exchange(
                 "https://www.googleapis.com/oauth2/v2/userinfo", HttpMethod.GET, userEntity, Map.class);
-
         return response.getBody();
     }
     @Override
@@ -41,7 +39,6 @@ public class GoogleService implements  IGoogleService{
         String tokenUrl = "https://oauth2.googleapis.com/token";
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
         String requestBody = UriComponentsBuilder.fromUriString("")
                 .queryParam("code", code)
                 .queryParam("client_id", googleOAuthConfig.getClientId())
@@ -49,10 +46,8 @@ public class GoogleService implements  IGoogleService{
                 .queryParam("redirect_uri", googleOAuthConfig.getRedirectUri())
                 .queryParam("grant_type", "authorization_code")
                 .toUriString().substring(1);
-
         HttpEntity<String> requestEntity = new HttpEntity<>(requestBody, headers);
         ResponseEntity<Map> response = restTemplate.exchange(tokenUrl, HttpMethod.POST, requestEntity, Map.class);
-
         return (String) response.getBody().get("access_token");
     }
 }

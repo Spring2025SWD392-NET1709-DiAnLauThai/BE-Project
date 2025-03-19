@@ -116,8 +116,6 @@ public class AccountService implements IAccountService{
         createdUser.setRole(registerRequest.getRole());
         createdUser.setStatus(ActivationEnums.ACTIVE);
         accountRepository.save(createdUser);
-
-
         return true;
     }
 
@@ -127,7 +125,6 @@ public class AccountService implements IAccountService{
     public JwtResponse handleGoogleLogin(String authCode) {
         String accessToken = googleService.exchangeCodeForAccessToken(authCode);
         Account user = processGoogleLogin(accessToken);
-
         return new JwtResponse(
                 jwtUtils.generateTokenFromUserID(user.getId()),
                 jwtUtils.generateRefreshToken(user.getId()),
@@ -147,7 +144,6 @@ public class AccountService implements IAccountService{
         Map<String, Object> userInfo = googleService.fetchGoogleUserInfo(accessToken);
         String email = (String) userInfo.get("email");
         String name = (String) userInfo.get("name");
-
         return accountRepository.findByEmail(email).orElseGet(() -> {
             Account newUser = new Account();
             newUser.setEmail(email);
@@ -228,14 +224,12 @@ public class AccountService implements IAccountService{
         for (Account account : accounts.getContent()) {
             accountDTOs.add(mapToDTO(account));
         }
-
         PaginatedResponseDTO<AccountDTO> response = new PaginatedResponseDTO<>();
         response.setContent(accountDTOs);
         response.setPageNumber(accounts.getNumber());
         response.setPageSize(accounts.getSize());
         response.setTotalElements(accounts.getTotalElements());
         response.setTotalPages(accounts.getTotalPages());
-
         return response;
     }
 
@@ -262,26 +256,22 @@ public class AccountService implements IAccountService{
         if (user.getId() == null || user.getId().isEmpty()) {
             throw new IllegalArgumentException("User ID cannot be null or empty");
         }
-
         Account existingAccount = accountRepository.findById(user.getId()).orElse(null);
         if (existingAccount == null) {
-            return false; // Account not found
+            return false;
         }
-
         if (image != null && !image.isEmpty()) {
             String imageurl = cloudinaryService.uploadFile(image);
             if (imageurl != null) {
                 existingAccount.setImage_url(imageurl);
             }
         }
-
         existingAccount.setUpdatedAt(LocalDateTime.now());
         existingAccount.setPhone(user.getPhone());
         existingAccount.setDateOfBirth(user.getDateOfBirth());
         existingAccount.setEmail(user.getEmail());
         existingAccount.setName(user.getName());
         existingAccount.setAddress(user.getAddress());
-
         accountRepository.save(existingAccount);
         return true;
     }
@@ -289,24 +279,15 @@ public class AccountService implements IAccountService{
     @Override
     @Transactional
     public AccountCreationResponse createAccount(CreateAccountRequest request) {
-        // Validate email uniqueness
         if (accountRepository.findByEmail(request.getEmail()).isPresent()) {
             throw new IllegalArgumentException("Email already exists");
         }
-
-        // Generate password and account details
         String plainPassword = PasswordUtils.generateRandomPassword();
         String accountId = UUID.randomUUID().toString();
         LocalDateTime now = LocalDateTime.now();
-
-        // Create account
         Account account = createAccountEntity(request, accountId, plainPassword, now);
         Account savedAccount = accountRepository.save(account);
-
-        // Send email
         sendWelcomeEmail(account.getEmail(), account.getName(), plainPassword);
-
-        // Return response
         return mapToResponse(savedAccount);
     }
 

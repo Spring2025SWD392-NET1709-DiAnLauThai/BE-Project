@@ -12,6 +12,7 @@ public class TshirtDetailResponse {
 
     private String description;
     private String image_url;
+    private String imageFile;
     private String tshirtName;
     private LocalDateTime createdAt;
     private List<ColorResponse> colors;

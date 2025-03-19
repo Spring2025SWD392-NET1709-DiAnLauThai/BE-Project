@@ -118,7 +118,7 @@ public class TaskController {
         }
     }
     @PutMapping("/select/tshirt")
-    public ResponseEntity<?> assignTask(@RequestBody TshirtSelectRequest tshirtSelectRequest) {
+    public ResponseEntity<?> assignTshirttoTask(@RequestBody TshirtSelectRequest tshirtSelectRequest) {
         try {
             boolean isAssigned = taskService.assignTshirttoTask(tshirtSelectRequest);
             if (isAssigned) {
