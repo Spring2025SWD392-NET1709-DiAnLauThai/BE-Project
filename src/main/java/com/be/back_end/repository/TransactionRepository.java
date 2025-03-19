@@ -36,4 +36,10 @@ public interface TransactionRepository extends JpaRepository<Transaction, String
     List<Transaction> findFullyPaidTransactionsByDateRange(@Param("startDate") LocalDateTime startDate,
                                                            @Param("endDate") LocalDateTime endDate);
 
+    @Query("SELECT t " +
+            "FROM Transaction t " +
+            "WHERE t.transactionDate >= :startDate AND t.transactionDate < :endDate ")
+    List<Transaction> findTransactionsByDateRange (@Param("startDate") LocalDateTime startDate,
+                                                           @Param("endDate") LocalDateTime endDate);
+
 }

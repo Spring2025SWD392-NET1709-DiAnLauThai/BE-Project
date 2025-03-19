@@ -16,9 +16,7 @@ public interface ITransactionService {
     TransactionDTO getById(String id);
     PaginatedResponseDTO<TransactionDTO> getAllByCustomer(int page, int size, String sortDir, String sortBy);
     TransactionDetailResponse getTransactionDetail(String id);
-    BigDecimal calculateTotalIncomeByDate(LocalDate date);
-    MonthlyIncomeResponse calculateMonthlyIncome(int year, Month month);
-    YearlyIncomeResponse calculateYearlyIncome(int year);
+
 
 }
 

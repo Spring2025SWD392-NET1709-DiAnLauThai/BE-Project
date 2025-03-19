@@ -196,8 +196,8 @@ public class BookingService implements IBookingService {
                 booking.getCode(),
                 booking.getTitle(),
                 booking.getStatus(),
-                booking.getStartdate(),
-                booking.getEnddate(),
+                booking.getStartDate(),
+                booking.getEndDate(),
                 bookingDetails,
                 paymentUrl
         );
@@ -216,8 +216,8 @@ public class BookingService implements IBookingService {
     public Bookings createAndSaveNewBooking(BookingCreateRequest bookingDTO) {
         Bookings booking = new Bookings();
         booking.setStatus(BookingEnums.UNPAID);
-        booking.setStartdate(bookingDTO.getStartdate());
-        booking.setEnddate(bookingDTO.getEnddate());
+        booking.setStartDate(bookingDTO.getStartdate());
+        booking.setEndDate(bookingDTO.getEnddate());
         booking.setTitle(bookingDTO.getTitle());
         String bookingCode = generateBookingCode(8);
         booking.setAccount(accountUtils.getCurrentAccount());
@@ -251,10 +251,10 @@ public class BookingService implements IBookingService {
             response.setId(booking.getId());
             response.setTitle(booking.getTitle());
             response.setStatus(booking.getStatus().toString());
-            response.setEndDate(booking.getEnddate());
-            response.setStartDate(booking.getStartdate());
-            response.setUpdateDate(booking.getUpdateddate());
-            response.setCreatedDate(booking.getDatecreated());
+            response.setEndDate(booking.getEndDate());
+            response.setStartDate(booking.getStartDate());
+            response.setUpdateDate(booking.getDateUpdated());
+            response.setCreatedDate(booking.getDateCreated());
             response.setTotalQuantity(booking.getTotal_quantity());
             response.setDepositAmount(booking.getDepositAmount());
             response.setTotalPrice(booking.getTotal_price());
@@ -275,7 +275,7 @@ public class BookingService implements IBookingService {
 
     @Scheduled(cron = "*/10 * * * * ?")
     public void markCompletedBookings() {
-        List<Bookings> bookings = bookingRepository.findByStatusNotAndEnddateBefore(
+        List<Bookings> bookings = bookingRepository.findByStatusNotAndEndDateBefore(
                 BookingEnums.COMPLETED, LocalDateTime.now()
         );
         for(Bookings booking:bookings){
@@ -314,7 +314,7 @@ public class BookingService implements IBookingService {
         if (bookings == null) {
             throw new IllegalArgumentException("Booking not found with ID: " + tshirtRequest.getBookingId());
         }
-      bookings.setIspublic(true);
+      bookings.setPublic(true);
       bookingRepository.save(bookings);
       return true;
     }

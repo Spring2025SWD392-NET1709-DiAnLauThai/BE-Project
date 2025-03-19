@@ -1,7 +1,6 @@
 package com.be.back_end.model;
 
 
-import com.be.back_end.enums.ActivationEnums;
 import com.be.back_end.enums.BookingEnums;
 import jakarta.persistence.*;
 
@@ -45,18 +44,18 @@ public class Bookings {
     private BookingEnums status;
 
     @Column(name="datecreated", nullable = false, updatable = false)
-    private LocalDateTime datecreated;
+    private LocalDateTime dateCreated;
 
     @Column(name="updateddate")
-    private LocalDateTime updateddate;
+    private LocalDateTime dateUpdated;
 
     @Column(name="ispublic")
-    private boolean ispublic;
+    private boolean isPublic;
     @Column(name="startdate")
-    private LocalDateTime startdate;
+    private LocalDateTime startDate;
 
     @Column(name="enddate")
-    private LocalDateTime enddate;
+    private LocalDateTime endDate;
 
     private String note;
 
@@ -73,13 +72,13 @@ public class Bookings {
         if (Id == null) {
             Id = UUID.randomUUID().toString();
         }
-        datecreated = LocalDateTime.now();
-        updateddate = datecreated;
-        ispublic=false;
+        dateCreated = LocalDateTime.now();
+        dateUpdated = dateCreated;
+        isPublic =false;
     }
     @PreUpdate
     protected void onUpdate() {
-        updateddate = LocalDateTime.now();
+        dateUpdated = LocalDateTime.now();
     }
 
 }

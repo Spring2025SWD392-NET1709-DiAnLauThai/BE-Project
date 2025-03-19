@@ -45,11 +45,13 @@ public class TransactionController {
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getTranscationById(@PathVariable String id) {
-        TransactionDTO design = transactionService.getById(id);
-        if (design == null) {
-            return ResponseEntity.badRequest().body("Transcation not found with ID: " + id);
+        TransactionDTO transactionDTO = transactionService.getById(id);
+        if (transactionDTO == null) {
+            return ResponseEntity.status(204).body(
+                    new ErrorResponse(204, "Transaction not found", List.of("Transaction not found with ID: " + id))
+            );
         }
-        return ResponseEntity.ok(design);
+        return ResponseEntity.ok(new ApiResponse<>(200, transactionDTO, "Transaction of "+id+" found"));
     }
 
 
@@ -90,7 +92,7 @@ public class TransactionController {
         PaginatedResponseDTO<TransactionDTO> transactions = transactionService.getAll(
                  page, size, sortDir, sortBy);
         if (transactions.getContent().isEmpty()) {
-            return ResponseEntity.status(204).body(new ApiResponse<>(204, null, "No data available"));
+            return ResponseEntity.status(204).body(new ErrorResponse(204, "Failed to get data", List.of("Transactions List not found ")));
         }
         return ResponseEntity.ok(new ApiResponse<>(200, transactions, "Page returned: " + page));
     }
@@ -102,19 +104,22 @@ public class TransactionController {
     public ResponseEntity<?> getTransactionDetail(@PathVariable String id) {
         TransactionDetailResponse transactionDetail = transactionService.getTransactionDetail(id);
         if (transactionDetail == null) {
-            return ResponseEntity.ok(new ErrorResponse(400, "Failed to get detail", null));
+            return ResponseEntity.ok(new ErrorResponse(204, "Failed to get data", List.of("Transaction not found with ID: " + id)));
         }
-        return ResponseEntity.ok(new ApiResponse(200, transactionDetail, "Transaction detail returned"));
+        return ResponseEntity.ok(new ApiResponse<>(200, transactionDetail, "Transaction detail returned"));
     }
 
 
     @GetMapping("/makePayment")
-    public ResponseEntity<TransactionResponse> makePayment(@RequestBody TransactionRequest transactionRequest, HttpServletRequest request) {
+    public ResponseEntity<?> makePayment(@RequestBody TransactionRequest transactionRequest, HttpServletRequest request) {
         String amount = transactionRequest.getPayment_amount();
         String orderInfo = transactionRequest.getBooking_info();
         String orderType = transactionRequest.getBooking_type();
         TransactionResponse response = vnpayService.createPaymentUrl(amount, orderInfo, orderType,request);
-        return ResponseEntity.ok(response);
+        if(response == null){
+            return ResponseEntity.status(400).body(new ErrorResponse(400, "Failed to generate payment URL", null ));
+        }
+        return ResponseEntity.ok(new ApiResponse<>(200, response, "Payment URL generated successfully"));
     }
 
    /* @GetMapping("/callback/fully_paid")
@@ -206,42 +211,6 @@ public class TransactionController {
                     .body(new ErrorResponse(500, "Transaction failed", List.of(e.getMessage())));
         }
     }
-
-    @GetMapping("/daily-income")
-    public ResponseEntity<DailyIncomeResponse> getDailyIncome(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
-
-        BigDecimal totalIncome = transactionService.calculateTotalIncomeByDate(date);
-        DailyIncomeResponse response = new DailyIncomeResponse(date, totalIncome);
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/monthly-income")
-    public ResponseEntity<MonthlyIncomeResponse> getMonthlyIncome(
-            @RequestParam int year,
-            @RequestParam int month) {
-
-        // Validate month input (1-12)
-        if (month < 1 || month > 12) {
-            throw new IllegalArgumentException("Month must be between 1 and 12");
-        }
-
-        Month monthEnum = Month.of(month);
-        MonthlyIncomeResponse response = transactionService.calculateMonthlyIncome(year, monthEnum);
-
-        return ResponseEntity.ok(response);
-    }
-
-    @GetMapping("/yearly-income")
-    public ResponseEntity<YearlyIncomeResponse> getYearlyIncome(
-            @RequestParam int year) {
-
-        YearlyIncomeResponse response = transactionService.calculateYearlyIncome(year);
-
-        return ResponseEntity.ok(response);
-    }
-
 
 }
 

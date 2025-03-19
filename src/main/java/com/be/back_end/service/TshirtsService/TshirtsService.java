@@ -160,19 +160,19 @@ public class TshirtsService implements  ITshirtsService{
         Page<Tshirts> tshirts;
         if(keyword!=null&&dateFrom!=null&&dateTo!=null)
         {
-            tshirts=tshirtsRepository.findByBookingdetails_Booking_IspublicTrueAndNameContainingIgnoreCaseAndCreatedAtBetween(keyword,dateFrom,dateTo,pageable);
+            tshirts=tshirtsRepository.findByBookingdetails_Booking_IsPublicTrueAndNameContainingIgnoreCaseAndCreatedAtBetween(keyword,dateFrom,dateTo,pageable);
         }
         else if(dateFrom!=null&&dateTo!=null)
         {
-            tshirts= tshirtsRepository.findByBookingdetails_Booking_IspublicTrueAndCreatedAtBetween(dateFrom,dateTo,pageable);
+            tshirts= tshirtsRepository.findByBookingdetails_Booking_IsPublicTrueAndCreatedAtBetween(dateFrom,dateTo,pageable);
         }
 
         else if(keyword!=null)
         {
-            tshirts=tshirtsRepository.findByBookingdetails_Booking_IspublicTrueAndNameContainingIgnoreCase(keyword,pageable);
+            tshirts=tshirtsRepository.findByBookingdetails_Booking_IsPublicTrueAndNameContainingIgnoreCase(keyword,pageable);
         }
         else{
-            tshirts=tshirtsRepository.findByBookingdetails_Booking_IspublicTrue(pageable);}
+            tshirts=tshirtsRepository.findByBookingdetails_Booking_IsPublicTrue(pageable);}
         List<TshirtsListsResponse> tshirtsListsResponses = new ArrayList<>();
         for(Tshirts tshirt:tshirts.getContent())
         {
@@ -242,7 +242,7 @@ public class TshirtsService implements  ITshirtsService{
         Bookingdetails bookingDetails = bookingDetailsRepository.findByTshirtId(tshirt.getTshirtId());
         if (bookingDetails != null) {
             Bookings booking = bookingDetails.getBooking();
-            booking.setUpdateddate(LocalDateTime.now());
+            booking.setDateUpdated(LocalDateTime.now());
             bookingRepository.save(booking);
         }
         updateTshirt=mapToEntity(tshirt);
