@@ -91,7 +91,7 @@ public class BookingController {
         return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }
 
-    @PutMapping("/{bookingId}/public")
+    @PutMapping("/public")
     public ResponseEntity<?> publicTshirt(@RequestParam String bookingId) {
         try {
             boolean isPublic = bookingService.publicTshirt(bookingId);
