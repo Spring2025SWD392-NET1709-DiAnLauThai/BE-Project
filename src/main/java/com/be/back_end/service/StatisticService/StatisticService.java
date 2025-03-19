@@ -9,6 +9,7 @@ import com.be.back_end.repository.BookingRepository;
 import com.be.back_end.repository.TransactionRepository;
 import com.be.back_end.repository.TshirtsRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.*;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@Service
 public class StatisticService implements IStatisticService {
 
     private final TransactionRepository transactionRepository;
@@ -218,7 +220,7 @@ public class StatisticService implements IStatisticService {
         // Group bookings by month
         Map<Month, Long> monthlyBookingCounts = bookingList.stream()
                 .collect(Collectors.groupingBy(
-                        booking -> booking.getDatecreated().getMonth(),
+                        booking -> booking.getDateCreated().getMonth(),
                         Collectors.counting()
                 ));
 

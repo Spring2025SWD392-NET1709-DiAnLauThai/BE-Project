@@ -21,15 +21,16 @@ public interface TshirtsRepository extends JpaRepository<Tshirts,String> {
     List<Tshirts> findByBookingdetailsIsNullAndAccount_Id(String accountId);
     Page<Tshirts> findByNameContainingIgnoreCase( String name,Pageable pageable);
     Page<Tshirts> findByCreatedAtBetween(LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
-    Page<Tshirts> findByBookingdetails_Booking_IspublicTrue(Pageable pageable);
-    Page<Tshirts> findByBookingdetails_Booking_IspublicTrueAndNameContainingIgnoreCase(
+    Page<Tshirts> findByBookingdetails_Booking_IsPublicTrue(Pageable pageable);
+    Page<Tshirts> findByBookingdetails_Booking_IsPublicTrueAndNameContainingIgnoreCase(
             String keyword, Pageable pageable);
-    Page<Tshirts> findByBookingdetails_Booking_IspublicTrueAndCreatedAtBetween(
+    Page<Tshirts> findByBookingdetails_Booking_IsPublicTrueAndCreatedAtBetween(
             LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
-    Page<Tshirts> findByBookingdetails_Booking_IspublicTrueAndNameContainingIgnoreCaseAndCreatedAtBetween(
+    Page<Tshirts> findByBookingdetails_Booking_IsPublicTrueAndNameContainingIgnoreCaseAndCreatedAtBetween(
             String keyword, LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
 
-    @Query("SELECT COUNT(t) FROM Tshirts t WHERE t.enddate >= :startDate AND t.enddate < :endDate")
+    //Find amount of T-Shirt based on the date created in range
+    @Query("SELECT COUNT(t) FROM Tshirts t WHERE t.createdAt >= :startDate AND t.createdAt < :endDate")
     List<Tshirts> findTshirtsCreatedBetween(@Param("startDate") LocalDateTime startDate,
                                     @Param("endDate") LocalDateTime endDate);
 }
