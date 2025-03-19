@@ -309,10 +309,10 @@ public class BookingService implements IBookingService {
 
     @Transactional
     @Override
-    public boolean publicTshirt(PublicTshirtRequest tshirtRequest) {
-      Bookings bookings=bookingRepository.findById(tshirtRequest.getBookingId()).orElse(null);
+    public boolean publicTshirt(String bookingId) {
+      Bookings bookings=bookingRepository.findById(bookingId).orElse(null);
         if (bookings == null) {
-            throw new IllegalArgumentException("Booking not found with ID: " + tshirtRequest.getBookingId());
+            throw new IllegalArgumentException("Booking not found with ID: " + bookingId);
         }
       bookings.setPublic(true);
       bookingRepository.save(bookings);

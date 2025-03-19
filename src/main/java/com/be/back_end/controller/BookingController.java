@@ -92,9 +92,9 @@ public class BookingController {
     }
 
     @PutMapping("/{bookingId}/public")
-    public ResponseEntity<?> publicTshirt(@RequestBody @Valid PublicTshirtRequest request) {
+    public ResponseEntity<?> publicTshirt(@RequestParam String bookingId) {
         try {
-            boolean isPublic = bookingService.publicTshirt(request);
+            boolean isPublic = bookingService.publicTshirt(bookingId);
             if (isPublic) {
                 return ResponseEntity.ok(new ApiResponse<>(200, true, "Booking made public successfully"));
             }
