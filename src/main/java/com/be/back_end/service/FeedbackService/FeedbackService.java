@@ -72,9 +72,9 @@ public class FeedbackService implements IFeedbackService {
         return true;
     }
     @Override
-    public List<TshirtFeedbackResponse> getAllTshirtsFeedbacksById(FeedbacksRequest feedbacksRequest)
+    public List<TshirtFeedbackResponse> getAllTshirtsFeedbacksById(String tshirtId)
     {
-        List<Feedback> feedbackList= feedbackRepository.findByTshirtFeedbacks_Tshirt_Id(feedbacksRequest.getTshirtid());
+        List<Feedback> feedbackList= feedbackRepository.findByTshirtFeedbacks_Tshirt_Id(tshirtId);
         List<TshirtFeedbackResponse> feedbackResponseList= new ArrayList<>();
         for(Feedback feedback:feedbackList){
             TshirtFeedbackResponse tshirtFeedbackResponse=new TshirtFeedbackResponse();

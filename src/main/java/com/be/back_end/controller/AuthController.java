@@ -73,7 +73,8 @@ public class AuthController {
             String redirectUrl = "http://localhost:3000/login/google";
             String redirectWithParams = redirectUrl + "?status=SUCCESS" +
                     "&message=Login successful" +
-                    "&accessToken=" + jwtResponse.getAccessToken();
+                    "&accessToken=" + jwtResponse.getAccessToken()+
+                    "&refreshToken=" + jwtResponse.getRefreshToken();
             response.sendRedirect(redirectWithParams);
         } catch (Exception e) {
             try {
