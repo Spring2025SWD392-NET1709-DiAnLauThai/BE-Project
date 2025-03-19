@@ -38,11 +38,11 @@ public interface AccountRepository extends JpaRepository<Account, String> {
 
     Page<Account> findByRoleAndStatus(RoleEnums role, ActivationEnums status, Pageable pageable);
 
-    List<Account> findByRoleAndStatus(RoleEnums role, ActivationEnums status);
-
     Page<Account> findByStatusAndCreatedAtBetween(ActivationEnums status, LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
 
     Page<Account> findByRoleAndStatusAndCreatedAtBetween(RoleEnums role, ActivationEnums status, LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
+
+    List<Account> findByRoleAndStatusAndCreatedAtBetween(RoleEnums role, ActivationEnums status, LocalDateTime startDate, LocalDateTime endDate);
 
     Page<Account> findByRoleAndStatusAndEmailContainingIgnoreCaseOrNameContainingIgnoreCase(
             RoleEnums role, ActivationEnums status, String email, String name, Pageable pageable);
