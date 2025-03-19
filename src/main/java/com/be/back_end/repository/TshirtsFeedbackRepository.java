@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TshirtsFeedbackRepository extends JpaRepository<TshirtFeedback,String> {
+    boolean existsByFeedback_User_IdAndTshirt_Id(String accountId, String tshirtId);
 }
