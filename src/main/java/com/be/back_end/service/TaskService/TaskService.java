@@ -179,26 +179,26 @@ public class TaskService implements ITaskService{
 
         return true;
     }
+    @Transactional
     @Override
     public boolean assignTshirttoTask(TshirtSelectRequest tshirtSelectRequest) {
         Bookingdetails bookingdetails = bookingDetailsRepository.findById(tshirtSelectRequest.getBookingDetailId())
                 .orElse(null);
         Tshirts tshirt = tshirtsRepository.findById(tshirtSelectRequest.getTshirtId())
                 .orElse(null);
-        if (bookingdetails.getTshirt() != null && bookingdetails.getTshirt().getId().equals(tshirtSelectRequest.getTshirtId())) {
-            return false;
-        }
-
-
         if (bookingdetails == null || tshirt == null) {
             return false;
         }
+        if (bookingdetails.getTshirt() != null && bookingdetails.getTshirt().getId().equals(tshirtSelectRequest.getTshirtId())) {
+            return false;
+        }
         Bookings booking = bookingdetails.getBooking();
+
         booking.setDateUpdated(LocalDateTime.now());
+
         if (booking != null && booking.getStatus() == BookingEnums.COMPLETED) {
             return false;
         }
-
         bookingdetails.setTshirt(tshirt);
         bookingRepository.save(booking);
         bookingDetailsRepository.save(bookingdetails);

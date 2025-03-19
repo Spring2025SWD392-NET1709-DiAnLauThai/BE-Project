@@ -219,14 +219,13 @@ public class TransactionService implements ITransactionService, IVNPayService {
         String responseCode = request.getParameter("vnp_ResponseCode");
         String bookingcode = vnPayUtils.decodeBookingCode(request.getParameter("vnp_TxnRef"));
         String bankCode = request.getParameter("vnp_BankCode");
-        String amount = request.getParameter("vnp_Amount");
         String transactionMethod = request.getParameter("vnp_CardType");
 
         String vnpayStatus = responseCode.equals("00") ? "SUCCESS" :"FAILED";
 
         if ("SUCCESS".equals(vnpayStatus)) {
             updateBookingStatus(bookingcode);
-            createTransaction(bookingcode, amount, bankCode, TransactionStatusEnum.DEPOSITED.toString(), transactionMethod);
+            createTransaction(bookingcode, bankCode, TransactionStatusEnum.DEPOSITED.toString(), transactionMethod);
         }
 
 
@@ -257,16 +256,12 @@ public class TransactionService implements ITransactionService, IVNPayService {
     }
 
 
-    private Transaction createTransaction(String bookingCode, String amount, String bankCode,
+    private Transaction createTransaction(String bookingCode, String bankCode,
                                    String transactionStatus, String transactionMethod) {
         Bookings booking = bookingRepository.findByCode(bookingCode)
                 .orElseThrow(() -> new RuntimeException("Booking not found with code: " + bookingCode));
         BigDecimal transactionAmount;
-        try {
-            transactionAmount = booking.getDepositAmount();
-        } catch (NumberFormatException e) {
-            throw new RuntimeException("Invalid amount format: " + amount);
-        }
+        transactionAmount = booking.getTotal_price();
         Transaction transaction = new Transaction();
         transaction.setBooking(booking);
         transaction.setTransactionName("VNPay Payment");

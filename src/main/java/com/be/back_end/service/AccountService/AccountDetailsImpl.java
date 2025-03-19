@@ -3,6 +3,7 @@ package com.be.back_end.service.AccountService;
 import java.util.Collection;
 import java.util.Collections;
 
+import com.be.back_end.enums.ActivationEnums;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,12 +15,14 @@ public class AccountDetailsImpl implements UserDetails{
     private String id;
     private String email;
     private String password;
+    private ActivationEnums status;
     private Collection<? extends GrantedAuthority> authorities;
 
-    public AccountDetailsImpl(String id, String email, String password, Collection<? extends GrantedAuthority> authorities) {
+    public AccountDetailsImpl(String id, String email, String password, ActivationEnums status, Collection<? extends GrantedAuthority> authorities) {
         this.id = id;
         this.email = email;
         this.password = password;
+        this.status = status;
         this.authorities = authorities;
     }
     @Override
@@ -54,7 +57,7 @@ public class AccountDetailsImpl implements UserDetails{
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return this.status == ActivationEnums.ACTIVE;
     }
 
     public String getId() {
@@ -67,7 +70,8 @@ public class AccountDetailsImpl implements UserDetails{
             account.getId(),
             account.getEmail(),
             account.getPassword(),
-            Collections.singletonList(authority)
+                account.getStatus(),
+                Collections.singletonList(authority)
         );
     }
 

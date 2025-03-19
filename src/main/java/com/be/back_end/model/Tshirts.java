@@ -28,8 +28,6 @@ public class Tshirts {
     @Column(name="tshirtdescription")
     private String description;
 
-    @Enumerated(EnumType.STRING)
-    private ActivationEnums status;
 
     @Column(name="imageurl")
     private String image_url;

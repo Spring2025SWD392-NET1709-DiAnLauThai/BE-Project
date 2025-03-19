@@ -10,6 +10,7 @@ import com.be.back_end.enums.BookingEnums;
 import com.be.back_end.enums.RoleEnums;
 import com.be.back_end.enums.TaskStatusEnum;
 import com.be.back_end.enums.TransactionStatusEnum;
+import com.be.back_end.model.Bookingdetails;
 import com.be.back_end.model.Bookings;
 import com.be.back_end.model.Task;
 import com.be.back_end.model.Transaction;
@@ -139,6 +140,22 @@ public class BookingService implements IBookingService {
 
 
 
+    private BigDecimal getTotalPriceByBookingId(String bookingId) {
+        List<Bookingdetails> bookingDetails = bookingDetailsRepository.findByBookingId(bookingId);
+        BigDecimal totalPrice = BigDecimal.ZERO;
+
+        for (Bookingdetails detail : bookingDetails) {
+            if (detail.getUnit_price() != null) {
+                totalPrice = totalPrice.add(detail.getUnit_price());
+            }
+        }
+
+        return totalPrice;
+    }
+
+    private int getTotalQuantityByBookingId(String bookingId) {
+        return bookingDetailsRepository.findByBookingId(bookingId).size();
+    }
     @Override
     public BookingCreateResponse createBooking(BookingCreateRequest request, HttpServletRequest httpRequest) {
 
@@ -148,8 +165,8 @@ public class BookingService implements IBookingService {
             bookingDetails = bookingdetailService.processBookingDetails(request, booking);
         }
 
-        BigDecimal totalPrice = bookingRepository.getTotalPriceByBookingId(booking.getId());
-        Integer totalQuantity = bookingRepository.getTotalQuantityByBookingId(booking.getId());
+        BigDecimal totalPrice = getTotalPriceByBookingId(booking.getId());
+        Integer totalQuantity = getTotalQuantityByBookingId(booking.getId());
         BigDecimal depositAmount = totalPrice != null
                 ? totalPrice.multiply(BigDecimal.valueOf(0.5))
                 : BigDecimal.ZERO;

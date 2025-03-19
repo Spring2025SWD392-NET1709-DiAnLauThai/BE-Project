@@ -20,11 +20,7 @@ import java.util.Optional;
 
 @Repository
 public interface BookingRepository extends JpaRepository<Bookings, String> {
-    @Query("SELECT COALESCE(SUM(b.unit_price), 0) FROM Bookingdetails b WHERE b.booking.id = :bookingId")
-    BigDecimal getTotalPriceByBookingId(@Param("bookingId") String bookingId);
 
-    @Query("SELECT COUNT(b) FROM Bookingdetails b WHERE b.booking.id = :bookingId")
-    Integer getTotalQuantityByBookingId(@Param("bookingId") String bookingId);
 
     boolean existsByCode(String code);
 

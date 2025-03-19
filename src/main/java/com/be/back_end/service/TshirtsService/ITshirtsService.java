@@ -1,10 +1,7 @@
 package com.be.back_end.service.TshirtsService;
 
-import com.be.back_end.dto.response.TshirtsListAvailableResponse;
-import com.be.back_end.dto.response.TshirtsListDesignerResponse;
+import com.be.back_end.dto.response.*;
 import com.be.back_end.dto.request.TshirtCreateRequest;
-import com.be.back_end.dto.response.PaginatedResponseDTO;
-import com.be.back_end.dto.response.TshirtsListsResponse;
 import com.be.back_end.model.Tshirts;
 
 import java.time.LocalDateTime;
@@ -19,7 +16,7 @@ public interface ITshirtsService {
                                                                     LocalDateTime dateTo,
                                                                     String sortDir,
                                                                     String sortBy);
-    TshirtsListDesignerResponse getTshirtById(String id);
+    TshirtDetailResponse getTshirtById(String id);
     boolean  updateTshirt(TshirtsListDesignerResponse tshirt);
     List<TshirtsListAvailableResponse> getAllTshirtsAvailable();
     PaginatedResponseDTO<TshirtsListsResponse> getAllTshirtCatalog(String keyword,
@@ -29,4 +26,5 @@ public interface ITshirtsService {
                                                                    LocalDateTime dateTo,
                                                                    String sortDir,
                                                                    String sortBy);
+
 }
