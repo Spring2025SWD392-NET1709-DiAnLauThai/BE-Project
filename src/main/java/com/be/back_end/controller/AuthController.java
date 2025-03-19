@@ -8,6 +8,7 @@ import com.be.back_end.dto.response.TokenValidateDTO;
 import com.be.back_end.service.AccountService.IAccountService;
 import com.be.back_end.service.GoogleService.IGoogleService;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -24,7 +25,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.web.servlet.function.ServerResponse.status;
 
@@ -62,16 +65,25 @@ public class AuthController {
     }
 
     @GetMapping("/google/callback")
-    public ResponseEntity<?> googleCallback(@RequestParam("code") String code) {
+    public void googleCallback(@RequestParam("code") String code,
+                               @RequestParam Map<String, String> params,
+                               HttpServletResponse response) {
         try {
             JwtResponse jwtResponse = accountService.handleGoogleLogin(code);
-            return ResponseEntity.ok(new ApiResponse<>(200, jwtResponse, "Login successful"));
-
+            String redirectUrl = "http://localhost:3000/login/google";
+            String redirectWithParams = redirectUrl + "?status=SUCCESS" +
+                    "&message=Login successful" +
+                    "&accessToken=" + jwtResponse.getAccessToken();
+            response.sendRedirect(redirectWithParams);
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                    .body(new ErrorResponse(500, "An error occurred during login", List.of(e.getMessage())));
+            try {
+                response.sendRedirect("http://localhost:3000/login/google?status=FAILED&message=Login failed");
+            } catch (IOException ioException) {
+                ioException.printStackTrace();
+            }
         }
     }
+
 
 
     @PostMapping("/register")
