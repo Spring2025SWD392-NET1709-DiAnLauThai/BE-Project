@@ -60,9 +60,4 @@ public class Tshirts {
         createdAt=LocalDateTime.now();
     }
 
-
-
-
-
-
 }

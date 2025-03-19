@@ -111,12 +111,12 @@ public class BookingdetailService implements IBookingdetailService {
        bookingResponseInDetail.setCode(booking.getCode());
        bookingResponseInDetail.setTitle(booking.getTitle());
        bookingResponseInDetail.setBookingStatus(booking.getStatus());
-       bookingResponseInDetail.setEnddate(booking.getEnddate());
+       bookingResponseInDetail.setEnddate(booking.getEndDate());
        bookingResponseInDetail.setTotalQuantity(booking.getTotal_quantity());
        bookingResponseInDetail.setTotalPrice(booking.getTotal_price());
-       bookingResponseInDetail.setStartdate(booking.getStartdate());
-       bookingResponseInDetail.setUpdateddate(booking.getUpdateddate());
-       bookingResponseInDetail.setDatecreated(booking.getDatecreated());
+       bookingResponseInDetail.setStartdate(booking.getStartDate());
+       bookingResponseInDetail.setUpdateddate(booking.getDateUpdated());
+       bookingResponseInDetail.setDatecreated(booking.getDateCreated());
        for(Bookingdetails detail: bookingdetails) {
            BookingResponseInDetail.BookingDetailResponse detailResponse = new BookingResponseInDetail.BookingDetailResponse();
            detailResponse.setBookingDetailId(detail.getId());
@@ -168,12 +168,12 @@ public class BookingdetailService implements IBookingdetailService {
         bookingResponseInDetail.setCode(booking.getCode());
         bookingResponseInDetail.setTitle(booking.getTitle());
         bookingResponseInDetail.setBookingStatus(booking.getStatus());
-        bookingResponseInDetail.setEnddate(booking.getEnddate());
+        bookingResponseInDetail.setEnddate(booking.getEndDate());
         bookingResponseInDetail.setTotalQuantity(booking.getTotal_quantity());
         bookingResponseInDetail.setTotalPrice(booking.getTotal_price());
-        bookingResponseInDetail.setStartdate(booking.getStartdate());
-        bookingResponseInDetail.setUpdateddate(booking.getUpdateddate());
-        bookingResponseInDetail.setDatecreated(booking.getDatecreated());
+        bookingResponseInDetail.setStartdate(booking.getStartDate());
+        bookingResponseInDetail.setUpdateddate(booking.getDateUpdated());
+        bookingResponseInDetail.setDatecreated(booking.getDateCreated());
         for(Bookingdetails detail: bookingdetails) {
             BookingResponseInDetailCus.BookingDetailResponse detailResponse = new BookingResponseInDetailCus.BookingDetailResponse();
             detailResponse.setBookingDetailId(detail.getId());

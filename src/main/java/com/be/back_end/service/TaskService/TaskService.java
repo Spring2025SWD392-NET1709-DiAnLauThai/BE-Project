@@ -62,19 +62,19 @@ public class TaskService implements ITaskService{
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sort, "booking.startdate"));
         Page<Task> tasks;
         if (startDate != null && endDate != null && designerName != null && taskStatus != null) {
-            tasks = taskRepository.findByBooking_StartdateBetweenAndAccount_IdAndAccount_NameContainingIgnoreCaseAndTaskStatus(
+            tasks = taskRepository.findByBooking_startDateBetweenAndAccount_IdAndAccount_NameContainingIgnoreCaseAndTaskStatus(
                     startDate, endDate, designerId, designerName, taskStatus, pageable);
         } else if (startDate != null && endDate != null && designerName != null) {
-            tasks = taskRepository.findByBooking_StartdateBetweenAndAccount_IdAndAccount_NameContainingIgnoreCase(
+            tasks = taskRepository.findByBooking_startDateBetweenAndAccount_IdAndAccount_NameContainingIgnoreCase(
                     startDate, endDate, designerId, designerName, pageable);
         } else if (startDate != null && endDate != null && taskStatus != null) {
-            tasks = taskRepository.findByBooking_StartdateBetweenAndAccount_IdAndTaskStatus(
+            tasks = taskRepository.findByBooking_startDateBetweenAndAccount_IdAndTaskStatus(
                     startDate, endDate, designerId, taskStatus, pageable);
         } else if (designerName != null && taskStatus != null) {
             tasks = taskRepository.findByAccount_IdAndAccount_NameContainingIgnoreCaseAndTaskStatus(
                     designerId, designerName, taskStatus, pageable);
         } else if (startDate != null && endDate != null) {
-            tasks = taskRepository.findByBooking_StartdateBetweenAndAccount_Id(startDate, endDate, designerId, pageable);
+            tasks = taskRepository.findByBooking_startDateBetweenAndAccount_Id(startDate, endDate, designerId, pageable);
         } else if (designerName != null) {
             tasks = taskRepository.findByAccount_IdAndAccount_NameContainingIgnoreCase(designerId, designerName, pageable);
         } else if (taskStatus != null) {
@@ -113,19 +113,19 @@ public class TaskService implements ITaskService{
         Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sort, "booking.startdate"));
         Page<Task> tasks;
         if (startDate != null && endDate != null && designerName != null && taskStatus != null) {
-            tasks = taskRepository.findByBooking_StartdateBetweenAndAccount_NameContainingIgnoreCaseAndTaskStatus(
+            tasks = taskRepository.findByBooking_startDateBetweenAndAccount_NameContainingIgnoreCaseAndTaskStatus(
                     startDate, endDate, designerName, taskStatus, pageable);
         } else if (startDate != null && endDate != null && designerName != null) {
-            tasks = taskRepository.findByBooking_StartdateBetweenAndAccount_NameContainingIgnoreCase(
+            tasks = taskRepository.findByBooking_startDateBetweenAndAccount_NameContainingIgnoreCase(
                     startDate, endDate, designerName, pageable);
         } else if (startDate != null && endDate != null && taskStatus != null) {
-            tasks = taskRepository.findByBooking_StartdateBetweenAndTaskStatus(
+            tasks = taskRepository.findByBooking_startDateBetweenAndTaskStatus(
                     startDate, endDate, taskStatus, pageable);
         } else if (designerName != null && taskStatus != null) {
             tasks = taskRepository.findByAccount_NameContainingIgnoreCaseAndTaskStatus(
                     designerName, taskStatus, pageable);
         } else if (startDate != null && endDate != null) {
-            tasks = taskRepository.findByBooking_StartdateBetween(startDate, endDate, pageable);
+            tasks = taskRepository.findByBooking_startDateBetween(startDate, endDate, pageable);
         } else if (designerName != null) {
             tasks = taskRepository.findByAccount_NameContainingIgnoreCase(designerName, pageable);
         } else if (taskStatus != null) {
@@ -151,8 +151,8 @@ public class TaskService implements ITaskService{
         response.setTaskId(task.getId());
         response.setDesignerName(task.getAccount().getName());
         response.setTaskStatus(task.getTaskStatus());
-        response.setStartDate(task.getBooking().getStartdate());
-        response.setEndDate(task.getBooking().getEnddate());
+        response.setStartDate(task.getBooking().getStartDate());
+        response.setEndDate(task.getBooking().getEndDate());
         response.setBookingId(task.getBooking().getId());
         return response;
     }
@@ -193,6 +193,9 @@ public class TaskService implements ITaskService{
             return false;
         }
         Bookings booking = bookingdetails.getBooking();
+
+        booking.setDateUpdated(LocalDateTime.now());
+
         if (booking != null && booking.getStatus() == BookingEnums.COMPLETED) {
             return false;
         }
@@ -254,12 +257,12 @@ public class TaskService implements ITaskService{
         taskDetailResponseDTO.setCode(booking.getCode());
         taskDetailResponseDTO.setTitle(booking.getTitle());
         taskDetailResponseDTO.setBookingStatus(booking.getStatus());
-        taskDetailResponseDTO.setEnddate(booking.getEnddate());
+        taskDetailResponseDTO.setEnddate(booking.getEndDate());
         taskDetailResponseDTO.setTotalQuantity(booking.getTotal_quantity());
         taskDetailResponseDTO.setTotalPrice(booking.getTotal_price());
-        taskDetailResponseDTO.setStartdate(booking.getStartdate());
-        taskDetailResponseDTO.setUpdateddate(booking.getUpdateddate());
-        taskDetailResponseDTO.setDatecreated(booking.getDatecreated());
+        taskDetailResponseDTO.setStartdate(booking.getStartDate());
+        taskDetailResponseDTO.setUpdateddate(booking.getDateUpdated());
+        taskDetailResponseDTO.setDatecreated(booking.getDateCreated());
         List<TaskDetailResponseDTO.BookingDetailResponse> detailResponses = bookingDetails.stream()
                 .map(detail -> new TaskDetailResponseDTO.BookingDetailResponse(
                         detail.getId(),

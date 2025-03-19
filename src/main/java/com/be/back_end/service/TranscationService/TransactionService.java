@@ -39,8 +39,9 @@ public class TransactionService implements ITransactionService, IVNPayService {
     private final AccountRepository accountRepository;
     private final BookingRepository bookingRepository;
     private final BookingDetailsRepository bookingDetailsRepository;
-
     private final AccountUtils accountUtils;
+
+
     @Autowired
     public TransactionService(TransactionRepository transactionRepository, VNPayUtils vnPayUtils, AccountRepository accountRepository, BookingRepository bookingRepository, BookingDetailsRepository bookingDetailsRepository,
                               AccountUtils accountUtils) {
@@ -310,104 +311,6 @@ public class TransactionService implements ITransactionService, IVNPayService {
     }
 
 
-    //Calculate total income of all transaction given date
-    //Date format is 2025-03-18 (YYYY-MM-DD) ISO format
-    @Override
-    public BigDecimal calculateTotalIncomeByDate(LocalDate date) {
 
-        LocalDateTime startOfDay = date.atStartOfDay();
-        LocalDateTime endOfDay = date.atTime(LocalTime.MAX);
-
-
-        List<Transaction> fullyPaidTransactions = transactionRepository.findFullyPaidTransactionsByDateRange(startOfDay, endOfDay);
-
-
-        return fullyPaidTransactions.stream()
-                .map(Transaction::getTransactionAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-    }
-
-    @Override
-    public MonthlyIncomeResponse calculateMonthlyIncome(int year, Month month) {
-        // Get the first and last day of the month
-        YearMonth yearMonth = YearMonth.of(year, month);
-        LocalDate firstDayOfMonth = yearMonth.atDay(1);
-        LocalDate lastDayOfMonth = yearMonth.atEndOfMonth();
-
-        // Convert to LocalDateTime for database query
-        LocalDateTime startDateTime = firstDayOfMonth.atStartOfDay();
-        LocalDateTime endDateTime = lastDayOfMonth.plusDays(1).atStartOfDay();
-
-        // Get all fully paid transactions within the month
-        List<Transaction> fullyPaidTransactions = transactionRepository
-                .findFullyPaidTransactionsByDateRange(startDateTime, endDateTime);
-
-        // Calculate total income for the month
-        BigDecimal totalIncome = fullyPaidTransactions.stream()
-                .map(Transaction::getTransactionAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // Group transactions by date and calculate daily totals
-        Map<LocalDate, BigDecimal> dailyTotalsMap = fullyPaidTransactions.stream()
-                .collect(Collectors.groupingBy(
-                        transaction -> transaction.getTransactionDate().toLocalDate(),
-                        Collectors.mapping(
-                                Transaction::getTransactionAmount,
-                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add)
-                        )
-                ));
-
-        // Create a list with all days of the month (including those with zero income)
-        List<DailyIncomeResponse> dailyTransactions = new ArrayList<>();
-
-        // Initialize all days with zero
-        for (int day = 1; day <= lastDayOfMonth.getDayOfMonth(); day++) {
-            LocalDate currentDate = LocalDate.of(year, month, day);
-            BigDecimal dailyAmount = dailyTotalsMap.getOrDefault(currentDate, BigDecimal.ZERO);
-            dailyTransactions.add(new DailyIncomeResponse (currentDate, dailyAmount));
-        }
-
-        // Create and return the response
-        return new MonthlyIncomeResponse(month, year, totalIncome, dailyTransactions);
-    }
-
-    @Override
-    public YearlyIncomeResponse calculateYearlyIncome(int year) {
-        // Calculate start and end of the year
-        LocalDateTime startOfYear = LocalDate.of(year, 1, 1).atStartOfDay();
-        LocalDateTime endOfYear = LocalDate.of(year, 12, 31).plusDays(1).atStartOfDay();
-
-        // Get all fully paid transactions within the year
-        List<Transaction> fullyPaidTransactions = transactionRepository
-                .findFullyPaidTransactionsByDateRange(startOfYear, endOfYear);
-
-        // Calculate total income for the year
-        BigDecimal totalYearlyIncome = fullyPaidTransactions.stream()
-                .map(Transaction::getTransactionAmount)
-                .reduce(BigDecimal.ZERO, BigDecimal::add);
-
-        // Group transactions by month and calculate monthly totals
-        Map<Month, BigDecimal> monthlyTotals = fullyPaidTransactions.stream()
-                .collect(Collectors.groupingBy(
-                        transaction -> transaction.getTransactionDate().getMonth(),
-                        Collectors.mapping(
-                                Transaction::getTransactionAmount,
-                                Collectors.reducing(BigDecimal.ZERO, BigDecimal::add)
-                        )
-                ));
-
-        // Create a list of monthly income summaries for all months (including those with zero income)
-        List<MonthlyIncomeSummary> monthlyIncomes = new ArrayList<>();
-        for (Month month : Month.values()) {
-            BigDecimal monthlyIncome = monthlyTotals.getOrDefault(month, BigDecimal.ZERO);
-            monthlyIncomes.add(new MonthlyIncomeSummary(month, monthlyIncome));
-        }
-
-        // Sort by month
-        monthlyIncomes.sort(Comparator.comparing(MonthlyIncomeSummary::getMonth));
-
-        // Create and return the response
-        return new YearlyIncomeResponse(year, totalYearlyIncome, monthlyIncomes);
-    }
 }
 

@@ -12,19 +12,19 @@ import java.util.Optional;
 
 @Repository
 public interface TaskRepository extends JpaRepository<Task,String> {
-    Page<Task> findByBooking_StartdateBetweenAndAccount_IdAndAccount_NameContainingIgnoreCaseAndTaskStatus(
+    Page<Task> findByBooking_startDateBetweenAndAccount_IdAndAccount_NameContainingIgnoreCaseAndTaskStatus(
             LocalDate startDate, LocalDate endDate, String designerId, String designerName, String taskStatus, Pageable pageable);
 
-    Page<Task> findByBooking_StartdateBetweenAndAccount_IdAndAccount_NameContainingIgnoreCase(
+    Page<Task> findByBooking_startDateBetweenAndAccount_IdAndAccount_NameContainingIgnoreCase(
             LocalDate startDate, LocalDate endDate, String designerId, String designerName, Pageable pageable);
 
-    Page<Task> findByBooking_StartdateBetweenAndAccount_IdAndTaskStatus(
+    Page<Task> findByBooking_startDateBetweenAndAccount_IdAndTaskStatus(
             LocalDate startDate, LocalDate endDate, String designerId, String taskStatus, Pageable pageable);
 
     Page<Task> findByAccount_IdAndAccount_NameContainingIgnoreCaseAndTaskStatus(
             String designerId, String designerName, String taskStatus, Pageable pageable);
 
-    Page<Task> findByBooking_StartdateBetweenAndAccount_Id(
+    Page<Task> findByBooking_startDateBetweenAndAccount_Id(
             LocalDate startDate, LocalDate endDate, String designerId, Pageable pageable);
 
     Page<Task> findByAccount_IdAndAccount_NameContainingIgnoreCase(
@@ -37,12 +37,12 @@ public interface TaskRepository extends JpaRepository<Task,String> {
     Page<Task> findByAccount_NameContainingIgnoreCase(String designerName, Pageable pageable);
     Page<Task> findByAccount_NameContainingIgnoreCaseAndTaskStatus(
             String designerName, String taskStatus, Pageable pageable);
-    Page<Task> findByBooking_StartdateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
-    Page<Task> findByBooking_StartdateBetweenAndTaskStatus(
+    Page<Task> findByBooking_startDateBetween(LocalDate startDate, LocalDate endDate, Pageable pageable);
+    Page<Task> findByBooking_startDateBetweenAndTaskStatus(
             LocalDate startDate, LocalDate endDate, String taskStatus, Pageable pageable);
-    Page<Task> findByBooking_StartdateBetweenAndAccount_NameContainingIgnoreCase(
+    Page<Task> findByBooking_startDateBetweenAndAccount_NameContainingIgnoreCase(
             LocalDate startDate, LocalDate endDate, String designerName, Pageable pageable);
-    Page<Task> findByBooking_StartdateBetweenAndAccount_NameContainingIgnoreCaseAndTaskStatus(
+    Page<Task> findByBooking_startDateBetweenAndAccount_NameContainingIgnoreCaseAndTaskStatus(
             LocalDate startDate, LocalDate endDate, String designerName, String taskStatus, Pageable pageable);
     Optional<Task> findByBookingId(String bookingId);
 }
