@@ -18,7 +18,7 @@ public interface ITshirtsService {
                                                                     String sortDir,
                                                                     String sortBy);
     TshirtDetailResponse getTshirtById(String id);
-    boolean updateTshirt(TshirtsUpdateRequest tshirt);
+    boolean updateTshirt(String id,TshirtsUpdateRequest tshirt);
     List<TshirtsListAvailableResponse> getAllTshirtsAvailable();
     PaginatedResponseDTO<TshirtsListsResponse> getAllTshirtCatalog(String keyword,
                                                                    int page,
