@@ -127,39 +127,4 @@ public class AuthController {
                 .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
                 .body(apiResponse);
     }
-
-    // @GetMapping("/me") //Get user personal details
-    // public ResponseEntity<?> getCurrentUser(@RequestHeader(value = "Authorization", required = false) String authHeader) {
-
-    //         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-    //             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("No token provided");
-    //         }
-
-    //         String token = authHeader.substring(7);
-
-    //         if (!jwtUtils.validateJwtToken(token)) {
-    //             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid or expired token");
-    //         }
-
-    //         String userId = jwtUtils.getUserIdFromJwtToken(token);
-
-    //         Optional<Account> account = accountRepository.findById(userId);
-    //         if (!account.isPresent()) {
-    //             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
-    //         }
-
-    //         Account user = account.get();
-    //         ApiResponse apiResponse = new ApiResponse(200, new JwtResponse(
-    //             user.getId(),
-    //             user.getEmail(),
-    //             user.getRole().name(),
-    //             user.getName(),
-    //             user.getAddress(),
-    //             user.getPhone(),
-    //             user.getDateOfBirth(),
-    //             user.getStatus()
-    //         ), "User details retrieved successfully");
-    //         return ResponseEntity.ok(apiResponse);
-
-    // }
 }

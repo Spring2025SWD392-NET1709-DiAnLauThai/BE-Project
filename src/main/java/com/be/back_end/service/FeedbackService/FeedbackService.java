@@ -8,6 +8,7 @@ import com.be.back_end.model.*;
 import com.be.back_end.repository.BookingRepository;
 import com.be.back_end.repository.FeedbackRepository;
 import com.be.back_end.repository.TshirtsFeedbackRepository;
+import com.be.back_end.repository.TshirtsRepository;
 import com.be.back_end.utils.AccountUtils;
 import org.springframework.stereotype.Service;
 
@@ -20,12 +21,14 @@ public class FeedbackService implements IFeedbackService {
     private final BookingRepository bookingRepository;
     private final AccountUtils accountUtils;
     private final TshirtsFeedbackRepository tshirtsFeedbackRepository;
-    public FeedbackService(FeedbackRepository feedbackRepository, BookingRepository bookingRepository, AccountUtils accountUtils, TshirtsFeedbackRepository tshirtsFeedbackRepository) {
+    private final TshirtsRepository tshirtsRepository;
+    public FeedbackService(FeedbackRepository feedbackRepository, BookingRepository bookingRepository, AccountUtils accountUtils, TshirtsFeedbackRepository tshirtsFeedbackRepository, TshirtsRepository tshirtsRepository) {
         this.feedbackRepository = feedbackRepository;
         this.bookingRepository = bookingRepository;
 
         this.accountUtils = accountUtils;
         this.tshirtsFeedbackRepository = tshirtsFeedbackRepository;
+        this.tshirtsRepository = tshirtsRepository;
     }
 
     @Override
@@ -34,7 +37,14 @@ public class FeedbackService implements IFeedbackService {
         if(account==null){
             return  false;
         }
-        Tshirts  tshirts= new Tshirts();
+        Tshirts tshirt = tshirtsRepository.findById(feedbackCreateRequest.getTshirtId()).orElse(null);
+        if (tshirt == null) {
+            return false;
+        }
+        boolean feedbackExists = tshirtsFeedbackRepository.existsByFeedback_User_IdAndTshirt_Id(account.getId(), feedbackCreateRequest.getTshirtId());
+        if (feedbackExists) {
+            return false;
+        }
         Feedback feedback = new Feedback();
         TshirtFeedback tshirtFeedback= new TshirtFeedback();
         feedback.setUser(account);
@@ -42,7 +52,7 @@ public class FeedbackService implements IFeedbackService {
         feedback.setRating(feedbackCreateRequest.getRating());
         feedback.setDetail(feedbackCreateRequest.getDetail());
         feedbackRepository.save(feedback);
-        tshirtFeedback.setTshirt(tshirts);
+        tshirtFeedback.setTshirt(tshirt);
         tshirtFeedback.setFeedback(feedback);
         tshirtsFeedbackRepository.save(tshirtFeedback);
         return true;
@@ -65,6 +75,22 @@ public class FeedbackService implements IFeedbackService {
     public List<TshirtFeedbackResponse> getAllTshirtsFeedbacksById(FeedbacksRequest feedbacksRequest)
     {
         List<Feedback> feedbackList= feedbackRepository.findByTshirtFeedbacks_Tshirt_Id(feedbacksRequest.getTshirtid());
+        List<TshirtFeedbackResponse> feedbackResponseList= new ArrayList<>();
+        for(Feedback feedback:feedbackList){
+            TshirtFeedbackResponse tshirtFeedbackResponse=new TshirtFeedbackResponse();
+            tshirtFeedbackResponse.setFeedbackId(feedback.getId());
+            tshirtFeedbackResponse.setDetail(feedback.getDetail());
+            tshirtFeedbackResponse.setUsername(feedback.getUser().getName());
+            tshirtFeedbackResponse.setRating(feedback.getRating());
+            tshirtFeedbackResponse.setCreateddate(feedback.getCreateddate());
+            feedbackResponseList.add(tshirtFeedbackResponse);
+        }
+        return feedbackResponseList;
+    }
+    @Override
+    public List<TshirtFeedbackResponse> getAllSystemFeedbacks()
+    {
+        List<Feedback> feedbackList= feedbackRepository.findByType(FeedbackTypeEnums.SYSTEM);
         List<TshirtFeedbackResponse> feedbackResponseList= new ArrayList<>();
         for(Feedback feedback:feedbackList){
             TshirtFeedbackResponse tshirtFeedbackResponse=new TshirtFeedbackResponse();

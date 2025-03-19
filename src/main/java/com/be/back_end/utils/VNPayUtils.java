@@ -188,15 +188,11 @@ public class VNPayUtils {
         String vnp_IpAddr = getIpAddress(request);
         String vnp_BankCode = "VNBANK";
         int newAmount = new BigDecimal(amount).multiply(BigDecimal.valueOf(100)).intValue();
-
         Calendar cld = Calendar.getInstance(TimeZone.getTimeZone("Etc/GMT+7"));
         SimpleDateFormat formatter = new SimpleDateFormat("yyyyMMddHHmmss");
         String vnp_CreateDate = formatter.format(cld.getTime());
         cld.add(Calendar.MINUTE, 15);
         String vnp_ExpireDate = formatter.format(cld.getTime());
-
-
-        // Parameter mapping
         Map<String, String> params = new HashMap<>();
         params.put("vnp_Version", vnp_Version);
         params.put("vnp_Command", vnp_Command);
@@ -212,13 +208,10 @@ public class VNPayUtils {
         params.put("vnp_CreateDate", vnp_CreateDate);
         params.put("vnp_ExpireDate", vnp_ExpireDate);
         params.put("vnp_TxnRef", vnp_TxnRef);
-
-        // Build data to hash and querystring
         List<String> fieldNames = new ArrayList<>(params.keySet());
         Collections.sort(fieldNames);
         StringBuilder hashData = new StringBuilder();
         StringBuilder query = new StringBuilder();
-
         for (String fieldName : fieldNames) {
             String fieldValue = params.get(fieldName);
             if ((fieldValue != null) && (!fieldValue.isEmpty())) {
@@ -232,8 +225,6 @@ public class VNPayUtils {
                 }
             }
         }
-
-        // Generate HMAC-SHA256 hash
         String queryUrl = query.toString();
         String vnp_SecureHash = hmacSHA512(vnPayConfig.getVnp_HashSecret(), hashData.toString());
         queryUrl += "&vnp_SecureHash=" + vnp_SecureHash;

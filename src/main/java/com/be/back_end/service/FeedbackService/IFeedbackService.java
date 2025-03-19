@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface IFeedbackService {
     boolean createFeedback(FeedbackCreateRequest feedbackCreateRequest);
-
+    List<TshirtFeedbackResponse> getAllSystemFeedbacks();
     Feedback getFeedbackById(String id);
     Feedback updateFeedback(String id, FeedbackCreateRequest feedbackCreateRequest);
     boolean deleteFeedback(String id);

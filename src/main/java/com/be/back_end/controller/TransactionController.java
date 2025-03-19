@@ -122,6 +122,44 @@ public class TransactionController {
         return ResponseEntity.ok(new ApiResponse<>(200, response, "Payment URL generated successfully"));
     }
 
+   /* @GetMapping("/callback/fully_paid")
+    public ResponseEntity<?> payCallbackHandlerPayment(HttpServletRequest request) {
+        try {
+            String transactionStatus = vnpayService.processPaymentCallback(request);
+
+            if ("SUCCESS".equals(transactionStatus)) {
+                return ResponseEntity.ok(
+                        new ApiResponse<>(200, transactionStatus, "Payment successful")
+                );
+            }
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(400, transactionStatus, "Payment failed"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(500, "Transaction failed", List.of(e.getMessage())));
+        }
+    }
+
+    @GetMapping("/callback/deposited")
+    public ResponseEntity<?> payCallbackHandlerDeposit(HttpServletRequest request) {
+        try {
+            String transactionStatus = vnpayService.processDepositCallback(request);
+
+            if ("SUCCESS".equals(transactionStatus)) {
+                return ResponseEntity.ok(
+                        new ApiResponse<>(200, transactionStatus, "Deposit successful")
+                );
+            }
+
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(new ApiResponse<>(400, transactionStatus, "Deposit failed"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(500, "Transaction failed", List.of(e.getMessage())));
+        }
+    }
+*/
 
     @GetMapping("/callback/fully_paid")
     public ResponseEntity<?> payCallbackHandlerPayment(HttpServletRequest request, HttpServletResponse response) {

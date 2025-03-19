@@ -39,28 +39,34 @@ public class ColorController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Color> getColorById(@PathVariable String id) {
-        Color color = colorService.getColorById(id);
-        if (color != null) {
-            return ResponseEntity.ok(color);
+    public ResponseEntity<?> getColorById(@PathVariable String id) {
+        try {
+            Color color = colorService.getColorById(id);
+            if (color != null) {
+                return ResponseEntity.ok(new ApiResponse<>(200, color, "Color retrieved successfully"));
+            }
+            return ResponseEntity.status(404).body(new ErrorResponse(404, "Color not found", List.of("Invalid color ID: " + id)));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(
+                    new ErrorResponse(500, "Unexpected error occurred", List.of(e.getMessage()))
+            );
         }
-        return ResponseEntity.notFound().build();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<String> updateColor(@PathVariable String id, @RequestBody ColorDTO colorDTO) {
-        Color updatedColor = colorService.updateColor(id, colorDTO);
-        if (updatedColor != null) {
-            return ResponseEntity.ok("Color updated successfully");
+    public ResponseEntity<?> updateColor(@PathVariable String id, @RequestBody ColorDTO colorDTO) {
+        try {
+            Color updatedColor = colorService.updateColor(id, colorDTO);
+            if (updatedColor != null) {
+                return ResponseEntity.ok(new ApiResponse<>(200, updatedColor, "Color updated successfully"));
+            }
+            return ResponseEntity.status(400).body(new ErrorResponse(400, "Color update failed", List.of("Invalid color ID: " + id)));
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body(
+                    new ErrorResponse(500, "Unexpected error occurred", List.of(e.getMessage()))
+            );
         }
-        return ResponseEntity.badRequest().body("Color update failed");
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteColor(@PathVariable String id) {
-        if (colorService.deleteColor(id)) {
-            return ResponseEntity.ok("Color deleted successfully");
-        }
-        return ResponseEntity.badRequest().body("Color deletion failed");
-    }
+
 }

@@ -55,7 +55,6 @@ public class AccountController {
                     .body(new ApiResponse<>(500, null, "Internal server error"));
         }
     }
-    //tao 1 api upload file firebase su dung no cho update account, register
 
     @GetMapping
     public ResponseEntity<?> searchAccounts(
