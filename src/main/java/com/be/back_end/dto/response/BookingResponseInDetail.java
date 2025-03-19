@@ -21,6 +21,7 @@ public class BookingResponseInDetail {
     private LocalDateTime enddate;
     private String code;
     private String title;
+    private boolean isPublic;
     private List<BookingDetailResponse> bookingDetails;
     @Getter
     @Setter
