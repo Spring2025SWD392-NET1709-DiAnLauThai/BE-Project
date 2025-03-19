@@ -116,6 +116,7 @@ public class BookingdetailService implements IBookingdetailService {
        bookingResponseInDetail.setStartdate(booking.getStartDate());
        bookingResponseInDetail.setUpdateddate(booking.getDateUpdated());
        bookingResponseInDetail.setDatecreated(booking.getDateCreated());
+       bookingResponseInDetail.setPublic(booking.isPublic());
        for(Bookingdetails detail: bookingdetails) {
            BookingResponseInDetail.BookingDetailResponse detailResponse = new BookingResponseInDetail.BookingDetailResponse();
            detailResponse.setBookingDetailId(detail.getId());
