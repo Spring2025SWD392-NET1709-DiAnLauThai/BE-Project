@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -40,6 +41,8 @@ public interface AccountRepository extends JpaRepository<Account, String> {
     Page<Account> findByStatusAndCreatedAtBetween(ActivationEnums status, LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
 
     Page<Account> findByRoleAndStatusAndCreatedAtBetween(RoleEnums role, ActivationEnums status, LocalDateTime dateFrom, LocalDateTime dateTo, Pageable pageable);
+
+    List<Account> findByRoleAndStatusAndCreatedAtBetween(RoleEnums role, ActivationEnums status, LocalDateTime startDate, LocalDateTime endDate);
 
     Page<Account> findByRoleAndStatusAndEmailContainingIgnoreCaseOrNameContainingIgnoreCase(
             RoleEnums role, ActivationEnums status, String email, String name, Pageable pageable);

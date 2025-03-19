@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
 
@@ -75,8 +76,8 @@ public class DashboardStatController {
 
     @GetMapping("/general-stat")
     public ResponseEntity<?> getGeneralStat(
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
-            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime startDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime endDate,
             @RequestParam int year) {
 
         DashboardStatResponse response = statisticService.GetDashboardStatistics(startDate, endDate, year);
@@ -87,4 +88,26 @@ public class DashboardStatController {
 
         return ResponseEntity.ok(new ApiResponse<>(200, response, "General statistics retrieved and return successfully"));
     }
+
+    public ResponseEntity<?> getCustomerStat(
+            @RequestParam int startMonth,
+            @RequestParam int endMonth,
+            @RequestParam int year) {
+
+        Month startMonthEnum = Month.of(startMonth);
+        Month endMonthEnum = Month.of(endMonth);
+
+        if ((startMonth < 1 || startMonth > 12) && (endMonth < 1 || endMonth > 12)) {
+            return ResponseEntity.status(400).body(new ErrorResponse(400, "Invalid month data", List.of("Month must be between 1 and 12")));
+        }
+
+        CustomerMonthlyAmount response = statisticService.calculateActiveCustomerAmount(startMonthEnum, endMonthEnum, year);
+
+        if(response==null){
+            return ResponseEntity.status(400).body(new ErrorResponse(400, "Failed to get data", List.of("Customer statistics can't be created due to inner error")));
+        }
+
+        return ResponseEntity.ok(new ApiResponse<>(200, response, "Customer statistics retrieved and return successfully"));
+    }
+
 }

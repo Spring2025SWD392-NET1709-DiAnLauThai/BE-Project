@@ -1,14 +1,15 @@
 package com.be.back_end.service.StatisticService;
 
 import com.be.back_end.dto.response.*;
+import com.be.back_end.enums.ActivationEnums;
+import com.be.back_end.enums.RoleEnums;
+import com.be.back_end.model.Account;
 import com.be.back_end.model.Bookings;
 import com.be.back_end.model.Transaction;
 import com.be.back_end.model.Tshirts;
-import com.be.back_end.repository.BookingDetailsRepository;
-import com.be.back_end.repository.BookingRepository;
-import com.be.back_end.repository.TransactionRepository;
-import com.be.back_end.repository.TshirtsRepository;
+import com.be.back_end.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -26,22 +27,21 @@ public class StatisticService implements IStatisticService {
     private final BookingRepository bookingRepository;
     private final BookingDetailsRepository bookingDetailsRepository;
     private final TshirtsRepository tshirtsRepository;
+    private final AccountRepository accountRepository;
 
     @Autowired
-    public StatisticService(TransactionRepository transactionRepository, BookingRepository bookingRepository, BookingDetailsRepository bookingDetailsRepository, TshirtsRepository tshirtsRepository) {
+    public StatisticService(TransactionRepository transactionRepository, BookingRepository bookingRepository, BookingDetailsRepository bookingDetailsRepository, TshirtsRepository tshirtsRepository, AccountRepository accountRepository) {
         this.transactionRepository = transactionRepository;
         this.bookingRepository = bookingRepository;
         this.bookingDetailsRepository = bookingDetailsRepository;
         this.tshirtsRepository = tshirtsRepository;
+        this.accountRepository = accountRepository;
     }
 
 
-    public DashboardStatResponse GetDashboardStatistics(LocalDate startDate, LocalDate endDate, int year) {
+    public DashboardStatResponse GetDashboardStatistics(LocalDateTime startDateTime, LocalDateTime endDateTime, int year) {
 
-        // Convert to LocalDateTime for database query. This is the range
-        // Convert to LocalDateTime for database query
-        LocalDateTime startDateTime = startDate.atStartOfDay();
-        LocalDateTime endDateTime = endDate.plusDays(1).atStartOfDay();
+
 
         //Get the total amount of T-Shirt created in range, group by Month
         List<Tshirts> tshirtList = tshirtsRepository.findTshirtsCreatedBetween(startDateTime, endDateTime);
@@ -59,7 +59,7 @@ public class StatisticService implements IStatisticService {
         //Get the total revenue of all transactions in range, group by Month
         List<MonthlyIncomeSummary> monthlyIncome = calculateMonthlyIncomeBasedOnDateRange(startDateTime, endDateTime);
 
-        return createDashBoardStatResponse(year, startDate, endDate, monthlyIncome, tShirtCreatedAmount, bookingCreatedAmount, bookingCompletedAmount);
+        return createDashBoardStatResponse(year, startDateTime, endDateTime, monthlyIncome, tShirtCreatedAmount, bookingCreatedAmount, bookingCompletedAmount);
 
     }
 
@@ -192,6 +192,42 @@ public class StatisticService implements IStatisticService {
         return new YearlyIncomeResponse(year, totalYearlyIncome, monthlyIncomes);
     }
 
+    @Override
+    public CustomerMonthlyAmount calculateActiveCustomerAmount(Month startMonth, Month endMonth, int year){
+        //Create Date Range and convert to LocalDateTime
+        YearMonth startRange = YearMonth.of(year, startMonth);
+        YearMonth endRange = YearMonth.of(year, endMonth);
+
+        LocalDateTime startDate = startRange.atDay(1).atStartOfDay();
+        LocalDateTime endDate = endRange.atEndOfMonth().atStartOfDay();
+
+        //Get the customer list that are active in the date range
+        List<Account> customerList =  accountRepository.findByRoleAndStatusAndCreatedAtBetween(RoleEnums.CUSTOMER, ActivationEnums.ACTIVE, startDate, endDate);
+
+        //Group into month
+        Map<Month, Long> customerByMonthlyCount = customerList.stream()
+                .collect(Collectors.groupingBy(
+                        customer -> customer.getCreatedAt().getMonth(),
+                        Collectors.counting()
+                ));
+
+        // Create a list of monthly T-shirt amounts
+        List<MonthyAmountResponse> monthlyAmounts = new ArrayList<>();
+        for (Month month : Month.values()) {
+            long count = customerByMonthlyCount.getOrDefault(month, 0L);
+            monthlyAmounts.add(new MonthyAmountResponse(month, count));
+        }
+
+        monthlyAmounts.sort(Comparator.comparing(MonthyAmountResponse::getMonth));
+
+        return CustomerMonthlyAmount.builder()
+                .year(year)
+                .startMonth(startMonth)
+                .endMonth(endMonth)
+                .customerMonthlyAmount(monthlyAmounts)
+                .build();
+    }
+
     //Helper method to calculate monthly amounts for T-shirts
     private List<MonthyAmountResponse> calculateMonthlyAmountForTshirts(List<Tshirts> tshirtList) {
         // Group T-shirts by month
@@ -237,14 +273,14 @@ public class StatisticService implements IStatisticService {
     }
 
     private DashboardStatResponse createDashBoardStatResponse(
-            int year, LocalDate startDate, LocalDate endDate,
+            int year, LocalDateTime startDateTime, LocalDateTime endDateTime,
             List<MonthlyIncomeSummary> monthlyIncome, List<MonthyAmountResponse> tShirtCreatedAmount,
             List<MonthyAmountResponse> bookingCreatedAmount, List<MonthyAmountResponse> bookingCompletedAmount
     ){
         DashboardStatResponse response = new DashboardStatResponse();
         response.setYear(year);
-        response.setStartDate(startDate);
-        response.setEndDate(endDate);
+        response.setStartDateTime(startDateTime);
+        response.setEndDateTime(endDateTime);
         response.setMonthlyIncome(monthlyIncome);
         response.setTShirtCreatedAmount(tShirtCreatedAmount);
         response.setBookingCreatedAmount(bookingCreatedAmount);

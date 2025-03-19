@@ -13,6 +13,7 @@ import com.be.back_end.repository.BookingDetailsRepository;
 import com.be.back_end.repository.BookingRepository;
 import com.be.back_end.repository.TransactionRepository;
 import com.be.back_end.utils.AccountUtils;
+import com.be.back_end.utils.Mapper.TransactionMapper;
 import com.be.back_end.utils.VNPayUtils;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,22 +41,25 @@ public class TransactionService implements ITransactionService, IVNPayService {
     private final BookingRepository bookingRepository;
     private final BookingDetailsRepository bookingDetailsRepository;
     private final AccountUtils accountUtils;
+    private final TransactionMapper transactionMapper;
 
 
     @Autowired
     public TransactionService(TransactionRepository transactionRepository, VNPayUtils vnPayUtils, AccountRepository accountRepository, BookingRepository bookingRepository, BookingDetailsRepository bookingDetailsRepository,
-                              AccountUtils accountUtils) {
+                              AccountUtils accountUtils, TransactionMapper transactionMapper) {
         this.transactionRepository = transactionRepository;
         this.vnPayUtils=vnPayUtils;
         this.accountRepository = accountRepository;
         this.bookingRepository = bookingRepository;
         this.bookingDetailsRepository = bookingDetailsRepository;
         this.accountUtils = accountUtils;
+        this.transactionMapper = transactionMapper;
     }
 
     @Override
     public TransactionDTO create(TransactionDTO dto) {
-        Transaction newTransaction = mapToEntity(dto);
+        Bookings bookings= bookingRepository.findById(dto.getBookingId()).orElse(null);
+        Transaction newTransaction = transactionMapper.mapToEntity(dto,bookings);
         transactionRepository.save(newTransaction);
         return dto;
     }
@@ -71,7 +75,7 @@ public class TransactionService implements ITransactionService, IVNPayService {
 
         List<TransactionDTO> transactionDTO = new ArrayList<>();
         for (Transaction transaction : transactions.getContent()) {
-            transactionDTO.add(mapToDTO(transaction));
+            transactionDTO.add(transactionMapper.mapToDTO(transaction));
         }
 
 
@@ -88,7 +92,11 @@ public class TransactionService implements ITransactionService, IVNPayService {
     @Override
     public TransactionDTO getById(String id) {
         Transaction transaction = transactionRepository.findById(id).orElse(null);
-        return mapToDTO(transaction);
+        if(transaction==null){
+            System.out.println("Transaction not found");
+            return null;
+        }
+        return transactionMapper.mapToDTO(transaction);
     }
 
 
@@ -127,7 +135,7 @@ public class TransactionService implements ITransactionService, IVNPayService {
 
         List<TransactionDTO> transactionDTO = new ArrayList<>();
         for (Transaction transaction : transactions.getContent()) {
-            transactionDTO.add(mapToDTO(transaction));
+            transactionDTO.add(transactionMapper.mapToDTO(transaction));
         }
 
         if(transactionDTO.isEmpty()){
@@ -169,7 +177,7 @@ public class TransactionService implements ITransactionService, IVNPayService {
             return null;
         }
 
-        TransactionDTO transactionDTO =mapToDTO(transaction);
+        TransactionDTO transactionDTO = transactionMapper.mapToDTO(transaction);
         List<BookingDetailResponseDTO> bookingDetailResponseDTO=bookingdetails.stream()
                 .map(this::BookingDetailMapToDTO)
                 .toList();
@@ -272,33 +280,7 @@ public class TransactionService implements ITransactionService, IVNPayService {
     }
 
 
-    public TransactionDTO mapToDTO(Transaction Transaction) {
-        TransactionDTO dto = new TransactionDTO();
-        dto.setId(Transaction.getId());
-        dto.setBookingId(Transaction.getBooking().getId());
-        dto.setTransactionName(Transaction.getTransactionName());
-        dto.setTransactionMethod(Transaction.getTransactionMethod());
-        dto.setTransactionDate(Transaction.getTransactionDate());
-        dto.setTransactionStatus(Transaction.getTransactionStatus());
-        dto.setTransactionAmount(Transaction.getTransactionAmount());
-        dto.setBankCode(Transaction.getBankCode());
-        return dto;
-    }
 
-
-    public Transaction mapToEntity(TransactionDTO dto) {
-        Transaction transaction = new Transaction();
-        Bookings bookings= bookingRepository.findById(dto.getBookingId()).orElse(null);
-        transaction.setId(dto.getId());
-        transaction.setBooking(bookings);
-        transaction.setTransactionName(dto.getTransactionName());
-        transaction.setTransactionMethod(dto.getTransactionMethod());
-        transaction.setTransactionDate(dto.getTransactionDate());
-        transaction.setTransactionStatus(dto.getTransactionStatus());
-        transaction.setTransactionAmount(dto.getTransactionAmount());
-        transaction.setBankCode(dto.getBankCode());
-        return transaction;
-    }
 
 
 
