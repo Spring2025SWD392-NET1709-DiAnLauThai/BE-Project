@@ -193,9 +193,7 @@ public class TaskService implements ITaskService{
             return false;
         }
         Bookings booking = bookingdetails.getBooking();
-
         booking.setDateUpdated(LocalDateTime.now());
-
         if (booking != null && booking.getStatus() == BookingEnums.COMPLETED) {
             return false;
         }

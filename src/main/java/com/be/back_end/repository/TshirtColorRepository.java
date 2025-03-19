@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TshirtColorRepository extends JpaRepository<TShirtColor,String> {
+    void deleteByTshirtId(String tshirtId);
 }

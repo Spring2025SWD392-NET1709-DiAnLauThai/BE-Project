@@ -1,5 +1,6 @@
 package com.be.back_end.service.TshirtsService;
 
+import com.be.back_end.dto.request.TshirtsUpdateRequest;
 import com.be.back_end.dto.response.*;
 import com.be.back_end.dto.request.TshirtCreateRequest;
 import com.be.back_end.model.Tshirts;
@@ -17,7 +18,7 @@ public interface ITshirtsService {
                                                                     String sortDir,
                                                                     String sortBy);
     TshirtDetailResponse getTshirtById(String id);
-    boolean  updateTshirt(TshirtsListDesignerResponse tshirt);
+    boolean updateTshirt(TshirtsUpdateRequest tshirt);
     List<TshirtsListAvailableResponse> getAllTshirtsAvailable();
     PaginatedResponseDTO<TshirtsListsResponse> getAllTshirtCatalog(String keyword,
                                                                    int page,

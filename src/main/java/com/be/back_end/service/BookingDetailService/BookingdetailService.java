@@ -59,8 +59,8 @@ public class BookingdetailService implements IBookingdetailService {
         for (BookingCreateRequest.BookingDetailCreateRequest detailRequest : request.getBookingdetails()) {
             Designs design = designService.createAndSaveDesign(detailRequest);
             Bookingdetails detail = createBookingDetail(detailRequest, booking, design);
-            bookingDetails.add(detail);   // Collect booking details for batch insert
-            designs.add(design);         // Collect designs for reference
+            bookingDetails.add(detail);
+            designs.add(design);
             booking.getBookingDetails().add(detail);
             bookingDetailResponses.add(new BookingCreateResponse.BookingDetailResponse(
                     detail.getId(),
@@ -71,7 +71,6 @@ public class BookingdetailService implements IBookingdetailService {
             ));
         }
         bookingDetailsRepository.saveAll(bookingDetails);
-
         return bookingDetailResponses;
     }
 

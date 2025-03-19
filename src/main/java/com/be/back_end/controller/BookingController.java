@@ -82,14 +82,11 @@ public class BookingController {
             );
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
-
         PaginatedResponseDTO<BookingResponse> paginatedBookings = bookingService.getAllBookings(page, size);
-
         if (paginatedBookings.getContent().isEmpty()) {
             ApiResponse<?> apiResponse = new ApiResponse<>(200, paginatedBookings, "No bookings found");
             return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
         }
-
         ApiResponse<?> apiResponse = new ApiResponse<>(200, paginatedBookings, "Bookings retrieved successfully");
         return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
     }

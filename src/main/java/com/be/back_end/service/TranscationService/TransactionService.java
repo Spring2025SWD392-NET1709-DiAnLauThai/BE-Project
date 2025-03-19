@@ -186,7 +186,6 @@ public class TransactionService implements ITransactionService, IVNPayService {
 
     private BookingDetailResponseDTO BookingDetailMapToDTO(Bookingdetails bookingdetails) {
         Designs design = bookingdetails.getDesign();
-
         return BookingDetailResponseDTO.builder()
                 .bookingDetailId(bookingdetails.getId())
                 .designFile(design.getDesignFile())
@@ -215,20 +214,15 @@ public class TransactionService implements ITransactionService, IVNPayService {
     }
     @Override
     public String processDepositCallback(HttpServletRequest request) {
-
         String responseCode = request.getParameter("vnp_ResponseCode");
         String bookingcode = vnPayUtils.decodeBookingCode(request.getParameter("vnp_TxnRef"));
         String bankCode = request.getParameter("vnp_BankCode");
         String transactionMethod = request.getParameter("vnp_CardType");
-
         String vnpayStatus = responseCode.equals("00") ? "SUCCESS" :"FAILED";
-
         if ("SUCCESS".equals(vnpayStatus)) {
             updateBookingStatus(bookingcode);
             createTransaction(bookingcode, bankCode, TransactionStatusEnum.DEPOSITED.toString(), transactionMethod);
         }
-
-
         return vnpayStatus;
     }
 
@@ -236,13 +230,9 @@ public class TransactionService implements ITransactionService, IVNPayService {
 
     @Override
     public String processPaymentCallback(HttpServletRequest request) {
-
         String responseCode = request.getParameter("vnp_ResponseCode");
         String bookingCode = vnPayUtils.decodeBookingCode(request.getParameter("vnp_TxnRef"));
-
-
         String vnpayStatus = responseCode.equals("00") ? "SUCCESS" :"FAILED";
-
         if ("SUCCESS".equals(vnpayStatus)) {
             Bookings booking = bookingRepository.findByCode(bookingCode)
                     .orElseThrow(() -> new RuntimeException("Booking not found with code: " + bookingCode));

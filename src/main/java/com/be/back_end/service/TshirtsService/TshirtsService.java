@@ -1,5 +1,6 @@
 package com.be.back_end.service.TshirtsService;
 
+import com.be.back_end.dto.request.TshirtsUpdateRequest;
 import com.be.back_end.dto.response.*;
 
 import com.be.back_end.dto.request.TshirtCreateRequest;
@@ -49,15 +50,12 @@ public class TshirtsService implements  ITshirtsService{
         return dto;
     }
 
-    private Tshirts mapToEntity(TshirtsListDesignerResponse dto) {
+    private Tshirts mapToEntity(TshirtsUpdateRequest dto) {
         Tshirts tshirt = new Tshirts();
-
         tshirt.setName(dto.getName());
         tshirt.setDescription(dto.getDescription());
-        tshirt.setCreatedAt(LocalDateTime.now());
         tshirt.setImage_url(dto.getImageUrl());
-
-
+        tshirt.setImagesfile(dto.getImageFile());
         return tshirt;
     }
    @Override
@@ -66,7 +64,6 @@ public class TshirtsService implements  ITshirtsService{
        Tshirts tshirt = new Tshirts();
        tshirt.setDescription(tshirtCreateRequest.getDescription());
        tshirt.setAccount(account);
-
        tshirt.setName(tshirtCreateRequest.getTshirtname());
        tshirt.setImage_url(tshirtCreateRequest.getImgurl());
        tshirt.setImagesfile(tshirtCreateRequest.getImagefile());
@@ -100,8 +97,6 @@ public class TshirtsService implements  ITshirtsService{
             listAvailableResponses.add(response);
         }
         return  listAvailableResponses;
-
-
     }
 
     @Transactional(readOnly = true)
@@ -194,12 +189,10 @@ public class TshirtsService implements  ITshirtsService{
         response.setImageUrl(tshirt.getImage_url());
         double totalRating = 0.0;
         int feedbackCount = 0;
-
         for (var tfb : tshirt.getTshirtFeedbacks()) {
             totalRating += tfb.getFeedback().getRating();
             feedbackCount++;
         }
-
         double averageRating = feedbackCount > 0 ? totalRating / feedbackCount : 0.0;
         response.setRating(String.valueOf(averageRating));
         return response;
@@ -213,9 +206,11 @@ public class TshirtsService implements  ITshirtsService{
             throw new IllegalArgumentException("T-shirt not found with ID: " + id);
         }
         TshirtDetailResponse tshirtDetailResponse= new TshirtDetailResponse();
+        tshirtDetailResponse.setDescription(tshirt.getDescription());
         tshirtDetailResponse.setTshirtName(tshirt.getName());
         tshirtDetailResponse.setCreatedAt(tshirt.getCreatedAt());
-        tshirtDetailResponse.setImage_url(tshirt.getName());
+        tshirtDetailResponse.setImage_url(tshirt.getImage_url());
+        tshirtDetailResponse.setImageFile(tshirt.getImagesfile());
         List<TshirtDetailResponse.ColorResponse> colorResponses= new ArrayList<>();
         for(TShirtColor tShirtColor: tshirt.getTShirtColors()){
             TshirtDetailResponse.ColorResponse colorRes= new TshirtDetailResponse.ColorResponse();
@@ -227,25 +222,39 @@ public class TshirtsService implements  ITshirtsService{
         tshirtDetailResponse.setColors(colorResponses);
         return tshirtDetailResponse;
     }
+    @Transactional
     @Override
-    public boolean updateTshirt(TshirtsListDesignerResponse tshirt){
+    public boolean updateTshirt(TshirtsUpdateRequest tshirt){
         Tshirts updateTshirt= tshirtsRepository.findById(tshirt.getTshirtId()).orElse(null);
         if(updateTshirt==null){
             return false;
         }
-        boolean hasActiveBooking = bookingDetailsRepository.existsByTshirtIdAndBooking_StatusNot(
+        boolean hasCompleteBooking = bookingDetailsRepository.existsByTshirtIdAndBooking_StatusNot(
                 tshirt.getTshirtId(), BookingEnums.COMPLETED
         );
-        if (!hasActiveBooking) {
-            return false;
-        }
         Bookingdetails bookingDetails = bookingDetailsRepository.findByTshirtId(tshirt.getTshirtId());
         if (bookingDetails != null) {
             Bookings booking = bookingDetails.getBooking();
-            booking.setDateUpdated(LocalDateTime.now());
             bookingRepository.save(booking);
         }
-        updateTshirt=mapToEntity(tshirt);
+        if (hasCompleteBooking) {
+            return false;
+        }
+        tshirtColorRepository.deleteByTshirtId(tshirt.getTshirtId());
+        mapToEntity(tshirt);
+        List<TShirtColor> newColors = new ArrayList<>();
+        if (tshirt.getColors() != null) {
+            for (TshirtsUpdateRequest.TshirtColorUpdateRequest colorRequest : tshirt.getColors()) {
+                TShirtColor newColor = new TShirtColor();
+                newColor.setTshirt(updateTshirt);
+                newColor.setColor(
+                        colorRepository.findById(colorRequest.getColorId())
+                                .orElse(null)
+                );
+                newColors.add(newColor);
+            }
+        }
+        tshirtColorRepository.saveAll(newColors);
         tshirtsRepository.save(updateTshirt);
         return true;
     }
