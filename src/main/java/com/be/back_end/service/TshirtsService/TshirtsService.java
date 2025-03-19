@@ -216,15 +216,15 @@ public class TshirtsService implements  ITshirtsService{
     }
     @Transactional
     @Override
-    public boolean updateTshirt(TshirtsUpdateRequest tshirt){
-        Tshirts updateTshirt= tshirtsRepository.findById(tshirt.getTshirtId()).orElse(null);
+    public boolean updateTshirt(String tshirtId,TshirtsUpdateRequest tshirt){
+        Tshirts updateTshirt= tshirtsRepository.findById(tshirtId).orElse(null);
         if(updateTshirt==null){
             return false;
         }
         boolean hasCompleteBooking = bookingDetailsRepository.existsByTshirtIdAndBooking_StatusNot(
-                tshirt.getTshirtId(), BookingEnums.COMPLETED
+                tshirtId, BookingEnums.COMPLETED
         );
-        Bookingdetails bookingDetails = bookingDetailsRepository.findByTshirtId(tshirt.getTshirtId());
+        Bookingdetails bookingDetails = bookingDetailsRepository.findByTshirtId(tshirtId);
         if (bookingDetails != null) {
             Bookings booking = bookingDetails.getBooking();
             bookingRepository.save(booking);
@@ -232,7 +232,7 @@ public class TshirtsService implements  ITshirtsService{
         if (hasCompleteBooking) {
             return false;
         }
-        tshirtColorRepository.deleteByTshirtId(tshirt.getTshirtId());
+        tshirtColorRepository.deleteByTshirtId(tshirtId);
         updateTshirt.setName(tshirt.getName());
         updateTshirt.setDescription(tshirt.getDescription());
         updateTshirt.setImage_url(tshirt.getImageUrl());

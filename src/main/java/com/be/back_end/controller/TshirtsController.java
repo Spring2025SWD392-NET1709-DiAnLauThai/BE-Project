@@ -30,9 +30,9 @@ public class TshirtsController {
 
 
     @PutMapping("/update")
-    public ResponseEntity<?> updateTshirt(@RequestBody TshirtsUpdateRequest tshirtDto) {
+    public ResponseEntity<?> updateTshirt(@RequestParam String tshirtId,@RequestBody TshirtsUpdateRequest tshirtDto) {
         try {
-            boolean isUpdated = tshirtsService.updateTshirt(tshirtDto);
+            boolean isUpdated = tshirtsService.updateTshirt(tshirtId,tshirtDto);
             if (!isUpdated) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND)
                         .body(new ErrorResponse(
