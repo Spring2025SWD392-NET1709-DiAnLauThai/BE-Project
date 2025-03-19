@@ -4,10 +4,7 @@ import com.be.back_end.dto.response.*;
 import com.be.back_end.model.Bookings;
 import com.be.back_end.model.Transaction;
 import com.be.back_end.model.Tshirts;
-import com.be.back_end.repository.BookingDetailsRepository;
-import com.be.back_end.repository.BookingRepository;
-import com.be.back_end.repository.TransactionRepository;
-import com.be.back_end.repository.TshirtsRepository;
+import com.be.back_end.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,13 +23,15 @@ public class StatisticService implements IStatisticService {
     private final BookingRepository bookingRepository;
     private final BookingDetailsRepository bookingDetailsRepository;
     private final TshirtsRepository tshirtsRepository;
+    private final AccountRepository accountRepository;
 
     @Autowired
-    public StatisticService(TransactionRepository transactionRepository, BookingRepository bookingRepository, BookingDetailsRepository bookingDetailsRepository, TshirtsRepository tshirtsRepository) {
+    public StatisticService(TransactionRepository transactionRepository, BookingRepository bookingRepository, BookingDetailsRepository bookingDetailsRepository, TshirtsRepository tshirtsRepository, AccountRepository accountRepository) {
         this.transactionRepository = transactionRepository;
         this.bookingRepository = bookingRepository;
         this.bookingDetailsRepository = bookingDetailsRepository;
         this.tshirtsRepository = tshirtsRepository;
+        this.accountRepository = accountRepository;
     }
 
 
@@ -190,6 +189,10 @@ public class StatisticService implements IStatisticService {
 
         // Create and return the response
         return new YearlyIncomeResponse(year, totalYearlyIncome, monthlyIncomes);
+    }
+
+    public void calculateUserAmount(Month startMonth, Month endMonth, int year){
+
     }
 
     //Helper method to calculate monthly amounts for T-shirts
