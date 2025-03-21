@@ -19,4 +19,5 @@ public interface IBookingService {
     boolean publicTshirt(String bookingId);
     String generateFullyPaidUrl(String bookingId, HttpServletRequest request);
     boolean cancelBooking(CancelBookingRequest cancelBookingRequest);
+    String repayBooking(String bookingId, HttpServletRequest request);
 }

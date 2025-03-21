@@ -9,6 +9,7 @@ import com.be.back_end.enums.BookingEnums;
 import com.be.back_end.model.*;
 import com.be.back_end.repository.*;
 import com.be.back_end.utils.AccountUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,15 +26,15 @@ public class TshirtsService implements  ITshirtsService{
 
     private final AccountUtils accountUtils;
     private final BookingRepository bookingRepository;
-    private final TshirtsRepository tshirtsRepository;
+    @Autowired
+    private  TshirtsRepository tshirtsRepository;
     private final AccountRepository accountRepository;
     private final ColorRepository  colorRepository;
     private final TshirtColorRepository tshirtColorRepository;
     private final BookingDetailsRepository bookingDetailsRepository;
-    public TshirtsService(AccountUtils accountUtils, BookingRepository bookingRepository, TshirtsRepository tshirtsRepository, AccountRepository accountRepository, ColorRepository colorRepository, TshirtColorRepository tshirtColorRepository, BookingDetailsRepository bookingDetailsRepository) {
+    public TshirtsService(AccountUtils accountUtils, BookingRepository bookingRepository, AccountRepository accountRepository, ColorRepository colorRepository, TshirtColorRepository tshirtColorRepository, BookingDetailsRepository bookingDetailsRepository) {
         this.accountUtils = accountUtils;
         this.bookingRepository = bookingRepository;
-        this.tshirtsRepository = tshirtsRepository;
         this.accountRepository = accountRepository;
         this.colorRepository = colorRepository;
         this.tshirtColorRepository = tshirtColorRepository;
