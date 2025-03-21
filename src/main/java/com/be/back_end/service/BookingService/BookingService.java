@@ -114,6 +114,46 @@ public class BookingService implements IBookingService {
         }
         return paymentUrl;
     }
+    @Override
+    public String repayBooking(String bookingId, HttpServletRequest request) {
+        Bookings booking = bookingRepository.findById(bookingId)
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found with ID: " + bookingId));
+        String status = booking.getStatus().toString();
+        String paymentUrl;
+        try {
+            if (status.equalsIgnoreCase(BookingEnums.COMPLETED.toString())) {
+                BigDecimal totalPrice = booking.getTotal_price() != null ? booking.getTotal_price() : BigDecimal.ZERO;
+                BigDecimal depositAmount = booking.getDepositAmount() != null ? booking.getDepositAmount() : BigDecimal.ZERO;
+                BigDecimal remainingBalance = totalPrice.subtract(depositAmount);
+                paymentUrl = vnPayUtils.generatePaymentUrlWithBookingId(
+                        remainingBalance.toString(),
+                        booking.getTitle(),
+                        TransactionStatusEnum.FULLY_PAID.toString(),
+                        request,
+                        booking.getCode(),
+                        TransactionStatusEnum.FULLY_PAID
+                );
+            } else if (status.equalsIgnoreCase(BookingEnums.UNPAID.toString())) {
+                paymentUrl = vnPayUtils.generatePaymentUrlWithBookingId(
+                        booking.getDepositAmount() != null
+                                ? booking.getDepositAmount().toString()
+                                : "0",
+                        booking.getTitle(),
+                        booking.getStatus().toString(),
+                        request,
+                        booking.getCode(),
+                        TransactionStatusEnum.DEPOSITED
+                );
+            } else {
+                throw new IllegalArgumentException("Invalid booking status: " + status);
+            }
+        } catch (UnsupportedEncodingException e) {
+            throw new RuntimeException("Error generating VNPay URL", e);
+        }
+
+        return paymentUrl;
+    }
+
 
     @Transactional
     @Override
@@ -204,6 +244,7 @@ public class BookingService implements IBookingService {
                 paymentUrl
         );
     }
+
 
 
 

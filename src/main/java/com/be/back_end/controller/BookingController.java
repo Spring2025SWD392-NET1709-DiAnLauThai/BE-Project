@@ -24,6 +24,25 @@ public class BookingController {
         this.ivnPayService = ivnPayService;
     }
 
+    @PutMapping("/{bookingId}/repay")
+    public ResponseEntity<?> repayBooking(@PathVariable String bookingId, HttpServletRequest request) {
+        try {
+            String paymentUrl = bookingService.repayBooking(bookingId, request);
+
+            if (paymentUrl == null || paymentUrl.isEmpty()) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(new ErrorResponse(500, "Failed to generate repayment URL", List.of("VNPay URL generation returned null or empty.")));
+            }
+
+            return ResponseEntity.ok(new ApiResponse<>(200, paymentUrl, "Repayment URL generated successfully"));
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(new ErrorResponse(404, "Booking not found", List.of(e.getMessage())));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorResponse(500, "Error processing repayment", List.of(e.getMessage())));
+        }
+    }
 
     @PostMapping()
     public ResponseEntity<?> createBooking(@RequestBody BookingCreateRequest request, HttpServletRequest httpServletRequest) {
