@@ -11,13 +11,16 @@ import jakarta.servlet.http.HttpServletRequest;
 
 public interface IBookingService {
     Bookings createAndSaveNewBooking(BookingCreateRequest bookingDTO);
-    public PaginatedResponseDTO<BookingResponse> getAllBookings(
+    PaginatedResponseDTO<BookingResponse> getAllBookings(
             int page,
-            int size);
+            int size,
+            String sortBy,
+            String direction);
 
     BookingCreateResponse createBooking(BookingCreateRequest request, HttpServletRequest httpRequest);
     boolean publicTshirt(String bookingId);
     String generateFullyPaidUrl(String bookingId, HttpServletRequest request);
     boolean cancelBooking(CancelBookingRequest cancelBookingRequest);
     String repayBooking(String bookingId, HttpServletRequest request);
+
 }

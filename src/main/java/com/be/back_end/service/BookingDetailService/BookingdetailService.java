@@ -153,10 +153,9 @@ public class BookingdetailService implements IBookingdetailService {
         List<Bookingdetails> bookingdetails= bookingDetailsRepository.findByBookingId(bookingId);
         List<BookingResponseInDetailCus.BookingDetailResponse> detailResponses= new ArrayList<>();
         BookingResponseInDetailCus bookingResponseInDetail = new BookingResponseInDetailCus();
-        if(transaction.getTransactionStatus().equalsIgnoreCase(TransactionStatusEnum.FULLY_PAID.toString()))
-        {
+        if (transaction != null && transaction.getTransactionStatus().equalsIgnoreCase(TransactionStatusEnum.FULLY_PAID.toString())) {
             bookingResponseInDetail.setFullyPaid(true);
-        }else {
+        } else {
             bookingResponseInDetail.setFullyPaid(false);
         }
         if (task != null && task.getAccount() != null) {

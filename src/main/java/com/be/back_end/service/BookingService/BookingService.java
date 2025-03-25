@@ -30,6 +30,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,6 +41,8 @@ import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class BookingService implements IBookingService {
@@ -121,19 +124,7 @@ public class BookingService implements IBookingService {
         String status = booking.getStatus().toString();
         String paymentUrl;
         try {
-            if (status.equalsIgnoreCase(BookingEnums.COMPLETED.toString())) {
-                BigDecimal totalPrice = booking.getTotal_price() != null ? booking.getTotal_price() : BigDecimal.ZERO;
-                BigDecimal depositAmount = booking.getDepositAmount() != null ? booking.getDepositAmount() : BigDecimal.ZERO;
-                BigDecimal remainingBalance = totalPrice.subtract(depositAmount);
-                paymentUrl = vnPayUtils.generatePaymentUrlWithBookingId(
-                        remainingBalance.toString(),
-                        booking.getTitle(),
-                        TransactionStatusEnum.FULLY_PAID.toString(),
-                        request,
-                        booking.getCode(),
-                        TransactionStatusEnum.FULLY_PAID
-                );
-            } else if (status.equalsIgnoreCase(BookingEnums.UNPAID.toString())) {
+            if (status.equalsIgnoreCase(BookingEnums.UNPAID.toString())) {
                 paymentUrl = vnPayUtils.generatePaymentUrlWithBookingId(
                         booking.getDepositAmount() != null
                                 ? booking.getDepositAmount().toString()
@@ -274,22 +265,29 @@ public class BookingService implements IBookingService {
     @Override
     public PaginatedResponseDTO<BookingResponse> getAllBookings(
             int page,
-            int size) {
-        RoleEnums currentRole= accountUtils.getCurrentAccount().getRole();
-
-        Pageable pageable = PageRequest.of(page - 1, size);
-        Page<Bookings> bookingsPage;
-        if(currentRole.equals(RoleEnums.CUSTOMER)){
-            bookingsPage=bookingRepository.findAllByAccount(accountUtils.getCurrentAccount(),pageable);
-
-        }else{
-        bookingsPage = bookingRepository.findAll(pageable);}
-        List<BookingResponse> bookingResponseList = new ArrayList<>();
-        for (Bookings booking : bookingsPage.getContent()) {
-            String designerName = taskRepository.findByBookingId(booking.getId())
-                    .map(task -> task.getAccount().getName())
-                    .orElse(null);
-
+            int size,
+            String sortBy,
+            String direction) {
+        RoleEnums currentRole = accountUtils.getCurrentAccount().getRole();
+        String sortField = (sortBy == null || sortBy.trim().isEmpty()) ? "dateCreated" : sortBy;
+        Sort.Direction sortDirection = (direction == null || direction.trim().isEmpty()) ?
+                Sort.Direction.ASC : Sort.Direction.fromString(direction);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(sortDirection, sortField));
+        Page<Bookings> bookingsPage = currentRole.equals(RoleEnums.CUSTOMER) ?
+                bookingRepository.findAllByAccount(accountUtils.getCurrentAccount(), pageable) :
+                bookingRepository.findAll(pageable);
+        List<String> bookingIds = bookingsPage.getContent().stream()
+                .map(Bookings::getId)
+                .collect(Collectors.toList());
+        List<Task> tasks = taskRepository.findByBookingIdIn(bookingIds);
+        Map<String, String> designerMap = tasks.stream()
+                .collect(Collectors.toMap(
+                        task -> task.getBooking().getId(),
+                        task -> task.getAccount().getName(),
+                        (existing, replacement) -> existing));
+        List<BookingResponse> bookingResponseList = bookingsPage.getContent().stream()
+                .map(booking->
+        {
             BookingResponse response = new BookingResponse();
             response.setId(booking.getId());
             response.setTitle(booking.getTitle());
@@ -302,21 +300,20 @@ public class BookingService implements IBookingService {
             response.setDepositAmount(booking.getDepositAmount());
             response.setTotalPrice(booking.getTotal_price());
             response.setCode(booking.getCode());
-            response.setAssignedDesigner(designerName);
-            bookingResponseList.add(response);
-        }
+            response.setAssignedDesigner(designerMap.get(booking.getId()));
+            return response;
+        }).collect(Collectors.toList());
         PaginatedResponseDTO<BookingResponse> response = new PaginatedResponseDTO<>();
         response.setContent(bookingResponseList);
         response.setPageSize(bookingsPage.getSize());
         response.setPageNumber(bookingsPage.getNumber());
         response.setTotalPages(bookingsPage.getTotalPages());
         response.setTotalElements(bookingsPage.getTotalElements());
-
         return response;
     }
 
 
-    @Scheduled(cron = "*/10 * * * * ?")
+    @Scheduled(cron = "0 0 0 * * ?")
     public void markCompletedBookings() {
         List<Bookings> bookings = bookingRepository.findByStatusNotAndEndDateBefore(
                 BookingEnums.COMPLETED, LocalDateTime.now()
