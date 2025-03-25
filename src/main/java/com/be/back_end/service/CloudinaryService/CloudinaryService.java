@@ -23,11 +23,20 @@ public class CloudinaryService implements ICloudinaryService{
 
     @Override
     public String uploadFile(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new IllegalArgumentException("File cannot be null or empty");
+        }
+
+        if (file.getSize() > 10_485_760) {
+            throw new IllegalArgumentException("File size exceeds 10MB limit");
+        }
+
         try {
-            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            Map<String, Object> uploadResult = cloudinary.uploader()
+                    .upload(file.getBytes(), ObjectUtils.emptyMap());
             return uploadResult.get("url").toString();
         } catch (IOException e) {
-            throw new RuntimeException("Failed to upload file to Cloudinary: " + e.getMessage(), e);
+            throw new RuntimeException("File upload failed: " + e.getMessage());
         }
     }
 
@@ -38,9 +47,9 @@ public class CloudinaryService implements ICloudinaryService{
             Map<String, Object> uploadResult = cloudinary.uploader().upload(
                     file.getBytes(),
                     ObjectUtils.asMap(
-                            "folder", "zip_folder",   // Store in "zip_folder"
-                            "resource_type", "raw",   // Ensure ZIP file compatibility
-                            "format", "zip"           // Force ZIP extension in URL
+                            "folder", "zip_folder",
+                            "resource_type", "raw",
+                            "format", "zip"
                     )
             );
             return uploadResult.get("url").toString();

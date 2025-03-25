@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -45,4 +46,7 @@ public interface TaskRepository extends JpaRepository<Task,String> {
     Page<Task> findByBooking_startDateBetweenAndAccount_NameContainingIgnoreCaseAndTaskStatus(
             LocalDate startDate, LocalDate endDate, String designerName, String taskStatus, Pageable pageable);
     Optional<Task> findByBookingId(String bookingId);
+
+
+    List<Task> findByBookingIdIn(List<String> bookingIds);
 }

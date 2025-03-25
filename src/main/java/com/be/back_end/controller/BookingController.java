@@ -92,7 +92,9 @@ public class BookingController {
     @GetMapping
     public ResponseEntity<?> getAllBookings(
             @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "10") int size) {
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false, defaultValue = "ASC") String direction) {
         if (page < 1 || size <= 0) {
             ErrorResponse errorResponse = new ErrorResponse(
                     400,
@@ -101,7 +103,7 @@ public class BookingController {
             );
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
-        PaginatedResponseDTO<BookingResponse> paginatedBookings = bookingService.getAllBookings(page, size);
+        PaginatedResponseDTO<BookingResponse> paginatedBookings = bookingService.getAllBookings(page, size,sortBy,direction);
         if (paginatedBookings.getContent().isEmpty()) {
             ApiResponse<?> apiResponse = new ApiResponse<>(200, paginatedBookings, "No bookings found");
             return ResponseEntity.status(HttpStatus.OK).body(apiResponse);
