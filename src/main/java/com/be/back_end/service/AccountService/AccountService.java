@@ -301,7 +301,7 @@ public class AccountService implements IAccountService{
         account.setAddress(request.getAddress());
         account.setRole(request.getRole());
         account.setDateOfBirth(request.getDateOfBirth());
-        account.setStatus(ActivationEnums.INACTIVE);
+        account.setStatus(ActivationEnums.ACTIVE);
         account.setCreatedAt(now);
         account.setUpdatedAt(now);
         return account;
